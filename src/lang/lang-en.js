@@ -1,0 +1,46 @@
+let enConfig = {
+    login: {
+        welcome: 'Welcome Back!',
+        login: 'Login',
+        register: 'Register',
+        forgetPassword: 'Forget Password',
+        email: 'Email',
+        password: 'Password',
+        rememberMe: 'Remember Me',
+        loginSuccess: 'Login Success',
+        usernameEtc: 'Username or Email',
+        alreadyHaveAccount: 'I already have an account',
+        createAccount: 'Create new account',
+        redirect: 'You will be redirected to the home page in 3 seconds',
+        goToHome: 'Homepage',
+    },
+    common: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        delete: 'Delete',
+        edit: 'Edit',
+        add: 'Add',
+        search: 'Search',
+        reset: 'Reset',
+        save: 'Save',
+        close: 'Close',
+        back: 'Back',
+        next: 'Next',
+        previous: 'Previous',
+        finish: 'Finish',
+        skip: 'Skip',
+        previousStep: 'Previous Step',
+        nextStep: 'Next Step',
+        finishStep: 'Finish Step',
+        skipStep: 'Skip Step',
+        skipAll: 'Skip All',
+        finishAll: 'Finish All',
+        darkMode: 'Dark Mode',
+        lightMode: 'Light Mode',
+        followSystem: 'Follow System',
+        theme: 'Theme',
+        language: 'Language'
+    }
+}
+
+export default enConfig;
