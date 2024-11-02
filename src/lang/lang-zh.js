@@ -1,10 +1,21 @@
 let cnConfig = {
     login: {
-        welcome: '欢迎回来',
-        register: '注册',
+        welcome: '欢迎回来！',
         login: '登录',
+        register: '注册',
+        forgetPassword: '忘记密码',
+        email: '邮箱',
+        password: '密码',
+        rememberMe: '记住我',
+        loginSuccess: '登录成功',
+        usernameEtc: '用户名或邮箱',
+        alreadyHaveAccount: '我已经有一个账户',
+        createAccount: '创建新账户',
+        redirect: '您将在 3 秒后被重定向到主页',
+        goToHome: '主页',
     },
     common: {
+        error: '错误',
         confirm: '确认',
         cancel: '取消',
         delete: '删除',

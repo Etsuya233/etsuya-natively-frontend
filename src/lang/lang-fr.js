@@ -1,10 +1,21 @@
 let frConfig = {
     login: {
+        welcome: 'Bienvenue !',
         login: 'Connexion',
-        welcome: 'Content de te revoir',
-        register: 'Enregistrer',
+        register: 'S\'inscrire',
+        forgetPassword: 'Mot de passe oublié',
+        email: 'Email',
+        password: 'Mot de passe',
+        rememberMe: 'Se souvenir de moi',
+        loginSuccess: 'Connexion réussie',
+        usernameEtc: 'Nom d\'utilisateur ou Email',
+        alreadyHaveAccount: 'J\'ai déjà un compte',
+        createAccount: 'Créer un nouveau compte',
+        redirect: 'Vous serez redirigé vers la page d\'accueil dans 3 secondes',
+        goToHome: 'Page d\'accueil',
     },
     common: {
+        error: 'Erreur',
         confirm: 'Confirmer',
         cancel: 'Annuler',
         delete: 'Supprimer',

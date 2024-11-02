@@ -15,6 +15,7 @@ let enConfig = {
         goToHome: 'Homepage',
     },
     common: {
+        error: 'error',
         confirm: 'Confirm',
         cancel: 'Cancel',
         delete: 'Delete',

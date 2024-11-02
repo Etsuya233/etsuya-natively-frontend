@@ -7,6 +7,7 @@ import nativelyTheme from "@/assets/nativelyTheme.js";
 import router from './router/router.js';
 import pinia from "@/stores/pinia.js";
 import i18n from '@/lang/i18n.js';
+import ToastService from 'primevue/toastservice';
 
 const app = createApp(App)
 app.use(i18n);
@@ -20,5 +21,6 @@ app.use(PrimeVue, {
         }
     }
 });
+app.use(ToastService);
 
 app.mount('#app')

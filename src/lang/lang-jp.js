@@ -1,16 +1,21 @@
 let jpConfig = {
     login: {
-        welcome: 'ようこそ',
-        register: 'レジスター',
+        welcome: 'お帰りなさい！',
         login: 'ログイン',
-        usernameEtc: 'ユーザー名 / メールアドレス',
-        alreadyHaveAccount: 'すでにアカウントを持っています',
-        createNewAccount: '新しいアカウントを作成',
+        register: '登録',
+        forgetPassword: 'パスワードを忘れた',
+        email: 'メール',
+        password: 'パスワード',
+        rememberMe: 'ログイン状態を保持する',
         loginSuccess: 'ログイン成功',
+        usernameEtc: 'ユーザー名またはメール',
+        alreadyHaveAccount: 'すでにアカウントを持っています',
+        createAccount: '新しいアカウントを作成',
         redirect: '3秒後にホームページにリダイレクトされます',
-        goToHome: 'ホームページへ'
+        goToHome: 'ホームページ'
     },
     common: {
+        error: 'エラー',
         confirm: '確認',
         cancel: 'キャンセル',
         delete: '削除',

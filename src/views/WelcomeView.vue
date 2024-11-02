@@ -1,18 +1,20 @@
 <template>
     <div class="flex flex-col p-4 gap-4">
-        <div class="flex flex-col gap-4 mt-8">
+        <div class="flex flex-col gap-4 mt-8 md:items-center md:mt-12">
             <Logo size="lg" />
-            <div class="font-bold text-5xl flex items-center">
+            <div class="font-bold text-5xl flex items-center md:text-7xl md:mt-12">
                 <transition name="fade" mode="out-in">
                     <p v-if="welcomeText" :key="welcomeText">{{ welcomeText }}</p>
                 </transition>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-2 *:w-full fixed bottom-0 left-0 right-0 p-4">
-            <Button icon="pi pi-language" :label="t('common.language')" severity="secondary" @click="languageModal = true" />
-            <Button icon="pi pi-sun" :label="t('common.theme')" severity="secondary" @click="themeModal = true" />
-            <Button icon="pi pi-user" class="col-span-2" :label="t('login.login')" @click="router.push({ name: 'Login'})" />
-            <Button icon="pi pi-user-plus" class="col-span-2" :label="t('login.register')" />
+        <div class="fixed bottom-0 left-0 right-0 flex justify-center">
+            <div class="grid grid-cols-2 gap-2 w-full *:w-full p-4 max-w-screen-md">
+                <Button icon="pi pi-language" :label="t('common.language')" severity="secondary" @click="languageModal = true" />
+                <Button icon="pi pi-sun" :label="t('common.theme')" severity="secondary" @click="themeModal = true" />
+                <Button icon="pi pi-user" class="col-span-2" :label="t('login.login')" @click="router.push({ name: 'Login'})" />
+                <Button icon="pi pi-user-plus" class="col-span-2" :label="t('login.register')" />
+            </div>
         </div>
         <Dialog class="min-w-80" v-model:visible="languageModal" modal :header="t('common.language')">
             <Select class="mb-4 w-full" v-model="language" :options="languages" optionLabel="name" optionValue="value"/>
@@ -109,7 +111,7 @@ let interval;
 
 //life cycle
 onMounted(() => {
-    interval = setInterval(changeMessage, 5000);
+    interval = setInterval(changeMessage, 3500);
 });
 onBeforeUnmount(() => {
     clearInterval(interval);
