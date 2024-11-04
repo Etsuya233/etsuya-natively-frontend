@@ -22,8 +22,14 @@
                     <div class="flex gap-2">
                         <Button class="w-full" :label="t('common.next')" @click="goNext" />
                     </div>
-                    <div class="text-center" v-if="progress !== 3">
-                        <RouterLink class="text-surface-500" :to="{ name: 'Login'}">{{t('login.createAccount')}}</RouterLink>
+                    <div class="text-center">
+                        <RouterLink class="text-surface-500" :to="{ name: 'Register'}">{{t('login.createAccount')}}</RouterLink>
+                    </div>
+                    <Divider />
+                    <div class="flex gap-2 justify-center">
+                        <Button severity="secondary" icon="pi pi-google" />
+                        <Button severity="secondary" icon="pi pi-twitter" />
+                        <Button severity="secondary" icon="pi pi-github" />
                     </div>
                 </div>
                 <div v-else-if="progress === 2 || progress === 3" class="flex flex-col gap-4">
@@ -40,14 +46,6 @@
                         <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
                         <Button class="w-full" :label="t('common.next')" :loading="loginLoading" @click="goNext" />
                     </div>
-                    <Card v-if="errorMsg" class="!bg-red-50 dark:!bg-red-950">
-                        <template #title><div class="text-red-600 dark:text-red-50 font-bold">{{t('common.error')}}</div></template>
-                        <template #content>
-                            <p class="m-0">
-                                {{errorMsg}}
-                            </p>
-                        </template>
-                    </Card>
                 </div>
                 <div v-else class="flex flex-col gap-4">
                     <div class="font-bold text-2xl">{{t('login.loginSuccess')}}</div>
@@ -76,11 +74,11 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
-import Card from 'primevue/card';
 import {ref, toRaw} from "vue";
 import {apiHello, apiLogin} from "@/api/user.js";
-import { useToast } from 'primevue/usetoast';
+import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
+import Divider from 'primevue/divider';
 
 const toast = useToast();
 const toastStore = useToastStore();
@@ -93,7 +91,6 @@ let userInfo = ref({
 })
 
 //login
-let errorMsg = ref('');
 const login = async () => {
     apiLogin(toRaw(userInfo.value)).then((res) => {
         console.log(res);
@@ -102,7 +99,6 @@ const login = async () => {
         localStorage.setItem('refreshToken', res.refreshToken);
     }).catch((err) => {
         progress.value = 2;
-        errorMsg.value = err.message;
     }).finally(() => {
         loginLoading.value = false;
     })
@@ -112,10 +108,8 @@ const login = async () => {
 let progress = ref(1);
 const goBack = () => {
     progress.value = Math.max(1, progress.value - 1);
-    errorMsg.value = '';
 }
 const goNext = () => {
-    errorMsg.value = '';
     if(progress.value + 1 === 3){
         loginLoading.value = true;
         login();

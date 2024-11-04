@@ -26,3 +26,19 @@ export const apiHello = () => {
         method: 'GET',
     })
 }
+
+export const apiUsernameUnique = (data) => {
+    return request({
+        url: `${baseUrl}/username`,
+        method: 'POST',
+        data: data
+    })
+}
+
+export const apiRegister = (data) => {
+    return request({
+        url: `${baseUrl}/register`,
+        method: 'POST',
+        data: data
+    })
+}

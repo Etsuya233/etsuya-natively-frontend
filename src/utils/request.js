@@ -30,6 +30,9 @@ const request = (options) => {
             'Accept-Language': language,
         };
     }
+    if(!options.headers['Content-Type']) {
+        options.headers['Content-Type'] = 'application/json';
+    }
     //发送请求
     return new Promise((resolve, reject) => {
         axioss.request(options).then((res) => {

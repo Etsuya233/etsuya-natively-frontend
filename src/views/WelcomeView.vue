@@ -75,31 +75,7 @@ const welcomeMessages = [
     "欢迎",               // Chinese (Simplified)
     "ようこそ",           // Japanese
     "환영합니다",         // Korean
-    "Добро пожаловать",   // Russian
-    "Bienvenido",         // Spanish
-    "Willkommen",         // German
     "Bienvenue",          // French
-    "Benvenuto",          // Italian
-    "Bem-vindo",          // Portuguese
-    "स्वागत हे",           // Hindi
-    "Hoş geldiniz",       // Turkish
-    "Καλώς ήρθατε",       // Greek
-    "Witamy",             // Polish
-    "Welkom",             // Dutch
-    "Välkommen",          // Swedish
-    "Velkommen",          // Norwegian
-    "Tervetuloa",         // Finnish
-    "Добре дошли",        // Bulgarian
-    "Üdvözöljük",         // Hungarian
-    "مرحبا",            // Arabic (مرحبا)
-    "ברוך הבא",           // Hebrew
-    "Karibu",             // Swahili
-    "Mabuhay",            // Filipino
-    "வணக்கம்",            // Tamil
-    "Selamat datang",     // Indonesian
-    "Chào mừng",          // Vietnamese
-    "Bine ai venit",      // Romanian
-    "Добродошли"          // Serbian
 ];
 let welcomeIndex = 0;
 let welcomeText = ref(welcomeMessages[0]);

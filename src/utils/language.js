@@ -7,22 +7,17 @@ export const getCurrentLanguage = () => {
             localStorage.language = 'en';
         }
         return lang;
-    } else if(language){
-        if(!language.startsWith('zh')){
-            language = language.substring(0, 2);
-        }
-        return language;
     } else {
-        localStorage.language = 'en';
-        return 'en';
+        return language;
     }
 }
 
 export const languageData = [
     { name: '🇺🇸 English', value: 'en'},
     { name: '🇯🇵 日本語', value: 'ja'},
-    { name: '🇨🇳 简体中文', value: 'zh-CN'},
-    { name: '🇫🇷 Français', value: 'fr'}
+    { name: '🇨🇳 简体中文', value: 'zh'},
+    { name: '🇫🇷 Français', value: 'fr'},
+    { name: '🇰🇷 한국인', value: 'ko'}
 ];
 
 export const changeLanguage = (language) => {
