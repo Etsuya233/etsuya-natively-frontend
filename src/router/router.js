@@ -1,4 +1,4 @@
-import { createWebHashHistory, createRouter } from 'vue-router'
+import {createWebHashHistory, createRouter, createWebHistory} from 'vue-router'
 
 const routes = [
     {
@@ -20,11 +20,21 @@ const routes = [
         path: '/register',
         name: 'Register',
         component: () => import('@/views/RegisterView.vue')
+    },
+    {
+        path: '/oauth/:owner',
+        name: 'OAuth',
+        component: () => import('@/views/OAuth2View.vue')
+    },
+    {
+        path: '/:pathMatch(.*)',
+        name: 'NotFound',
+        component: () => import('@/views/NotFoundView.vue')
     }
 ]
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes,
 })
 

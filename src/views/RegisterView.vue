@@ -12,6 +12,24 @@
                 <div v-if="progress === 1" class="flex flex-col gap-4">
                     <InputGroup>
                         <InputGroupAddon>
+                            <i class="pi pi-envelope"></i>
+                        </InputGroupAddon>
+                        <FloatLabel variant="in">
+                            <InputText id="email" v-model="userInfo.email" />
+                            <label for="email">{{t('login.email')}}</label>
+                        </FloatLabel>
+                    </InputGroup>
+                    <Transition name="fade" mode="out-in">
+                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
+                    </Transition>
+                    <div class="flex gap-2">
+                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
+                    </div>
+                </div>
+                <div v-else-if="progress === 2" class="flex flex-col gap-4">
+                    <InputGroup>
+                        <InputGroupAddon>
                             <i class="pi pi-user"></i>
                         </InputGroupAddon>
                         <InputGroupAddon>
@@ -37,13 +55,9 @@
                         </div>
                     </Message>
                     <Divider />
-                    <div class="flex gap-2 justify-center">
-                        <Button severity="secondary" icon="pi pi-google" />
-                        <Button severity="secondary" icon="pi pi-twitter" />
-                        <Button severity="secondary" icon="pi pi-github" />
-                    </div>
+                    <ThirdPartyLogin />
                 </div>
-                <div v-else-if="progress === 2" class="flex flex-col gap-4">
+                <div v-else-if="progress === 3" class="flex flex-col gap-4">
                     <InputGroup>
                         <InputGroupAddon>
                             <i class="pi pi-user"></i>
@@ -66,7 +80,7 @@
                         </div>
                     </Message>
                 </div>
-                <div v-else-if="progress === 3" class="flex flex-col gap-4">
+                <div v-else-if="progress === 4" class="flex flex-col gap-4">
                     <InputGroup>
                         <InputGroupAddon>
                             <i class="pi pi-lock"></i>
@@ -89,7 +103,7 @@
                         </div>
                     </Message>
                 </div>
-                <div v-else-if="progress === 4" class="flex flex-col gap-4">
+                <div v-else-if="progress === 5" class="flex flex-col gap-4">
                     <InputGroup>
                         <InputGroupAddon>
                             <i class="pi pi-lock"></i>
@@ -111,24 +125,6 @@
                             {{t('login.rePasswordRule')}}
                         </div>
                     </Message>
-                </div>
-                <div v-else-if="progress === 5" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-envelope"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <InputText id="email" v-model="userInfo.email" />
-                            <label for="email">{{t('login.email')}} &nbsp; ({{t('common.optional')}})</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
                 </div>
                 <div v-else-if="progress === 6" class="flex flex-col gap-4">
                     <InputGroup>
@@ -180,7 +176,7 @@
                         </div>
                     </Message>
                 </div>
-                <div v-else class="flex flex-col gap-4">
+                <div v-else-if="progress === 9" class="flex flex-col gap-4">
                     <div class="font-bold text-2xl">{{t('login.registerSuccess')}}</div>
                     <div class="text-surface-600">{{t('login.redirect')}}</div>
                     <div class="flex">
@@ -226,7 +222,7 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
-import {computed, ref, toRaw} from "vue";
+import {computed, onBeforeMount, onMounted, ref, toRaw} from "vue";
 import {apiLogin, apiRegister, apiUsernameUnique} from "@/api/user.js";
 import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
@@ -239,15 +235,19 @@ import {apiGetLanguages, apiGetLocations} from "@/api/general.js";
 import Dialog from "primevue/dialog";
 import Rating from "primevue/rating";
 import Checkbox from 'primevue/checkbox';
+import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
+import {useRoute, useRouter} from "vue-router";
 
 const toast = useToast();
 const toastStore = useToastStore();
 const { t, locale, availableLocales } = useI18n();
+const route = useRoute();
+const router = useRouter();
 
 //register info
 let userInfo = ref({
     username: '', nickname: '', email: '', password: '', rePassword: '', gender: '', location: '',
-    language: []
+    language: [], owner: null, ownerId: null
 })
 
 //locations
@@ -322,7 +322,11 @@ const goBack = () => {
 const goNext = async () => {
     nextLoading.value = true;
     errMsg.value = '';
-    if(progress.value === 1){ //username
+    if(progress.value === 1){
+        if(!emailRegex.test(userInfo.value.email)){
+            errMsg.value = t('login.emailContentLimit');
+        }
+    } else if(progress.value === 2){ //username
         if(userInfo.value.username.length < 6 || userInfo.value.username.length > 20){
             errMsg.value = t('login.usernameDigitLimit');
         } else if(!usernameRegex.test(userInfo.value.username)){
@@ -335,21 +339,17 @@ const goNext = async () => {
                 errMsg.value = t('common.error');
             }
         }
-    } else if(progress.value === 2){
+    } else if(progress.value === 3){
         if(userInfo.value.nickname.length < 6 || userInfo.value.nickname.length > 64){
             errMsg.value = t('login.nicknameDigitLimit');
         } else if(!nicknameRegex.test(userInfo.value.nickname)){
             errMsg.value = t('login.nicknameContentLimit');
         }
-    } else if(progress.value === 3){
+    } else if(progress.value === 4){
         if(userInfo.value.password.length < 6 || userInfo.value.password.length > 32){
             errMsg.value = t('login.passwordDigitLimit');
         } else if(!passwordRegex.test(userInfo.value.password)){
             errMsg.value = t('login.passwordContentLimit');
-        }
-    } else if(progress.value === 4){
-        if(userInfo.value.password !== userInfo.value.rePassword){
-            errMsg.value = t('login.rePasswordContentLimit')
         }
     } else if(progress.value === 5){
         if(location.value.length < 5){
@@ -360,8 +360,8 @@ const goNext = async () => {
             }).catch(err => console.log(err))
                 .finally(() => locationLoading.value = false);
         }
-        if(userInfo.value.email !== '' && !emailRegex.test(userInfo.value.email)){
-            errMsg.value = t('login.emailContentLimit');
+        if(userInfo.value.password !== userInfo.value.rePassword){
+            errMsg.value = t('login.rePasswordContentLimit')
         }
     } else if(progress.value === 6){
         if(lang.value.length < 2){
@@ -395,6 +395,26 @@ const goNext = async () => {
     }
     progress.value = Math.min(9, progress.value + 1)
 }
+
+//lifespan
+onBeforeMount(() => {
+    if(route.query.oauth2){
+        userInfo.value.email = route.query.email;
+        userInfo.value.nickname = route.query.nickname;
+        userInfo.value.owner = route.query.owner;
+        userInfo.value.ownerId = route.query.ownerId;
+    }
+})
+
+onMounted(() => {
+    if(route.query.oauth2){
+        toastStore.add({
+            severity: 'success',
+            summary: t('login.continueYourRegistration'),
+            life: 3000
+        })
+    }
+})
 
 </script>
 

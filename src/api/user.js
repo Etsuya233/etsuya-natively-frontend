@@ -42,3 +42,11 @@ export const apiRegister = (data) => {
         data: data
     })
 }
+
+export const apiOAuth2 = (data) => {
+    return request({
+        url: `${baseUrl}/oauth2`,
+        method: 'POST',
+        data: data
+    })
+}

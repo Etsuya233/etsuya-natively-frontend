@@ -38,7 +38,8 @@ let enConfig = {
         proficiency: 'Proficiency',
         native: 'Native Speaker',
         languageContentLimit: 'You must add at least one language.',
-        registerSuccess: 'Registration Successful!'
+        registerSuccess: 'Registration Successful!',
+        continueYourRegistration: 'Continue your registration',
     },
     common: {
         error: 'Error',
@@ -68,7 +69,9 @@ let enConfig = {
         theme: 'Theme',
         language: 'Language',
         rule: 'Rule',
-        optional: 'Optional'
+        optional: 'Optional',
+        loading: 'Loading',
+        loadingWithDots: 'Loading...',
     }
 }
 

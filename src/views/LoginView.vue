@@ -26,11 +26,7 @@
                         <RouterLink class="text-surface-500" :to="{ name: 'Register'}">{{t('login.createAccount')}}</RouterLink>
                     </div>
                     <Divider />
-                    <div class="flex gap-2 justify-center">
-                        <Button severity="secondary" icon="pi pi-google" />
-                        <Button severity="secondary" icon="pi pi-twitter" />
-                        <Button severity="secondary" icon="pi pi-github" />
-                    </div>
+                    <ThirdPartyLogin />
                 </div>
                 <div v-else-if="progress === 2 || progress === 3" class="flex flex-col gap-4">
                     <InputGroup>
@@ -74,13 +70,16 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
-import {ref, toRaw} from "vue";
+import {onBeforeMount, onMounted, ref, toRaw} from "vue";
 import {apiHello, apiLogin} from "@/api/user.js";
 import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
+import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
+import {useRoute} from "vue-router";
 
 const toast = useToast();
+const route = useRoute();
 const toastStore = useToastStore();
 const { t, locale, availableLocales } = useI18n();
 
@@ -129,6 +128,12 @@ const hello = () => {
     })
 }
 
+//onMounted
+onBeforeMount(() => {
+    if(route.query.completed){
+        progress.value = 4;
+    }
+})
 
 </script>
 
