@@ -35,6 +35,14 @@ export const apiUsernameUnique = (data) => {
     })
 }
 
+export const apiEmailUnique = (data) => {
+    return request({
+        url: `${baseUrl}/email`,
+        method: 'POST',
+        data: data
+    })
+}
+
 export const apiRegister = (data) => {
     return request({
         url: `${baseUrl}/register`,

@@ -23,9 +23,10 @@
                         <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
                     </Transition>
                     <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
                         <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
                     </div>
+                    <Divider />
+                    <ThirdPartyLogin />
                 </div>
                 <div v-else-if="progress === 2" class="flex flex-col gap-4">
                     <InputGroup>
@@ -44,6 +45,7 @@
                         <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
                     </Transition>
                     <div class="flex gap-2">
+                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
                         <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
                     </div>
                     <div class="text-center">
@@ -54,8 +56,6 @@
                             {{t('login.usernameRule')}}
                         </div>
                     </Message>
-                    <Divider />
-                    <ThirdPartyLogin />
                 </div>
                 <div v-else-if="progress === 3" class="flex flex-col gap-4">
                     <InputGroup>
@@ -223,7 +223,7 @@ import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
 import {computed, onBeforeMount, onMounted, ref, toRaw} from "vue";
-import {apiLogin, apiRegister, apiUsernameUnique} from "@/api/user.js";
+import {apiEmailUnique, apiLogin, apiRegister, apiUsernameUnique} from "@/api/user.js";
 import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
@@ -325,6 +325,13 @@ const goNext = async () => {
     if(progress.value === 1){
         if(!emailRegex.test(userInfo.value.email)){
             errMsg.value = t('login.emailContentLimit');
+        } else {
+            try {
+                let res = await apiEmailUnique(userInfo.value.email);
+                if(!res) errMsg.value = t('login.emailTaken');
+            } catch (e){
+                errMsg.value = t('common.error');
+            }
         }
     } else if(progress.value === 2){ //username
         if(userInfo.value.username.length < 6 || userInfo.value.username.length > 20){
@@ -333,7 +340,7 @@ const goNext = async () => {
             errMsg.value = t('login.usernameContentLimit');
         } else {
             try {
-                let res = await apiUsernameUnique(userInfo.value.username).catch();
+                let res = await apiUsernameUnique(userInfo.value.username);
                 if(!res) errMsg.value = t('login.usernameTaken');
             } catch (err){
                 errMsg.value = t('common.error');

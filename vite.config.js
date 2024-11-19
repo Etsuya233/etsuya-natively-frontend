@@ -20,6 +20,12 @@ export default defineConfig({
         changeOrigin: true,  // 如果接口跨域，需要设置为 true
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, '')  // 可选：重写路径
+      },
+      '/data': {
+        target: 'http://localhost:9000',
+        changeOrigin: true,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/data/, '')
       }
     }
   }

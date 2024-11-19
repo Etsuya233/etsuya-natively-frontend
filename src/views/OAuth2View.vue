@@ -27,22 +27,26 @@ const { t, locale, availableLocales } = useI18n();
 const login = async () => {
     const code = route.query.code;
     const owner = route.params.owner;
-    let res = await apiOAuth2({
-        owner: owner,
-        code: code,
-    });
-    if(res.login){
-        localStorage.setItem('accessToken', res.loginInfo.accessToken);
-        localStorage.setItem('refreshToken', res.loginInfo.refreshToken);
-        await router.push({name: 'Login', query: { completed: 'true'}});
-    } else {
-        await router.push({name: 'Register', query: {
-                oauth2: 'true',
-                email: res.registerInfo.email,
-                nickname: res.registerInfo.nickname,
-                owner: res.registerInfo.owner,
-                ownerId: res.registerInfo.ownerId
-        }});
+    try {
+        let res = await apiOAuth2({
+            owner: owner,
+            code: code,
+        });
+        if(res.login){
+            localStorage.setItem('accessToken', res.loginInfo.accessToken);
+            localStorage.setItem('refreshToken', res.loginInfo.refreshToken);
+            await router.push({name: 'Login', query: { completed: 'true'}});
+        } else {
+            await router.push({name: 'Register', query: {
+                    oauth2: 'true',
+                    email: res.registerInfo.email,
+                    nickname: res.registerInfo.nickname,
+                    owner: res.registerInfo.owner,
+                    ownerId: res.registerInfo.ownerId
+                }});
+        }
+    } catch (err){
+        await router.push({name: 'Welcome'});
     }
 }
 

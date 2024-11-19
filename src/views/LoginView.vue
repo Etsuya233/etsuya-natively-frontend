@@ -44,8 +44,8 @@
                     </div>
                 </div>
                 <div v-else class="flex flex-col gap-4">
-                    <div class="font-bold text-2xl">{{t('login.loginSuccess')}}</div>
-                    <div class="text-surface-600">{{t('login.redirect')}}</div>
+                    <div class="font-bold text-2xl md:text-center">{{t('login.loginSuccess')}}</div>
+                    <div class="text-surface-600 md:text-center">{{t('login.redirect')}}</div>
                     <div class="flex">
                         <RouterLink class="w-full" :to="{ name: 'Home'}">
                             <Button class="w-full" :label="t('login.goToHome')" />
@@ -76,10 +76,11 @@ import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
 import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const toast = useToast();
 const route = useRoute();
+const router = useRouter();
 const toastStore = useToastStore();
 const { t, locale, availableLocales } = useI18n();
 
@@ -96,6 +97,9 @@ const login = async () => {
         goNext();
         localStorage.setItem('accessToken', res.accessToken);
         localStorage.setItem('refreshToken', res.refreshToken);
+        setTimeout(() => {
+            router.push({ name: 'Home'});
+        }, 3000);
     }).catch((err) => {
         progress.value = 2;
     }).finally(() => {
@@ -123,7 +127,6 @@ const hello = () => {
             severity: 'success',
             summary: 'Hello!',
             detail: res,
-            life: 5000
         })
     })
 }
@@ -132,6 +135,9 @@ const hello = () => {
 onBeforeMount(() => {
     if(route.query.completed){
         progress.value = 4;
+        setTimeout(() => {
+            router.push({ name: 'Home'});
+        }, 3000);
     }
 })
 

@@ -9,11 +9,11 @@ export default {
     fontFamily: {
       'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
       'serif': ['ui-serif', 'Georgia'],
-      'mono': ['ui-monospace', 'SFMono-Regular'],
+      'mono': ['ui-monospace',  'SFMono-Regular', 'Jetbrains Mono', 'Consolas', 'Courier New'],
       'logo': ['Alata']
     },
     extend: {},
   },
-  plugins: [require('tailwindcss-primeui')],
+  plugins: [require('tailwindcss-primeui'), require('@tailwindcss/typography')],
 }
 

@@ -29,6 +29,7 @@ let enConfig = {
         rePasswordRule: 'Please enter your previous password.',
         rePasswordContentLimit: 'Passwords do not match.',
         emailContentLimit: 'Please enter a valid email address.',
+        emailTaken: 'Email is already taken.',
         locationOrCountry: 'Location or Country',
         locationContentLimit: 'Please select a location or country.',
         chooseLanguage: 'Choose the languages you are familiar with and would like to learn.',
@@ -72,6 +73,30 @@ let enConfig = {
         optional: 'Optional',
         loading: 'Loading',
         loadingWithDots: 'Loading...',
+    },
+    post: {
+        post: 'Post',
+        postPlaceholder: 'What is happening!?',
+        titleNotEmpty: 'Title can not be empty when the post\'s type is Question.',
+        titleLengthLimit: 'Title can only contain no more than 255 chars.',
+        contentLengthLimit: 'Content can only contain no more than 65535 chars.',
+        titleRule: '255 chars describe simply and shortly',
+        typeRule: 'if normal the title optional then if question title must exists',
+        contentRule: '65535 chars markdown',
+        question: 'Question',
+        addAComment: 'Add a comment',
+        comment: 'Comment',
+        comments: 'Comments',
+        commentNotBlank: 'Comment should not be blank',
+        commentContentLimit: 'Comment content limit',
+        addImage: 'Images',
+        addVoice: 'Voices',
+        hasMore: 'more...',
+    },
+    voiceRecorder: {
+        start: 'Start Recording',
+        stop: 'Stop recording',
+        limit: 'Max length is 30s, if over then stop automatically. Only 1 voice is allowed. If exception then unplug and plug again',
     }
 }
 

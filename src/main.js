@@ -8,8 +8,10 @@ import router from './router/router.js';
 import pinia from "@/stores/pinia.js";
 import i18n from '@/lang/i18n.js';
 import ToastService from 'primevue/toastservice';
+import Tooltip from 'primevue/tooltip';
 
 const app = createApp(App)
+
 app.use(i18n);
 app.use(router);
 app.use(pinia);
@@ -22,5 +24,6 @@ app.use(PrimeVue, {
     }
 });
 app.use(ToastService);
+app.directive('tooltip', Tooltip);
 
 app.mount('#app')
