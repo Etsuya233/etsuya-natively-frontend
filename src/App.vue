@@ -4,11 +4,24 @@
 </template>
 
 <script setup>
-import {themeChange, detectTheme} from "@/utils/theme.js";
+import {detectTheme, themeChange} from "@/utils/theme.js";
 import Toast from 'primevue/toast';
+import {onBeforeMount} from "vue";
+import {useUserStore} from "@/stores/userStore.js";
+import {apiGetCurrent} from "@/api/user.js";
+import {useChatStore} from "@/stores/chatStore.js";
 
 let currentTheme = detectTheme();
 themeChange(currentTheme);
+
+const userStore = useUserStore();
+const chatStore = useChatStore();
+
+onBeforeMount(async () => {
+    let res = await apiGetCurrent();
+    userStore.userInfo = res;
+    chatStore.connect();
+})
 
 </script>
 

@@ -8,8 +8,6 @@ const axioss = axios.create({
     baseURL: '/api',
 });
 
-const toastStore = useToastStore();
-
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const language = getCurrentLanguage();
 
@@ -35,6 +33,7 @@ const request = (options) => {
     }
     //发送请求
     return new Promise((resolve, reject) => {
+        const toastStore = useToastStore();
         axioss.request(options).then((res) => {
             let data = res.data;
             if(data.code === 200){
@@ -43,8 +42,8 @@ const request = (options) => {
                 if(!lock){
                     lock = true;
                     refreshPromise = apiRefreshToken().then((res) => {
-                        localStorage.setItem('accessToken', res.data.data.accessToken);
-                        localStorage.setItem('refreshToken', res.data.data.refreshToken);
+                        localStorage.setItem('accessToken', res.accessToken);
+                        localStorage.setItem('refreshToken', res.refreshToken);
                         request(options)
                             .then((res) => resolve(res))
                             .catch((err) => reject(err));

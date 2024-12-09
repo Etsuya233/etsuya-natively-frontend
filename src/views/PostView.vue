@@ -75,11 +75,13 @@
                 </div>
             </div>
             <div class="flex gap-2 mt-2">
-                <Button icon="pi pi-thumbs-up" :label="postInfo.upvote.toString()" @click="postVote(1)"
+                <Button icon="pi pi-thumbs-up" :label="postInfo.upvote.toString()" @click="vote(postInfo, 1, true)"
                         :severity="getButtonSeverity(postInfo.vote, 1)" size="small"  />
-                <Button icon="pi pi-thumbs-down" :label="postInfo.downvote.toString()"  @click="postVote(-1)"
+                <Button icon="pi pi-thumbs-down" :label="postInfo.downvote.toString()"  @click="vote(postInfo, -1, true)"
                         :severity="getButtonSeverity(postInfo.vote, -1)" size="small" />
-                <Button class="ml-auto" icon="pi pi-comment" :label="postInfo.commentCount.toString()" severity="secondary" size="small" />
+                <Button icon="pi pi-comment" :label="postInfo.commentCount.toString()" severity="secondary" size="small" />
+                <Button :loading="bookmarkLoading" class="ml-auto" icon="pi pi-bookmark" size="small"
+                        :severity="getButtonSeverity(postInfo.bookmarked, 1)" @click="clickPostBookmark" />
             </div>
         </div>
         <Divider v-if="!postLoading" class="!mt-0 !mb-0" />
@@ -108,43 +110,17 @@
         </div>
         
         <!--        Comments-->
-        <div class="p-4 pt-2 flex flex-col gap-2">
-            <div v-for="item in comment" :key="item.id"
-                 class="w-full bg-white dark:bg-surface-900 border-surface border rounded-lg p-3 flex flex-col">
-                <div class="pb-2 flex w-full">
-                    <div class="h-11 w-11 flex-shrink-0 rounded-full overflow-hidden">
-                        <img class="h-full w-full object-cover" :src="item.avatar" alt="avatar"/>
-                    </div>
-                    <div class="w-0 overflow-clip flex-1">
-                        <div class="pl-3 items-center w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
-                            {{item.nickname}}
-                        </div>
-                        <div class="h-4 pl-3 text-sm w-full text-surface-500">
-                            {{item.createTime}}
-                        </div>
-                    </div>
-                </div>
-<!--                <div class="md:select-text">{{item.content}}</div>-->
-                <div>
-                    <MdRender :markdown="item.content" />
-                </div>
-                <div class="mt-1 mb-1" v-if="item.voice">
-                    <audio controls :src="item.voice.url">
-                        Your browser doesn't support Audio.
-                    </audio>
-                </div>
-                <div class="mt-1 flex flex-wrap gap-2" v-if="item.images && item.images.length > 0">
-                    <div v-for="img in item.images" class="h-24 w-24 border border-surface rounded-lg overflow-hidden">
-                        <Image :preview="true" :src="img.url" class="w-full h-full object-cover"/>
-                    </div>
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <Button icon="pi pi-thumbs-up" :label="item.upvote" :severity="getButtonSeverity(item.vote, 1)" size="small" @click.stop="" />
-                    <Button icon="pi pi-thumbs-down" :label="item.downvote" :severity="getButtonSeverity(item.vote, -1)" size="small" @click.stop="" />
-                    <Button class="ml-auto" icon="pi pi-comment" :label="item.commentCount" severity="secondary" size="small" @click.stop="" />
-                </div>
+        <div class="flex flex-col gap-4 divide-y">
+            <div v-for="item in comment" :key="item.id" class="pt-4 px-4">
+                <PostInfoCard :item="item" :is-post="false" @vote="vote" :show-bookmark="true" @click-bookmark="clickedCommentBookmark" />
             </div>
+            <div class="h-4"></div>
         </div>
+        
+        <Teleport defer to="#aside">
+            <div>Hey!</div>
+        </Teleport>
+    
     </div>
 </template>
 
@@ -154,7 +130,15 @@ import {nextTick, onBeforeMount, onMounted, ref, toRaw} from "vue";
 import EHeader from "@/components/logo/EHeader.vue";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
-import {apiAddComment, apiAddCommentNew, apiCreatePost, apiGetComment, apiGetPost, apiVote} from "@/api/post.js";
+import {
+    apiAddBookmark,
+    apiAddComment,
+    apiAddCommentNew,
+    apiCreatePost,
+    apiGetComment,
+    apiGetPost, apiRemoveBookmark,
+    apiVote
+} from "@/api/post.js";
 import Divider from "primevue/divider";
 import Skeleton from 'primevue/skeleton';
 import EEditor from "@/components/logo/EEditor.vue";
@@ -167,6 +151,7 @@ import ImageUploader from "@/components/ImageUploader.vue";
 import MdRender from "@/components/logo/MdRender.vue";
 import {useScroll} from "@/utils/scroll.js";
 import VoiceRecorder from "@/components/VoiceRecorder.vue";
+import PostInfoCard from "@/components/PostInfoCard.vue";
 
 const {isScrollDown} = useScroll();
 const { t, locale, availableLocales } = useI18n();
@@ -182,7 +167,7 @@ let commentLoading = ref(false);
 let id = ref(null);
 let postInfo = ref({
     "id": 0, "title": '', "content": '', "type": 1,
-    "userId": 0, "nickname": '', "avatar": '',
+    "userId": 0, "nickname": '', "avatar": '', "bookmarked": 0,
     "upvote": 0, "downvote": 0, "commentCount": 0, "createTime": '',
     images: [], voice: null, contentHasMore: false, vote: 0
 });
@@ -201,6 +186,38 @@ let voiceUrl = ref();
 let voiceDialogVisible = ref(false);
 const openVoiceDialog = () => {
     voiceDialogVisible.value = true;
+}
+
+//bookmark
+let bookmarkLoading = ref(false);
+const clickPostBookmark = async () => {
+    bookmarkLoading.value = true;
+    try {
+        if(postInfo.value.bookmarked === 1){
+            let res = await apiRemoveBookmark(id, 1);
+            if(res) postInfo.value.bookmarked = 0;
+        } else {
+            let res = await apiAddBookmark(id, 1);
+            if(res) postInfo.value.bookmarked = 1;
+        }
+    } catch (error) { } finally {
+        bookmarkLoading.value = false;
+    }
+}
+const clickedCommentBookmark = async (obj) => {
+    obj.bookmarkLoading = true;
+    try {
+        if(obj.bookmarked === 1){
+            let res = await apiRemoveBookmark(obj.id, 2);
+            if(res) obj.bookmarked = 0;
+        } else {
+            let res = await apiAddBookmark(obj.id, 2);
+            if(res) obj.bookmarked = 1;
+        }
+    } catch (error) { } finally {
+
+        obj.bookmarkLoading = false;
+    }
 }
 
 
@@ -275,33 +292,43 @@ const addPostCommentNew = async () => {
 }
 
 //vote
-const postVote = async (vote) => {
-    try {
-        let res = await apiVote({
-            id: id.value,
-            type: vote,
-            post: true
-        });
-        console.log(res === true, res === false);
-        if(res){
-            if(vote === 1){
-                if(postInfo.value.vote === -1){
-                    postInfo.value.downvote--;
-                }
-                postInfo.value.upvote++;
-            } else {
-                if(postInfo.value.vote === 1){
-                    postInfo.value.upvote--;
-                }
-                postInfo.value.downvote++;
-            }
-            postInfo.value.vote = vote;
-        }
-    } catch (e) {}
-}
 const getButtonSeverity = (vote, value) => {
     if(vote === value) return "primary";
     else return "secondary";
+}
+const vote = async (post, vote, isPost) => {
+    try {
+        let res = await apiVote({
+            id: post.id,
+            type: vote,
+            post: isPost
+        });
+        if(res){
+            if(vote === 1){
+                if(post.vote === -1){
+                    post.downvote--;
+                    post.vote = 1;
+                } else if(post.vote === 1){
+                    post.upvote--;
+                    post.vote = 0;
+                } else {
+                    post.upvote++;
+                    post.vote = 1;
+                }
+            } else {
+                if(post.vote === 1){
+                    post.upvote--;
+                    post.vote = -1;
+                } else if(post.vote === -1){
+                    post.downvote--;
+                    post.vote = 0;
+                } else {
+                    post.downvote++;
+                    post.vote = -1;
+                }
+            }
+        }
+    } catch (e) {}
 }
 
 //overflow

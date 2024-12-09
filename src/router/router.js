@@ -1,4 +1,4 @@
-import {createWebHashHistory, createRouter, createWebHistory} from 'vue-router'
+import { createWebHashHistory, createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
@@ -9,7 +9,10 @@ const routes = [
             {
                 path: '',
                 name: 'HomeRedirect',
-                redirect: '/home'
+                redirect: '/home',
+                meta: {
+                    nav: true
+                }
             },
             {
                 path: 'home',
@@ -19,34 +22,92 @@ const routes = [
                     {
                         path: '',
                         name: 'Home',
-                        component: () => import('@/views/HomeView.vue')
+                        component: () => import('@/views/HomeView.vue'),
+                        meta: {
+                            nav: true
+                        }
                     },
                     {
-                        path: 'compose',
-                        name: 'Compose',
-                        component: () => import('@/views/ComposeView.vue')
+                        path: 'type',
+                        name: 'PostType',
+                        component: () => import('@/views/PostTypeView.vue'),
+                        meta: {
+                            nav: false
+                        }
+                    },
+                    {
+                        path: 'composeNormal',
+                        name: 'ComposeNormal',
+                        component: () => import('@/views/ComposeNormal.vue'),
+                        meta: {
+                            nav: false
+                        }
+                    },
+                    {
+                        path: 'composeQuestion',
+                        name: 'ComposeQuestion',
+                        component: () => import('@/views/ComposeQuestion.vue'),
+                        meta: {
+                            nav: false
+                        }
+                    },
+                    {
+                        path: 'composeArticle',
+                        name: 'ComposeArticle',
+                        component: () => import('@/views/ComposeArticle.vue'),
+                        meta: {
+                            nav: false
+                        }
                     },
                     {
                         path: 'post/:id',
                         name: 'Post',
-                        component: () => import('@/views/PostView.vue')
+                        component: () => import('@/views/PostView.vue'),
+                        meta: {
+                            nav: false,
+                            info: 'la'
+                        }
                     },
                 ]
             },
             {
                 path: 'search',
                 name: 'Search',
-                component: () => import('@/views/SearchView.vue')
+                component: () => import('@/views/SearchView.vue'),
+                meta: {
+                    nav: true
+                }
             },
             {
                 path: 'chat',
-                name: 'Chat',
-                component: () => import('@/views/ChatView.vue')
+                name: 'ChatBase',
+                component: () => import('@/views/ChatBaseView.vue'),
+                children: [
+                    {
+                        path: '',
+                        name: 'ChatList',
+                        component: () => import('@/views/ChatListView.vue'),
+                        meta: {
+                            nav: true
+                        }
+                    },
+                    {
+                        path: ':id',
+                        name: 'Chat',
+                        component: () => import('@/views/ChatView.vue'),
+                        meta: {
+                            nav: false
+                        }
+                    }
+                ]
             },
             {
                 path: 'bookmark',
                 name: 'Bookmark',
-                component: () => import('@/views/BookmarkView.vue')
+                component: () => import('@/views/BookmarkView.vue'),
+                meta: {
+                    nav: true
+                }
             },
             {
                 path: 'user',
@@ -56,12 +117,18 @@ const routes = [
                     {
                         path: '',
                         name: 'Me',
-                        component: () => import('@/views/UserView.vue')
+                        component: () => import('@/views/UserView.vue'),
+                        meta: {
+                            nav: true
+                        }
                     },
                     {
                         path: ':id',
                         name: 'User',
-                        component: () => import('@/views/UserView.vue')
+                        component: () => import('@/views/UserView.vue'),
+                        meta: {
+                            nav: false
+                        }
                     }
                 ]
             }
@@ -70,38 +137,56 @@ const routes = [
     {
         path: '/welcome',
         name: 'Welcome',
-        component: () => import('@/views/WelcomeView.vue')
+        component: () => import('@/views/WelcomeView.vue'),
+        meta: {
+            nav: false
+        }
     },
     {
         path: '/login',
         name: 'Login',
-        component: () => import('@/views/LoginView.vue')
+        component: () => import('@/views/LoginView.vue'),
+        meta: {
+            nav: false
+        }
     },
     {
         path: '/register',
         name: 'Register',
-        component: () => import('@/views/RegisterView.vue')
+        component: () => import('@/views/RegisterView.vue'),
+        meta: {
+            nav: false
+        }
     },
     {
         path: '/oauth/:owner',
         name: 'OAuth',
-        component: () => import('@/views/OAuth2View.vue')
+        component: () => import('@/views/OAuth2View.vue'),
+        meta: {
+            nav: false
+        }
     },
     {
         path: '/test',
         name: 'Test',
-        component: () => import('@/views/TestView.vue')
+        component: () => import('@/views/TestView.vue'),
+        meta: {
+            nav: false
+        }
     },
     {
         path: '/:pathMatch(.*)',
         name: 'NotFound',
-        component: () => import('@/views/NotFoundView.vue')
+        component: () => import('@/views/NotFoundView.vue'),
+        meta: {
+            nav: false
+        }
     }
-]
+];
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
-})
+});
 
 export default router;

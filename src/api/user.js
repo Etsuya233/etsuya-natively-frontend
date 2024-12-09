@@ -15,7 +15,7 @@ export const apiRefreshToken = () => {
         url: `${baseUrl}/refresh`,
         method: 'POST',
         data: {
-            refreshToken: localStorage.getItem('accessToken')
+            refreshToken: localStorage.getItem('refreshToken')
         }
     });
 }
@@ -56,5 +56,19 @@ export const apiOAuth2 = (data) => {
         url: `${baseUrl}/oauth2`,
         method: 'POST',
         data: data
+    })
+}
+
+export const apiGetCurrent = () => {
+    return request({
+        url: `${baseUrl}`,
+        method: 'GET'
+    })
+}
+
+export const apiGetUser = (id) => {
+    return request({
+        url: `${baseUrl}/${id}`,
+        method: 'GET'
     })
 }

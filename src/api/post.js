@@ -65,3 +65,44 @@ export const apiVote = (data) => {
         data: data,
     })
 }
+
+export const apiGetUserPosts = (id, lastId) => {
+    return request({
+        url: `${baseUrl}/user`,
+        method: 'GET',
+        params: {
+            userId: id,
+            lastId: lastId
+        }
+    })
+}
+
+export const apiGetBookmarks = (lastId) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'GET',
+        params: {
+            lastId: lastId
+        }
+    })
+}
+
+export const apiAddBookmark = (id, type) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'POST',
+        data: {
+            id, type
+        }
+    })
+}
+
+export const apiRemoveBookmark = (id, type) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'DELETE',
+        data: {
+            id, type
+        }
+    })
+}

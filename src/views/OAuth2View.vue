@@ -19,9 +19,11 @@ import {useI18n} from 'vue-i18n'
 import {onMounted} from "vue";
 import ProgressBar from "primevue/progressbar";
 import {apiOAuth2} from "@/api/user.js";
+import {useUserStore} from "@/stores/userStore.js";
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 const { t, locale, availableLocales } = useI18n();
 
 const login = async () => {
@@ -35,6 +37,8 @@ const login = async () => {
         if(res.login){
             localStorage.setItem('accessToken', res.loginInfo.accessToken);
             localStorage.setItem('refreshToken', res.loginInfo.refreshToken);
+            localStorage.setItem('userId', res.userId);
+            userStore.userInfo.id = res.userId;
             await router.push({name: 'Login', query: { completed: 'true'}});
         } else {
             await router.push({name: 'Register', query: {

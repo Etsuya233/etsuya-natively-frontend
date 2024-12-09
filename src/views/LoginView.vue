@@ -77,7 +77,9 @@ import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
 import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
+import {useUserStore} from "@/stores/userStore.js";
 
+const userStore = useUserStore();
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
@@ -97,6 +99,8 @@ const login = async () => {
         goNext();
         localStorage.setItem('accessToken', res.accessToken);
         localStorage.setItem('refreshToken', res.refreshToken);
+        localStorage.setItem('userId', res.userId);
+        userStore.userInfo.id = res.userId;
         setTimeout(() => {
             router.push({ name: 'Home'});
         }, 3000);
