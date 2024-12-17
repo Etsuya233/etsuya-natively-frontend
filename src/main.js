@@ -20,7 +20,7 @@ app.use(PrimeVue, {
         preset: nativelyTheme,
         options: {
             darkModeSelector: '.dark'
-        }
+        },
     }
 });
 app.use(ToastService);

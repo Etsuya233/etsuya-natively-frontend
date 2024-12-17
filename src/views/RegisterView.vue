@@ -231,15 +231,16 @@ import Fieldset from 'primevue/fieldset';
 import {emailRegex, nicknameRegex, passwordRegex, usernameRegex} from "@/utils/regex.js";
 import Message from 'primevue/message';
 import Select from 'primevue/select';
-import {apiGetLanguages, apiGetLocations} from "@/api/general.js";
 import Dialog from "primevue/dialog";
 import Rating from "primevue/rating";
 import Checkbox from 'primevue/checkbox';
 import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
+import {useLanguageStore} from "@/stores/languageStore.js";
 
 const toast = useToast();
 const toastStore = useToastStore();
+const languageStore = useLanguageStore();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -250,13 +251,9 @@ let userInfo = ref({
     language: [], owner: null, ownerId: null
 })
 
-//locations
-let locationLoading = ref(false);
-let location = ref([]);
-
 //langs
 let langLoading = ref(false);
-let lang = ref([]);
+let lang = languageStore.languageData;
 let selectableLang = computed(() => {
     return lang.value.filter((item) => {
         let ul = userInfo.value.language.find((ele) => {
@@ -359,36 +356,19 @@ const goNext = async () => {
             errMsg.value = t('login.passwordContentLimit');
         }
     } else if(progress.value === 5){
-        if(location.value.length < 5){
-            locationLoading.value = true;
-            apiGetLocations().then(res => {
-                location.value.splice(0, location.value.length);
-                location.value.push(... res);
-            }).catch(err => console.log(err))
-                .finally(() => locationLoading.value = false);
+        if(lang.value.length < 2){
+            langLoading.value = true;
         }
         if(userInfo.value.password !== userInfo.value.rePassword){
             errMsg.value = t('login.rePasswordContentLimit')
         }
     } else if(progress.value === 6){
-        if(lang.value.length < 2){
-            langLoading.value = true;
-            apiGetLanguages().then((res) => {
-                lang.value.splice(0, location.value.length);
-                lang.value.push(... res);
-            }).catch(err => console.log(err))
-                .finally(() => langLoading.value = false);
-        }
-        if(!userInfo.value.location){
-            errMsg.value = t('login.locationContentLimit');
-        }
-    } else if(progress.value === 7){
         if(userInfo.value.language.length === 0){
             errMsg.value = t('login.languageContentLimit');
         }
         if(!errMsg.value){
             try {
-                progress.value = Math.min(9, progress.value + 1)
+                progress.value = Math.min(8, progress.value + 1)
                 let res = await apiRegister(toRaw(userInfo.value));
             } catch (err){
                 progress.value = Math.max(1, progress.value - 1);
@@ -400,7 +380,7 @@ const goNext = async () => {
     if(errMsg.value.length > 0){
         return;
     }
-    progress.value = Math.min(9, progress.value + 1)
+    progress.value = Math.min(8, progress.value + 1)
 }
 
 //lifespan

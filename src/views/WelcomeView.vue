@@ -17,7 +17,7 @@
             </div>
         </div>
         <Dialog class="min-w-80" v-model:visible="languageModal" modal :header="t('common.language')">
-            <Select class="mb-4 w-full" v-model="language" :options="languages" optionLabel="name" optionValue="value"/>
+            <Select class="mb-4 w-full" v-model="language" :options="languages" optionLabel="name" optionValue="code"/>
             <div class="flex justify-end gap-2">
                 <Button type="button" :label="t('common.cancel')" severity="secondary" @click="languageModal = false"></Button>
                 <Button type="button" :label="t('common.save')" @click="languageChanged"></Button>
@@ -40,17 +40,19 @@ import Select from 'primevue/select';
 import {onBeforeUnmount, onMounted, ref} from "vue";
 import {useI18n} from 'vue-i18n'
 import {detectTheme, themeChange} from "@/utils/theme.js";
-import {changeLanguage, getCurrentLanguage, languageData} from "@/utils/language.js";
+import {changeLanguage, getCurrentLanguage} from "@/utils/language.js";
 import Dialog from 'primevue/dialog';
 import {useRouter} from "vue-router";
+import {useLanguageStore} from "@/stores/languageStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
+const languageStore = useLanguageStore();
 
 //language
 let languageModal = ref(false);
 let language = ref(getCurrentLanguage());
-const languages = ref(languageData);
+const languages = languageStore.languageNative;
 const languageChanged = () => {
     changeLanguage(language.value);
     location.reload();

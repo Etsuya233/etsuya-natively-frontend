@@ -20,7 +20,8 @@ export const useUserStore = defineStore('user', () => {
         "updateTime": ""
     };
 
-    let userInfo = ref(JSON.parse(JSON.stringify(emptyUser)));
+    let empty = JSON.parse(JSON.stringify(emptyUser));
+    let userInfo = ref(empty);
 
     userInfo.value.id = localStorage.getItem("userId");
 

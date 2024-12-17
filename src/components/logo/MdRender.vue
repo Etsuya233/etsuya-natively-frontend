@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full">
-        <article class="prose prose-code:font-mono dark:prose-invert prose-p:my-2" >
+        <article class="prose prose-code:font-mono dark:prose-invert" >
             <div v-html="rendered"></div>
         </article>
     </div>

@@ -12,14 +12,6 @@ export const getCurrentLanguage = () => {
     }
 }
 
-export const languageData = [
-    { name: '🇺🇸 English', value: 'en'},
-    { name: '🇯🇵 日本語', value: 'ja'},
-    { name: '🇨🇳 简体中文', value: 'zh'},
-    { name: '🇫🇷 Français', value: 'fr'},
-    { name: '🇰🇷 한국인', value: 'ko'}
-];
-
 export const changeLanguage = (language) => {
     localStorage.language = language;
 }

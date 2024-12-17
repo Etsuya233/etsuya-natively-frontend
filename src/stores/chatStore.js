@@ -74,6 +74,13 @@ export const useChatStore = defineStore('chat', () => {
         }
         return false;
     }
+    function clearUnread(userId){
+        let conversation = conversationMap.value.get(userId);
+        conversation.unread = 0;
+        stompClient.value.send("/ws/clear", {}, JSON.stringify({
+            receiverId: userId
+        }));
+    }
 
     // WebSocket
     function connect(){
@@ -111,5 +118,5 @@ export const useChatStore = defineStore('chat', () => {
     })
 
     return { connected, disconnect, connect, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, initMessage,
-    initConversation, sendTextMsg, sending};
+    initConversation, sendTextMsg, sending, clearUnread};
 });

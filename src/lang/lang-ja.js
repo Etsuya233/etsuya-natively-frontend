@@ -43,6 +43,10 @@ let jaConfig = {
         continueYourRegistration: '登録を続ける',
     },
     common: {
+        home: 'ホーム',
+        chat: 'チャット',
+        bookmark: 'ブックマーク',
+        me: '私のページ',
         error: 'エラー',
         confirm: '確認',
         cancel: 'キャンセル',

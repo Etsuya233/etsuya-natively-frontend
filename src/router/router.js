@@ -11,7 +11,8 @@ const routes = [
                 name: 'HomeRedirect',
                 redirect: '/home',
                 meta: {
-                    nav: true
+                    nav: true,
+                    navTransparent: false
                 }
             },
             {
@@ -24,7 +25,8 @@ const routes = [
                         name: 'Home',
                         component: () => import('@/views/HomeView.vue'),
                         meta: {
-                            nav: true
+                            nav: true,
+                            navTransparent: true
                         }
                     },
                     {
@@ -32,7 +34,8 @@ const routes = [
                         name: 'PostType',
                         component: () => import('@/views/PostTypeView.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     },
                     {
@@ -40,7 +43,8 @@ const routes = [
                         name: 'ComposeNormal',
                         component: () => import('@/views/ComposeNormal.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     },
                     {
@@ -48,7 +52,8 @@ const routes = [
                         name: 'ComposeQuestion',
                         component: () => import('@/views/ComposeQuestion.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     },
                     {
@@ -56,7 +61,8 @@ const routes = [
                         name: 'ComposeArticle',
                         component: () => import('@/views/ComposeArticle.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     },
                     {
@@ -65,6 +71,7 @@ const routes = [
                         component: () => import('@/views/PostView.vue'),
                         meta: {
                             nav: false,
+                            navTransparent: true,
                             info: 'la'
                         }
                     },
@@ -75,7 +82,8 @@ const routes = [
                 name: 'Search',
                 component: () => import('@/views/SearchView.vue'),
                 meta: {
-                    nav: true
+                    nav: true,
+                    navTransparent: false
                 }
             },
             {
@@ -88,7 +96,8 @@ const routes = [
                         name: 'ChatList',
                         component: () => import('@/views/ChatListView.vue'),
                         meta: {
-                            nav: true
+                            nav: true,
+                            navTransparent: false
                         }
                     },
                     {
@@ -96,7 +105,8 @@ const routes = [
                         name: 'Chat',
                         component: () => import('@/views/ChatView.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     }
                 ]
@@ -106,7 +116,8 @@ const routes = [
                 name: 'Bookmark',
                 component: () => import('@/views/BookmarkView.vue'),
                 meta: {
-                    nav: true
+                    nav: true,
+                    navTransparent: false
                 }
             },
             {
@@ -119,7 +130,8 @@ const routes = [
                         name: 'Me',
                         component: () => import('@/views/UserView.vue'),
                         meta: {
-                            nav: true
+                            nav: true,
+                            navTransparent: false
                         }
                     },
                     {
@@ -127,7 +139,8 @@ const routes = [
                         name: 'User',
                         component: () => import('@/views/UserView.vue'),
                         meta: {
-                            nav: false
+                            nav: false,
+                            navTransparent: false
                         }
                     }
                 ]
@@ -139,7 +152,8 @@ const routes = [
         name: 'Welcome',
         component: () => import('@/views/WelcomeView.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     },
     {
@@ -147,7 +161,8 @@ const routes = [
         name: 'Login',
         component: () => import('@/views/LoginView.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     },
     {
@@ -155,7 +170,8 @@ const routes = [
         name: 'Register',
         component: () => import('@/views/RegisterView.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     },
     {
@@ -163,7 +179,8 @@ const routes = [
         name: 'OAuth',
         component: () => import('@/views/OAuth2View.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     },
     {
@@ -171,7 +188,8 @@ const routes = [
         name: 'Test',
         component: () => import('@/views/TestView.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     },
     {
@@ -179,7 +197,8 @@ const routes = [
         name: 'NotFound',
         component: () => import('@/views/NotFoundView.vue'),
         meta: {
-            nav: false
+            nav: false,
+            navTransparent: false
         }
     }
 ];

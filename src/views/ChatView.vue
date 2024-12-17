@@ -27,23 +27,26 @@
                 </div>
                 <div v-if="meId === item.senderId" class="w-full pl-8">
                     <div class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary
-                    hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors">
+                    hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors" @click="openMsgMenu(item, $event)">
                         {{item.content}}
                         <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{item.time.substring(0, 5)}}</div>
                     </div>
                 </div>
                 <div v-else class="w-full pr-8">
                     <div class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
-                        hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900">
+                        hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900" @click="openMsgMenu(item, $event)">
                         {{item.content}}
                         <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.substring(0, 5)}}</div>
                     </div>
                 </div>
             </div>
+            <div class="h-12 md:hidden">
+            
+            </div>
         </div>
         
 <!--        Input -->
-        <div class="sticky bottom-0 flex flex-col bg-white/80 backdrop-blur-xl p-2 border-t transition-all transform-gpu"
+        <div class="sticky bottom-14 md:bottom-0 flex flex-col bg-white/80 backdrop-blur-xl p-2 border-t transition-all transform-gpu"
             :class="{ '!animate-pulse': chatStore.sending }">
             <ETransition name="scale">
                 <div class="absolute bottom-[4.5rem] right-4" v-if="!isAtBottom" @click="goBottom" :class="{ 'bottom-40': tools }">
@@ -58,7 +61,7 @@
                         rounded severity="secondary" pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0"/>
                 <textarea :disabled="chatStore.sending" @input="textareaKeyDown" v-model="msgContent"
                           class="h-10 outline-none text-base py-2 px-4 rounded-[1.25rem] ring-1 resize-none w-0
-                          ring-slate-300 bg-slate-100/60 flex-1"
+                          ring-slate-300 bg-slate-100/60 flex-1 caret-primary-emphasis"
                           :placeholder="chatStore.sending? t('chat.sending'): t('chat.message')"></textarea>
                 <Button :disabled="!msgContent || chatStore.sending" icon="pi pi-send" rounded
                         pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0" @click="sendTextMsg"/>
@@ -69,6 +72,11 @@
                 <Button icon="pi pi-microphone" label="Voice" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
             </div>
         </div>
+        
+<!--        Popover -->
+        <Popover ref="msgMenu" pt:content:class="!p-1" pt:root:class="!rounded-xl">
+            <Menu :model="menuItem" pt:root:class="!border-none !w-fit !min-w-0" pt:list:class="!w-fit" />
+        </Popover>
     </div>
 </template>
 
@@ -77,13 +85,23 @@ import EHeader from "@/components/logo/EHeader.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
 import {useI18n} from "vue-i18n";
-import {nextTick, onMounted, ref, watch} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
 import {useUserStore} from "@/stores/userStore.js";
 import {useRouter, useRoute} from "vue-router";
 import {useChatStore} from "@/stores/chatStore.js";
 import {apiGetUser} from "@/api/user.js";
 import OverlayBadge from "primevue/overlaybadge";
 import ETransition from "@/components/ETransition.vue";
+import Popover from 'primevue/popover';
+import Menu from 'primevue/menu';
+import Drawer from 'primevue/drawer';
+import Select from 'primevue/select';
+import {useLanguageStore} from "@/stores/languageStore.js";
+import Skeleton from 'primevue/skeleton';
+import {apiGetExplanation, apiGetTranslation} from "@/api/language.js";
+import {getCurrentLanguage} from "@/utils/language.js";
+import MdRender from "@/components/logo/MdRender.vue";
+import {useNaviStore} from "@/stores/naviStore.js";
 
 const userStore = useUserStore();
 const {isScrollDown, isAtBottom, isAtTop} = useScroll();
@@ -91,6 +109,8 @@ const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const chatStore = useChatStore();
+const languageStore = useLanguageStore();
+const naviStore = useNaviStore();
 
 let meId = userStore.userInfo.id;
 let receiver = ref(null);
@@ -116,6 +136,31 @@ const loadMoreOldMsg = async () => {
 // tools
 let tools = ref(false);
 
+// menu
+const msgMenu = ref();
+let selectedMsg = ref();
+const openMsgMenu = (msg, event) => {
+    selectedMsg.value = msg;
+    msgMenu.value.toggle(event);
+}
+const menuItem = ref([{
+    label: t('common.optimize'),
+    icon: 'pi pi-pencil',
+},{
+    label: 'Navi',
+    icon: 'pi pi-sparkles',
+    command: () => {
+        naviStore.open({
+            quote: selectedMsg.value.content,
+            type: 2
+        });
+        msgMenu.value.toggle();
+    }
+},{
+    label: t('bookmark.addToBookmark'),
+    icon: 'pi pi-bookmark',
+}])
+
 // ui
 const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
 const textAreaMaxHeight = 8.5 * rootFontSize;
@@ -136,6 +181,8 @@ const goBottom = () => {
         behavior: 'smooth'  // 平滑滚动
     });
 }
+//TODO bug fix for new message reminder
+//TODO update lastId for Conversation to sorting
 let latestMsgId; // used to scroll to bottom when receiving msg
 let hasUnread = ref(false);
 watch(() => msgs.value.length, (newVal, oldVal) => {
@@ -176,6 +223,9 @@ onMounted(async () => {
     const latestMsg = msgs.value[msgs.value.length - 1];
     latestMsgId = latestMsg? latestMsg.id: 0;
     nextTick(() => goBottom());
+})
+onBeforeUnmount(() => {
+    chatStore.clearUnread(receiver.value);
 })
 
 </script>

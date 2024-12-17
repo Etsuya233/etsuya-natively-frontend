@@ -10,17 +10,29 @@ import {onBeforeMount} from "vue";
 import {useUserStore} from "@/stores/userStore.js";
 import {apiGetCurrent} from "@/api/user.js";
 import {useChatStore} from "@/stores/chatStore.js";
+import {useLanguageStore} from "@/stores/languageStore.js";
+import {apiGetLanguageInNative, apiGetLanguages} from "@/api/language.js";
 
 let currentTheme = detectTheme();
 themeChange(currentTheme);
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const languageStore = useLanguageStore();
 
-onBeforeMount(async () => {
-    let res = await apiGetCurrent();
-    userStore.userInfo = res;
+onBeforeMount(() => {
     chatStore.connect();
+    apiGetCurrent().then(res => {
+        userStore.userInfo = res;
+    })
+    if(languageStore.languageData.length === 0){
+        apiGetLanguages().then(res => {
+            languageStore.languageData = res;
+        })
+        apiGetLanguageInNative().then(res => {
+            languageStore.languageNative = res;
+        })
+    }
 })
 
 </script>

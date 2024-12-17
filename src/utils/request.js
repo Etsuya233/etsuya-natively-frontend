@@ -3,10 +3,7 @@ import {getCurrentLanguage} from "@/utils/language.js";
 import router from "@/router/router.js";
 import {useToastStore} from "@/stores/toastStore.js";
 import {apiRefreshToken} from "@/api/user.js";
-
-const axioss = axios.create({
-    baseURL: '/api',
-});
+import axioss from "@/utils/axioss.js";
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const language = getCurrentLanguage();

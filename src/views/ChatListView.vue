@@ -20,6 +20,7 @@
                     <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">{{item.content}}</div>
                 </div>
             </div>
+            <div></div>
         </div>
     </div>
 </template>
@@ -30,7 +31,7 @@ import {useScroll} from "@/utils/scroll.js";
 import {useI18n} from "vue-i18n";
 import Avatar from 'primevue/avatar';
 import OverlayBadge from 'primevue/overlaybadge';
-import {onMounted} from "vue";
+import {onBeforeUnmount, onMounted} from "vue";
 import {useRouter} from "vue-router";
 import {useChatStore} from "@/stores/chatStore.js";
 

@@ -43,6 +43,10 @@ let enConfig = {
         continueYourRegistration: 'Continue with your registration',
     },
     common: {
+        home: 'Home',
+        chat: 'Chat',
+        bookmark: 'Bookmark',
+        me: 'Me',
         error: 'Error',
         confirm: 'Confirm',
         cancel: 'Cancel',
@@ -73,7 +77,16 @@ let enConfig = {
         optional: 'Optional',
         loading: 'Loading',
         loadingWithDots: 'Loading...',
-        type: 'Type'
+        type: 'Type',
+        translate: 'Translate',
+        optimize: 'Optimize',
+        explain: 'Explain',
+        translation: 'Translation',
+        explanation: 'Explanation',
+        lookUp: 'Look Up',
+        translateFrom: 'Translate from {lang}',
+        pronounce: 'Pronounce',
+        originalText: 'Original',
     },
     post: {
         post: 'Post',
@@ -112,11 +125,25 @@ let enConfig = {
     },
     bookmark: {
         bookmark: 'Bookmark',
+        addToBookmark: 'Add to Bookmark',
     },
     chat: {
         chat: 'Chat',
         message: 'Message',
-        sending: 'Sending...'
+        sending: 'Sending...',
+    },
+    navi: {
+        quote: 'Quote',
+        question: 'Question',
+        ability: 'Ability',
+        translate: 'Translate',
+        explain: 'Explain',
+        ask: 'Ask',
+        enterYourQuestion: 'Enter your question...',
+        originalText: 'Original',
+        enterHere: 'Enter here...',
+        retry: 'Retry',
+        pronounce: 'Pronounce',
     }
 }
 

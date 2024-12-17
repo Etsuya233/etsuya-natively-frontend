@@ -1,89 +1,81 @@
 <template>
-    <div class="w-full flex justify-center py-8">
-        <div class="w-full max-w-[30rem] flex flex-col gap-4 bg-white shadow-lg rounded-lg p-6">
-            <h2 class="text-xl font-semibold text-center text-gray-700">Chat Application</h2>
-            
-            <Textarea v-model="message" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Type a message..." rows="5" />
-            
-            <InputText v-model="receiver" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Receiver ID" />
-            
-            <div class="max-h-[20rem] overflow-y-auto border border-gray-300 rounded-lg p-3 space-y-2 bg-gray-50">
-                <div v-for="(item, index) in messages" :key="index" class="text-sm text-gray-700">
-                    {{ item }}
-                </div>
-            </div>
-            
-            <div class="flex gap-3 justify-between">
-                <Button label="Connect" @click="connect" class="w-full p-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition" />
-                <Button label="Disconnect" @click="disconnect" class="w-full p-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition" />
-            </div>
-            
-            <Button label="Send" @click="send" class="w-full p-3 bg-green-600 text-white hover:bg-green-700 rounded-lg transition" />
-        </div>
+    <div>
+        <InputText v-model="content" />
+        <button @click="startSpeaking">Start Speaking</button>
+        <audio ref="audioPlayer" controls></audio>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import Button from "primevue/button";
+import { ref } from 'vue';
+import axios from 'axios';
 import InputText from "primevue/inputtext";
-import Textarea from "primevue/textarea";
-import * as StompJs from '@stomp/stompjs';
-import SockJS from 'sockjs-client/dist/sockjs.min.js';
-import { useUserStore } from "@/stores/userStore.js";
+import {apiSpeak} from "@/api/navi.js";
 
-const userStore = useUserStore();
-const currentUser = userStore.userInfo.id;
+const audioPlayer = ref(null);
+const content = ref('');
 
-const messages = ref([]);
-const message = ref('');
-const receiver = ref('');
-
-let socket, stompClient;
-
-const connect = () => {
-    socket = new SockJS("/api/chat/connect");
-    stompClient = StompJs.Stomp.over(socket);
-    stompClient.connect({
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    }, (frame) => {
-        stompClient.subscribe("/topic/system", (res) => {
-            messages.value.push(JSON.parse(res.body));
-        })
-        stompClient.subscribe("/user/queue/message", (res) => {
-            messages.value.push(JSON.parse(res.body));
-        })
-    });
-}
-
-const disconnect = () => {
-    stompClient.disconnect();
+// 开始请求语音合成并播放音频
+const startSpeaking = async () => {
     
-}
+    let res = await apiSpeak({
+        content: content.value,
+    });
 
-const send = () => {
-    stompClient.send('/ws/msg', {}, JSON.stringify({
-        senderId: currentUser,
-        receiverId: receiver.value,
-        type: 1,
-        content: message.value
-    }));
-    message.value = '';
-}
+    // 创建音频Blob对象并生成URL
+    const audioBlob = new Blob([res.data], { type: 'audio/ogg' });  // 'audio/ogg' 对应 Ogg 格式
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    // 获取并播放音频
+    audioPlayer.value.src = audioUrl;
+    audioPlayer.value.play();
+
+    // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    //
+    // try {
+    //     const options = {
+    //         method: 'POST',
+    //         url: '/api/navi/speak',  // 替换为实际的API端点
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    //         },
+    //         data: {
+    //             content: content.value  // 请求体内容
+    //         },
+    //         responseType: 'stream',  // 使用流式响应
+    //         adapter: 'fetch'
+    //     };
+    //
+    //     const response = await axios.request(options);
+    //     console.log(response);
+    //
+    //     const reader = response.data.getReader();
+    //     const stream = new ReadableStream({
+    //         start(controller) {
+    //             function push() {
+    //                 reader.read().then(({done, value}) => {
+    //                     if (done) {
+    //                         controller.close();
+    //                         return;
+    //                     }
+    //                     // 将接收到的音频数据送入 AudioContext
+    //                     audioContext.decodeAudioData(value.buffer, (audioBuffer) => {
+    //                         const source = audioContext.createBufferSource();
+    //                         source.buffer = audioBuffer;
+    //                         source.connect(audioContext.destination);
+    //                         source.start();
+    //                     });
+    //                     controller.enqueue(value); // 继续读取流
+    //                     push();
+    //                 });
+    //             }
+    //
+    //             push();
+    //         },
+    //     });
+    // } catch (error) {
+    //     console.error('Error fetching and playing audio:', error);
+    // }
+};
 </script>
-
-<style scoped>
-.md-editor-icon {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
-}
-
-textarea, input {
-    transition: all 0.3s ease;
-}
-
-textarea:focus, input:focus {
-    border-color: #3b82f6; /* Tailwind's blue-500 */
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* blue shadow */
-}
-</style>
