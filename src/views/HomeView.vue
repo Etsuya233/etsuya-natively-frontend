@@ -1,7 +1,7 @@
 <template>
     <div class="relative">
 <!--        Header-->
-        <div class="w-full gap-4 flex p-4 sticky top-0 bg-white z-10 border-surface border-b transition-opacity transform-gpu
+        <div class="w-full gap-4 flex py-2 px-4 sticky top-0 bg-white z-10 border-surface border-b transition-opacity transform-gpu
                     hover:!opacity-100 dark:bg-surface-900"
              :class="{'opacity-30': isScrollDown}">
             <SelectButton class="flex-1" :options="options" v-model="selected" option-label="name" option-value="value"
@@ -13,9 +13,9 @@
         </div>
         
 <!--        Recommendation-->
-        <div class="flex flex-col gap-3 *:cursor-pointer w-full divide-y">
+        <div class="flex flex-col gap-2 *:cursor-pointer w-full divide-y">
             <div v-if="selected === 1" v-for="item in recommendationPosts" :key="item.id" @click="postClicked(item)"
-                 class="w-full  flex flex-col gap-1 px-4 pt-4">
+                 class="w-full flex flex-col gap-1 px-4 pt-2">
                 <PostInfoCard :item="item" @vote="postVote" />
             </div>
         </div>
