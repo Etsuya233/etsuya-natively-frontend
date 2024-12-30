@@ -9,11 +9,11 @@
                     </div>
                 </div>
                 <div class="flex-1 pl-3 mt-[0.45rem]">
-                    <textarea v-model="content" ref="textarea" class="w-full text-lg outline-none" placeholder="What's happening..."></textarea>
+                    <textarea @input="textareaKeyDown" v-model="content" ref="textarea" class="w-full text-lg outline-none" placeholder="What's happening..."></textarea>
                 </div>
             </div>
             <Divider />
-            <div class="flex md:hidden justify-end gap-2 sticky bottom-16 *:shadow">
+            <div class="flex md:hidden justify-end gap-2 sticky bottom-16 drop-shadow-2xl">
                 <Button :badge="images.length === 0? '': images.length.toString()" badgeSeverity="contrast" icon="pi pi-image" size="small" severity="secondary" @click="openImageDialog" />
                 <Button :badge="voice? '1': ''" badgeSeverity="contrast" icon="pi pi-microphone" size="small" severity="secondary" @click="openVoiceDialog"/>
                 <Button icon="pi pi-send" size="small" @click="postNormal" />
@@ -89,6 +89,14 @@ const postNormal = async () => {
     } catch (e){}
 }
 
+const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+const textAreaMinHeight = 7 * rootFontSize;
+const textareaKeyDown = (e) => {
+    e.target.style.height = '1px';
+    let height = e.target.scrollHeight;
+    e.target.style.height = Math.max(height, textAreaMinHeight) + 'px';
+}
+
 //lifespan
 const heightHandler = (e) => {
     e.target.style.height = e.target.scrollHeight + "px";
@@ -97,11 +105,11 @@ const heightHandler = (e) => {
 onMounted(() => {
     //textarea auto growing TODO auto shrinking
     textarea.value.style.height = '7rem';
-    textarea.value.addEventListener("input", heightHandler)
+    // textarea.value.addEventListener("input", heightHandler)
 })
 
 onBeforeUnmount(() => {
-    textarea.value.removeEventListener("input", heightHandler)
+    // textarea.value.removeEventListener("input", heightHandler)
 })
 
 </script>

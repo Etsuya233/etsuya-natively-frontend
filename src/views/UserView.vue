@@ -1,6 +1,13 @@
 <template>
     <div>
-        <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="userInfo.nickname" />
+        <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :enable-slot="true">
+            <div class="flex items-center">
+                <div class="h-10 w-10 mr-4 flex-shrink-0">
+                    <img :src="userInfo.avatar" class="object-cover rounded-full" alt="avatar"/>
+                </div>
+                <div class="overflow-hidden text-ellipsis">{{userInfo.nickname}}</div>
+            </div>
+        </EHeader>
         
         <div v-if="userInfo.id" class="relative w-full">
             <div class="h-32 w-full overflow-hidden">
@@ -14,7 +21,7 @@
                     <Button severity="secondary" icon="pi pi-pencil" rounded :label="t('common.edit')" outlined />
                 </div>
             </div>
-            <div class="pl-4 flex flex-col py-4 w-full pr-4">
+            <div class="px-4 flex flex-col py-4 w-full">
                 <div class="flex w-full">
                     <div class="overflow-hidden text-ellipsis w-0 flex-1">
                         <div class="text-3xl font-bold whitespace-nowrap overflow-x-hidden text-ellipsis">
@@ -23,6 +30,9 @@
                     </div>
                 </div>
                 <div class="text-slate-600">@{{userInfo.username}}</div>
+                <div class="pt-2 flex gap-2">
+                    <ELangProgress v-for="(lang, index) in userInfo.languages" :key="index" :lang="lang.lang" :proficiency="lang.proficiency" />
+                </div>
                 <div class="pt-2">
                     <span class="hover:underline">
                         <span class="font-bold">{{userInfo.following}}</span>
@@ -35,9 +45,9 @@
                 </div>
             </div>
             <Divider class="!my-0" />
-            <div class="flex flex-col gap-4 divide-y divide-surface-200">
-                <div v-for="item in posts" :key="item.id" @click="postClicked(item)" class="w-full pt-4 px-4">
-                    <PostInfoCard :item="item" @vote="postVote" />
+            <div class="flex flex-col divide-y divide-surface-200">
+                <div v-for="item in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2">
+                    <PostInfoCard :item="item" :header="false" @vote="postVote" />
                 </div>
             </div>
         </div>
@@ -55,6 +65,7 @@ import Divider from "primevue/divider";
 import Button from "primevue/button";
 import {apiGetUserPosts, apiVote} from "@/api/post.js";
 import PostInfoCard from "@/components/PostInfoCard.vue";
+import ELangProgress from "@/components/ELangProgress.vue";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -80,6 +91,7 @@ let userInfo = ref({
     "version": 1,
     "createTime": "",
     "updateTime": "",
+    languages: []
 });
 
 //user post
@@ -141,6 +153,7 @@ onBeforeMount(async () => {
     res.forEach(post => {
         post.avatar = userInfo.value.avatar;
         post.nickname = userInfo.value.nickname;
+        post.userLanguages = userInfo.value.languages;
     })
     posts.value.push(... res);
 })

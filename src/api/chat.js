@@ -22,3 +22,14 @@ export const apiGetMoreOldMessage = (userId, lastId) => {
         }
     });
 }
+
+export const apiSendFile = (data) => {
+    return request({
+        url: `${baseUrl}/file`,
+        method: 'POST',
+        data,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}

@@ -1,22 +1,20 @@
 <template>
     <div class="w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2" :class="{'cursor-pointer': props.isPost}">
-        <div class="flex w-full">
-            <div class="h-[3.25rem] w-11 flex-shrink-0 overflow-hidden flex justify-center items-center">
+        <div class="flex w-full" v-if="header">
+            <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-end">
                 <div class="h-11 w-11 rounded-full overflow-hidden">
                     <img class="w-full h-full object-cover" :src="props.item.avatar" alt="avatar"/>
                 </div>
             </div>
-            <div class="w-0 overflow-clip flex-1">
-                <div class="pl-3 items-center w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
-                    {{props.item.nickname}}
-                    <span class="text-sm text-slate-600">
-                        · {{props.item.createTime}}
-                    </span>
+            <div class="flex flex-col w-0 flex-1">
+                <div class="pl-3 overflow-hidden min-w-0">
+                    <div class="w-full flex items-center">
+                        <div class="text-ellipsis overflow-hidden break-words whitespace-nowrap">{{props.item.nickname}}</div>
+                        <div class="text-sm text-slate-600 flex-shrink-0">&nbsp;·&nbsp;{{props.item.createTime}}</div>
+                    </div>
                 </div>
-                <div class="h-4 flex gap-2 pl-[0.675rem] text-sm w-full text-surface-500 pt-1">
-                    <Tag value="英 · 2" severity="secondary" class="h-[1.125rem] !rounded-full" pt:label:class="!text-xs"/>
-                    <Tag value="ENG · 2" severity="secondary" class="h-[1.125rem] !rounded-full" pt:label:class="!text-xs"/>
-                    <Tag value="ENG · 2" severity="secondary" class="h-[1.125rem] !rounded-full" pt:label:class="!text-xs"/>
+                <div class="h-5 flex gap-2 pl-[0.675rem] w-full mt-[0.25rem]">
+                    <ELangProgress v-for="lang in props.item.userLanguages" :lang="lang.language" :proficiency="lang.proficiency" />
                 </div>
             </div>
         </div>
@@ -35,14 +33,22 @@
                 <span v-if="props.item.parentHasMore"> ...</span>
             </div>
         </div>
-        <div class="whitespace-pre-wrap overflow-clip">
+        <div class="max-h-[48rem] whitespace-pre-wrap overflow-clip" ref="contentContainer" :class="{ 'max-h-none': expanded }" >
+            <div v-if="props.markdown"><MdRender :markdown="props.item.content" /></div>
             <span class="md:select-text text-slate-800">{{props.item.content}}</span>&nbsp;
             <span class="inline-block mr-2 align-top" v-if="props.item.contentHasMore">
                 <Tag :value="t('post.hasMore')" class="h-6" severity="secondary" />
             </span>
+            <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white/100 to-white/0" v-if="isOverflow && !expanded" />
+        </div>
+        <div class="flex justify-center -translate-y-4" v-if="isOverflow && !expanded">
+            <Button icon="pi pi-angle-down" label="Expand" severity="secondary" @click="expandContent" />
+        </div>
+        <div class="flex justify-center mb-4 sticky bottom-16" v-if="isOverflow && expanded">
+            <Button icon="pi pi-angle-up" label="Collapse" severity="secondary" @click="expandContent" />
         </div>
         <div class="mt-1 mb-1" v-if="props.item.voice">
-            <audio controls :src="props.item.voice.url">
+            <audio controls :src="props.item.voice.url" @click.stop>
                 Your browser doesn't support Audio.
             </audio>
         </div>
@@ -59,8 +65,8 @@
                     size="small" @click.stop="emit('vote', props.item, -1, isPost)" v-if="props.showSummary" pt:icon:class="pl-1" pt:label:class="pr-1" />
             <Button rounded icon="pi pi-comment" :label="props.item.commentCount" severity="secondary" size="small"
                     @click.stop="" v-if="props.showSummary" pt:icon:class="pl-1" pt:label:class="pr-1" />
-            <Button rounded class="ml-auto" icon="pi pi-bookmark" size="small" v-if="props.showBookmark" :loading="props.item.bookmarkLoading"
-                    :severity="getButtonSeverity(props.item.bookmarked, 1)" @click.stop="emit('clickBookmark', props.item)" />
+            <Button class="ml-auto" icon="pi pi-bookmark" size="small" v-if="props.showBookmark" :loading="props.item.bookmarkLoading"
+                    :severity="getButtonSeverity(props.item.bookmarked, 1)" @click.stop="emit('clickBookmark', props.item)" pt:root:class="!rounded-full !px-[0.375rem] !w-[2.25rem]"/>
         </div>
     </div>
 </template>
@@ -70,6 +76,9 @@ import Button from "primevue/button";
 import Image from "primevue/image";
 import Tag from "primevue/tag";
 import {useI18n} from "vue-i18n";
+import ELangProgress from "@/components/ELangProgress.vue";
+import MdRender from "@/components/logo/MdRender.vue";
+import {nextTick, onMounted, onUpdated, ref} from "vue";
 
 const props = defineProps({
     item: {},
@@ -90,6 +99,12 @@ const props = defineProps({
     },
     tagIcon: {
         default: ''
+    },
+    header: {
+        default: true
+    },
+    markdown: {
+        default: false
     }
 });
 const emit = defineEmits(['vote', 'clickBookmark']);
@@ -99,6 +114,28 @@ const getButtonSeverity = (vote, value) => {
     if(vote === value) return "primary";
     else return "secondary";
 }
+
+//overflow
+const contentContainer = ref();
+let isOverflow = ref(false);
+const isContentOverflow = () => {
+    console.log('activated')
+    if(contentContainer.value){
+        const el = contentContainer.value;
+        console.log(el.scrollHeight , el.clientHeight);
+        isOverflow.value = el.scrollHeight > el.clientHeight;
+    }
+}
+let expanded = ref(false);
+const expandContent = () => {
+    expanded.value = !expanded.value;
+}
+
+onMounted(() => {
+    nextTick(() => {
+        isContentOverflow();
+    })
+})
 
 </script>
 

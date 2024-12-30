@@ -4,7 +4,7 @@
                  :class="{'opacity-30': isScrollDown}" />
         
 <!--        Post Info-->
-        <div v-if="postLoading" class="p-4 flex flex-col">
+        <div v-if="postLoading" class="px-4 py-2 flex flex-col">
             <div class="pb-4 flex w-full">
                 <div class="h-12 w-12">
                     <Skeleton width="100%" height="100%" shape="circle"/>
@@ -32,61 +32,12 @@
                 <Skeleton class="ml-auto" height="2rem" width="4rem" />
             </div>
         </div>
-        <div v-else class="p-4 flex flex-col gap-1">
-            <div class="pb-3 flex w-full">
-                <div class="h-11 w-11 flex-shrink-0 rounded-full overflow-hidden">
-                    <img class="h-full w-full object-cover" :src="postInfo.avatar" alt="avatar"/>
-                </div>
-                <div class="w-0 overflow-clip flex-1">
-                    <div class="pl-3 items-center w-full overflow-x-hidden whitespace-nowrap text-ellipsis">
-                        {{postInfo.nickname}}
-                    </div>
-                    <div class="h-4 pl-3 text-sm w-full text-surface-500">
-                        {{postInfo.createTime}}
-                    </div>
-                </div>
-            </div>
-            <div class="mb-1" v-if="postInfo.title">
-                <div class="inline-block mr-2 align-top" v-if="postInfo.type === 2">
-                    <Tag :value="t('post.question')" class="h-6"/>
-                </div>
-                <div class="inline font-bold text-lg select-text">
-                    {{postInfo.title}}
-                </div>
-            </div>
-            <div class="max-h-[48rem] overflow-hidden relative" ref="contentContainer" :class="{ 'max-h-none': expanded }">
-                <md-render :markdown="postInfo.content" />
-                <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white/100 to-white/0" v-if="isOverflow && !expanded" />
-            </div>
-            <div class="flex justify-center -translate-y-4" v-if="isOverflow && !expanded">
-                <Button icon="pi pi-angle-down" label="Expand" severity="secondary" @click="expandContent" />
-            </div>
-            <div class="flex justify-center mb-4 sticky bottom-4" v-if="isOverflow && expanded">
-                <Button icon="pi pi-angle-up" label="Collapse" severity="secondary" @click="expandContent" />
-            </div>
-            <div class="mt-1 mb-1" v-if="postInfo.voice">
-                <audio controls :src="postInfo.voice.url">
-                    Your browser doesn't support Audio.
-                </audio>
-            </div>
-            <div class="mt-1 flex flex-wrap gap-2" v-if="postInfo.images && postInfo.images.length > 0">
-                <div v-for="img in postInfo.images" class="h-24 w-24 border border-surface rounded-lg overflow-hidden">
-                    <Image :preview="true" :src="img.url" class="w-full h-full object-cover"/>
-                </div>
-            </div>
-            <div class="flex gap-2 mt-2">
-                <Button icon="pi pi-thumbs-up" :label="postInfo.upvote.toString()" @click="vote(postInfo, 1, true)"
-                        :severity="getButtonSeverity(postInfo.vote, 1)" size="small"  />
-                <Button icon="pi pi-thumbs-down" :label="postInfo.downvote.toString()"  @click="vote(postInfo, -1, true)"
-                        :severity="getButtonSeverity(postInfo.vote, -1)" size="small" />
-                <Button icon="pi pi-comment" :label="postInfo.commentCount.toString()" severity="secondary" size="small" />
-                <Button :loading="bookmarkLoading" class="ml-auto" icon="pi pi-bookmark" size="small"
-                        :severity="getButtonSeverity(postInfo.bookmarked, 1)" @click="clickPostBookmark" />
-            </div>
+        <div v-else class="px-4 py-2 flex flex-col gap-1">
+            <PostInfoCard :item="postInfo" @vote="vote" :show-bookmark="true" />
         </div>
         <Divider v-if="!postLoading" class="!mt-0 !mb-0" />
         
-<!--        Post Add Comments-->
+<!--        Post Add Comments, Ready for deprecated -->
         <div class="p-4 pb-2 flex flex-col gap-2 border-b border-surface">
             <div class="h-40">
                 <EEditor :placeholder="t('post.addAComment')" ref="postCommentEditor" />
@@ -110,12 +61,14 @@
         </div>
         
         <!--        Comments-->
-        <div class="flex flex-col gap-4 divide-y">
-            <div v-for="item in comment" :key="item.id" class="pt-4 px-4">
+        <div class="flex flex-col divide-y">
+            <div v-for="item in comment" :key="item.id" class="px-4 py-2">
                 <PostInfoCard :item="item" :is-post="false" @vote="vote" :show-bookmark="true" @click-bookmark="clickedCommentBookmark" />
             </div>
             <div class="h-4"></div>
         </div>
+        
+        <div class="h-10"></div>
         
         <Teleport defer to="#aside">
             <div>Hey!</div>
@@ -332,19 +285,6 @@ const vote = async (post, vote, isPost) => {
 }
 
 //overflow
-const contentContainer = ref();
-let isOverflow = ref(false);
-const isContentOverflow = () => {
-    if(contentContainer.value){
-        const el = contentContainer.value;
-        console.log(el.scrollHeight , el.clientHeight);
-        isOverflow.value = el.scrollHeight > el.clientHeight;
-    }
-}
-let expanded = ref(false);
-const expandContent = () => {
-    expanded.value = !expanded.value;
-}
 
 //lifespans
 onBeforeMount(() => {
@@ -363,9 +303,6 @@ onMounted(async () => {
         postInfo.value = res;
     } catch (e) {}
     postLoading.value = false;
-    nextTick(() => {
-        isContentOverflow();
-    })
     commentLoading.value = true;
     try {
         let res = await apiGetComment({

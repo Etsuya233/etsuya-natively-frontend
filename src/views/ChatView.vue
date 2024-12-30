@@ -26,18 +26,42 @@
                     </div>
                 </div>
                 <div v-if="meId === item.senderId" class="w-full pl-8">
-                    <div class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary
+                    <div v-if="item.type === 1" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary
                     hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors" @click="openMsgMenu(item, $event)">
                         {{item.content}}
                         <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{item.time.substring(0, 5)}}</div>
                     </div>
+                    <div v-else-if="item.type === 2" class="w-fit float-right max-w-[28rem] min-w-24 relative h-36 rounded-2xl overflow-hidden border" @click="openImageMenu($event)">
+                        <img class="h-full w-full object-cover" :src="item.content" alt="image"/>
+                        <div class="absolute text-xs inline-block bottom-2 right-2 bg-slate-700/30 text-slate-100 px-1 rounded-full">
+                            {{item.time.substring(0, 5)}}
+                        </div>
+                    </div>
+                    <div v-else-if="item.type === 3" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary
+                    hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors">
+                        <audio :src="item.content" controls />
+                        <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{item.time.substring(0, 5)}}</div>
+                    </div>
+                    <div v-else></div>
                 </div>
                 <div v-else class="w-full pr-8">
-                    <div class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
+                    <div v-if="item.type === 1" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
                         hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900" @click="openMsgMenu(item, $event)">
                         {{item.content}}
                         <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.substring(0, 5)}}</div>
                     </div>
+                    <div v-else-if="item.type === 2" class="w-fit max-w-[28rem] min-w-24 relative h-36 rounded-2xl overflow-hidden border" @click="openImageMenu($event)">
+                        <img class="h-full w-full object-cover" :src="item.content" alt="image"/>
+                        <div class="absolute text-xs inline-block bottom-2 right-2 bg-slate-700/30 text-slate-100 px-1 rounded-full">
+                            {{item.time.substring(0, 5)}}
+                        </div>
+                    </div>
+                    <div v-else-if="item.type === 3" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
+                        hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900">
+                        <audio :src="item.content" controls />
+                        <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.substring(0, 5)}}</div>
+                    </div>
+                    <div v-else></div>
                 </div>
             </div>
             <div class="h-12 md:hidden">
@@ -67,15 +91,21 @@
                         pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0" @click="sendTextMsg"/>
             </div>
             <div class="pt-3 flex *:flex-1 gap-2" v-if="tools">
-                <Button icon="pi pi-image" label="Images" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
-                <Button icon="pi pi-camera" label="Camera" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
-                <Button icon="pi pi-microphone" label="Voice" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
+                <Button @click="addImage" icon="pi pi-image" label="Images" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
+                <Button  icon="pi pi-camera" label="Camera" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
+                <Button @click="addVoice" icon="pi pi-microphone" label="Voice" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
             </div>
         </div>
+        
+        <ImageUploader2 ref="imageUploader" :enable-send="true" :limit="1" :images="images" :imageSrc="imageSrc" @send="sendImage" />
+        <VoiceRecorder2 ref="voiceRecorder" :enable-send="true" v-model:value="voice" v-model:url="voiceUrl" @send="sendVoice" />
         
 <!--        Popover -->
         <Popover ref="msgMenu" pt:content:class="!p-1" pt:root:class="!rounded-xl">
             <Menu :model="menuItem" pt:root:class="!border-none !w-fit !min-w-0" pt:list:class="!w-fit" />
+        </Popover>
+        <Popover ref="imageMsgMenu" pt:content:class="!p-1" pt:root:class="!rounded-xl">
+            <Menu :model="imageMenuItem" pt:root:class="!border-none !w-fit !min-w-0" pt:list:class="!w-fit" />
         </Popover>
     </div>
 </template>
@@ -102,6 +132,11 @@ import {apiGetExplanation, apiGetTranslation} from "@/api/language.js";
 import {getCurrentLanguage} from "@/utils/language.js";
 import MdRender from "@/components/logo/MdRender.vue";
 import {useNaviStore} from "@/stores/naviStore.js";
+import ImageUploader from "@/components/ImageUploader.vue";
+import ImageUploader2 from "@/components/ImageUploader2.vue";
+import {apiSendFile} from "@/api/chat.js";
+import Image from 'primevue/image';
+import VoiceRecorder2 from "@/components/VoiceRecorder2.vue";
 
 const userStore = useUserStore();
 const {isScrollDown, isAtBottom, isAtTop} = useScroll();
@@ -160,6 +195,62 @@ const menuItem = ref([{
     label: t('bookmark.addToBookmark'),
     icon: 'pi pi-bookmark',
 }])
+const imageMsgMenu = ref(null);
+const imageMenuItem = ref([{
+    label: t('chat.getOriginalImage'),
+    icon: 'pi pi-image'
+}])
+const openImageMenu = (event) => {
+    imageMsgMenu.value.toggle(event);
+}
+
+// image
+const imageUploader = ref();
+let images = ref([]);
+let imageSrc = ref([]); //used for preview
+const addImage = () => {
+    imageUploader.value.toggle();
+    tools.value = false;
+}
+const sendImage = () => {
+    imageUploader.value.toggle();
+    if(images.value.length === 0) return;
+    let formData = new FormData();
+    formData.append('file', images.value[0]);
+    formData.append('type', 2);
+    formData.append('receiverId', receiver.value);
+    chatStore.sending = true;
+    apiSendFile(formData).then(() => {
+        images.value.splice(0, images.value.length);
+        imageSrc.value.splice(0, images.value.length);
+    }).catch(() => {}).finally(() => {
+        chatStore.sending = false;
+    })
+}
+
+// voice
+const voiceRecorder = ref(null);
+const addVoice = () => {
+    voiceRecorder.value.toggle();
+    tools.value = false;
+}
+const voice = ref(null);
+const voiceUrl = ref('');
+const sendVoice = () => {
+    voiceRecorder.value.toggle();
+    if(!voiceUrl.value) return;
+    let formData = new FormData();
+    formData.append('file', voice.value);
+    formData.append('type', 3);
+    formData.append('receiverId', receiver.value);
+    chatStore.sending = true;
+    apiSendFile(formData).then(() => {
+        voice.value = undefined;
+        voiceUrl.value = '';
+    }).catch(() => {}).finally(() => {
+        chatStore.sending = false;
+    })
+}
 
 // ui
 const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);

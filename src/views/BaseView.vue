@@ -43,13 +43,13 @@
 <!--            Router-->
             <div class="w-full">
                 <div class="w-full">
-                    <RouterView class="w-full" v-slot="{Component}">
+                    <RouterView class="w-full" v-slot="{Component}" :key="route.path" >
                         <ETransition name="fade">
                             <component :is="Component" />
                         </ETransition>
                     </RouterView>
                 </div>
-                <div class="max-md:h-14 md:hidden" :class="{ 'max-md:!hidden': !route.meta.nav }"></div>
+                <div class="h-14 md:hidden" :class="{ '!hidden': !route.meta.nav }"></div>
             </div>
             
 <!--            Sidebar-->
@@ -67,11 +67,6 @@
             </div>
             
 <!--            Navi-->
-<!--            <div class="md:hidden fixed top-16 right-0">-->
-<!--                <div class="bg-white/80 backdrop-blur-xl h-12 w-12 border flex justify-center items-center rounded-l-lg overflow-hidden">-->
-<!--                    <div class="pi pi-sparkles" ></div>-->
-<!--                </div>-->
-<!--            </div>-->
             <Drawer v-model:visible="naviStore.showing" position="bottom" class="!rounded-t-2xl !z-20 !h-auto
                     !max-h-[90dvh] !max-w-[35rem]" header="Navi">
                 <template #header>
@@ -169,6 +164,7 @@
                         <Button v-if="naviStore.mode === 1 && naviStore.page === 2" @click="naviStore.goNext()" :label="t('navi.ask')" icon="pi pi-sparkles" iconPos="right" />
                         <Button v-else-if="naviStore.mode === 2 && naviStore.page === 2" @click="naviStore.goNext()" :label="t('navi.ask')" icon="pi pi-sparkles" iconPos="right" />
                         <Button v-else-if="naviStore.mode === 3 && naviStore.page === 2" @click="naviStore.goNext()" :label="t('navi.ask')" icon="pi pi-sparkles" iconPos="right" />
+                        <Button v-else-if="naviStore.mode === 4 && naviStore.page === 2" @click="naviStore.goNext()" :label="t('navi.ask')" icon="pi pi-sparkles" iconPos="right" />
                         <Button v-if="naviStore.page === 3" :disabled="naviStore.loading" @click="naviStore.goNext()" :label="t('navi.retry')" icon="pi pi-replay" severity="info" />
                     </div>
                 </div>
@@ -193,10 +189,12 @@ import Drawer from "primevue/drawer";
 import Skeleton from "primevue/skeleton";
 import {useSelect} from "@/utils/selection.js";
 import ProgressSpinner from 'primevue/progressspinner';
+import {useUserStore} from "@/stores/userStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const {selected} = useSelect();
+const userStore = useUserStore();
 
 
 // ---- navi ----
@@ -228,7 +226,7 @@ let menuItem = ref([
     { name: t('common.chat'), icon: 'pi pi-envelope', to: { name: 'ChatList'}},
     { name: 'Navi', icon: 'pi pi-sparkles'},
     { name: t('common.bookmark'), icon: 'pi pi-bookmark', to: { name: 'Bookmark'}},
-    { name: t('common.me'), icon: 'pi pi-user', to: { name: 'Me'}},
+    { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }}
 ])
 
 

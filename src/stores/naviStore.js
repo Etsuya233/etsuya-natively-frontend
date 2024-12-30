@@ -177,7 +177,7 @@ export const useNaviStore = defineStore('navi', () => {
                     }).then(res => {
                         if(count.value === cc){
                             loading.value = false;
-                            audioBlob.value = new Blob([res.data], { type: 'audio/ogg' });
+                            audioBlob.value = new Blob([res.data], { type: 'audio/mp3' });
                             audioUrl.value = URL.createObjectURL(audioBlob.value);
                         }
                     });

@@ -13,9 +13,9 @@
         </div>
         
 <!--        Recommendation-->
-        <div class="flex flex-col gap-2 *:cursor-pointer w-full divide-y">
+        <div class="flex flex-col *:cursor-pointer w-full divide-y">
             <div v-if="selected === 1" v-for="item in recommendationPosts" :key="item.id" @click="postClicked(item)"
-                 class="w-full flex flex-col gap-1 px-4 pt-2">
+                 class="w-full flex flex-col gap-1 px-4 py-2">
                 <PostInfoCard :item="item" @vote="postVote" />
             </div>
         </div>

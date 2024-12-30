@@ -34,7 +34,7 @@ const routes = [
                         name: 'PostType',
                         component: () => import('@/views/PostTypeView.vue'),
                         meta: {
-                            nav: false,
+                            nav: true,
                             navTransparent: false
                         }
                     },
@@ -43,7 +43,7 @@ const routes = [
                         name: 'ComposeNormal',
                         component: () => import('@/views/ComposeNormal.vue'),
                         meta: {
-                            nav: false,
+                            nav: true,
                             navTransparent: false
                         }
                     },
@@ -52,7 +52,7 @@ const routes = [
                         name: 'ComposeQuestion',
                         component: () => import('@/views/ComposeQuestion.vue'),
                         meta: {
-                            nav: false,
+                            nav: true,
                             navTransparent: false
                         }
                     },
@@ -61,7 +61,7 @@ const routes = [
                         name: 'ComposeArticle',
                         component: () => import('@/views/ComposeArticle.vue'),
                         meta: {
-                            nav: false,
+                            nav: true,
                             navTransparent: false
                         }
                     },
@@ -70,7 +70,7 @@ const routes = [
                         name: 'Post',
                         component: () => import('@/views/PostView.vue'),
                         meta: {
-                            nav: false,
+                            nav: true,
                             navTransparent: true,
                             info: 'la'
                         }
@@ -127,8 +127,8 @@ const routes = [
                 children: [
                     {
                         path: '',
-                        name: 'Me',
-                        component: () => import('@/views/UserView.vue'),
+                        name: 'More',
+                        component: () => import('@/views/MoreView.vue'),
                         meta: {
                             nav: true,
                             navTransparent: false

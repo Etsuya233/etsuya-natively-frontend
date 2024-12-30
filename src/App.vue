@@ -1,6 +1,6 @@
 <template>
     <Toast position="top-center" class="!w-full !top-0 !max-w-screen-sm" pt:root:class="*:!m-4" />
-    <router-view class="selection:bg-primary-100 selection:text-primary-600 dark:selection:bg-primary-800"/>
+    <router-view class="selection:bg-primary-100 selection:text-primary-600 dark:selection:bg-primary-800" />
 </template>
 
 <script setup>
@@ -12,6 +12,7 @@ import {apiGetCurrent} from "@/api/user.js";
 import {useChatStore} from "@/stores/chatStore.js";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {apiGetLanguageInNative, apiGetLanguages} from "@/api/language.js";
+import {useRoute} from "vue-router";
 
 let currentTheme = detectTheme();
 themeChange(currentTheme);
@@ -19,6 +20,7 @@ themeChange(currentTheme);
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const languageStore = useLanguageStore();
+const route = useRoute();
 
 onBeforeMount(() => {
     chatStore.connect();

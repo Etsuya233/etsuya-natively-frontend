@@ -115,13 +115,33 @@ let enConfig = {
         articleDesc: 'Articles allow you to write formatted content in Markdown, perfect for structured writing or conclusions.'
     },
     voiceRecorder: {
+        title: 'Voice Recorder',
         start: 'Start Recording',
         stop: 'Stop Recording',
         limit: 'Maximum length is 30 seconds. It will stop automatically if exceeded. Only one voice message is allowed. If there\'s an error, unplug and plug the mic back in.',
+        send: 'Send',
     },
     user: {
         following: 'Following',
-        followers: 'Followers'
+        followers: 'Followers',
+    },
+    lang: {
+        en: 'English',
+        zh: 'Chinese',
+        ko: 'Korean',
+        ja: 'Japanese',
+        fr: 'French',
+        enAbbr: 'ENG',
+        zhAbbr: 'CHN',
+        koAbbr: 'KOR',
+        jaAbbr: 'JPN',
+        frAbbr: 'FRA',
+    },
+    imageUploader: {
+        send: 'Send',
+        add: 'Add',
+        change: 'Change',
+        images: 'Images',
     },
     bookmark: {
         bookmark: 'Bookmark',
@@ -131,6 +151,7 @@ let enConfig = {
         chat: 'Chat',
         message: 'Message',
         sending: 'Sending...',
+        getOriginalImage: 'Get Original Image',
     },
     navi: {
         quote: 'Quote',
@@ -144,6 +165,11 @@ let enConfig = {
         enterHere: 'Enter here...',
         retry: 'Retry',
         pronounce: 'Pronounce',
+    },
+    more: {
+        language: 'Language',
+        logout: 'Logout',
+        editProfile: 'Edit Profile',
     }
 }
 

@@ -17,7 +17,8 @@ export const useUserStore = defineStore('user', () => {
         "status": 1,
         "version": 1,
         "createTime": "",
-        "updateTime": ""
+        "updateTime": "",
+        "languages": []
     };
 
     let empty = JSON.parse(JSON.stringify(emptyUser));
