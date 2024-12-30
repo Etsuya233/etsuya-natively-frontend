@@ -119,10 +119,8 @@ const getButtonSeverity = (vote, value) => {
 const contentContainer = ref();
 let isOverflow = ref(false);
 const isContentOverflow = () => {
-    console.log('activated')
     if(contentContainer.value){
         const el = contentContainer.value;
-        console.log(el.scrollHeight , el.clientHeight);
         isOverflow.value = el.scrollHeight > el.clientHeight;
     }
 }

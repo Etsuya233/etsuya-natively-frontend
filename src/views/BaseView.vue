@@ -43,10 +43,10 @@
 <!--            Router-->
             <div class="w-full">
                 <div class="w-full">
-                    <RouterView class="w-full" v-slot="{Component}" :key="route.path" >
-                        <ETransition name="fade">
+                    <RouterView class="w-full" v-slot="{Component}" >
+<!--                        <ETransition name="fade">-->
                             <component :is="Component" />
-                        </ETransition>
+<!--                        </ETransition>-->
                     </RouterView>
                 </div>
                 <div class="h-14 md:hidden" :class="{ '!hidden': !route.meta.nav }"></div>

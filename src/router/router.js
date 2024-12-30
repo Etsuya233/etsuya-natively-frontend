@@ -103,6 +103,7 @@ const routes = [
                     {
                         path: ':id',
                         name: 'Chat',
+                        // component: () => import('@/views/TestView2.vue'),
                         component: () => import('@/views/ChatView.vue'),
                         meta: {
                             nav: false,

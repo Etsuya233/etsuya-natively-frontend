@@ -97,7 +97,7 @@
             </div>
         </div>
         
-        <ImageUploader2 ref="imageUploader" :enable-send="true" :limit="1" :images="images" :imageSrc="imageSrc" @send="sendImage" />
+        <ImageUploader2 ref="imageUploader" :enable-send="true" :limit="1" v-model:images="images" v-model:imageSrc="imageSrc" @send="sendImage" />
         <VoiceRecorder2 ref="voiceRecorder" :enable-send="true" v-model:value="voice" v-model:url="voiceUrl" @send="sendVoice" />
         
 <!--        Popover -->
@@ -115,27 +115,18 @@ import EHeader from "@/components/logo/EHeader.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
 import {useI18n} from "vue-i18n";
-import {nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useUserStore} from "@/stores/userStore.js";
-import {useRouter, useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useChatStore} from "@/stores/chatStore.js";
 import {apiGetUser} from "@/api/user.js";
-import OverlayBadge from "primevue/overlaybadge";
 import ETransition from "@/components/ETransition.vue";
 import Popover from 'primevue/popover';
 import Menu from 'primevue/menu';
-import Drawer from 'primevue/drawer';
-import Select from 'primevue/select';
 import {useLanguageStore} from "@/stores/languageStore.js";
-import Skeleton from 'primevue/skeleton';
-import {apiGetExplanation, apiGetTranslation} from "@/api/language.js";
-import {getCurrentLanguage} from "@/utils/language.js";
-import MdRender from "@/components/logo/MdRender.vue";
 import {useNaviStore} from "@/stores/naviStore.js";
-import ImageUploader from "@/components/ImageUploader.vue";
 import ImageUploader2 from "@/components/ImageUploader2.vue";
 import {apiSendFile} from "@/api/chat.js";
-import Image from 'primevue/image';
 import VoiceRecorder2 from "@/components/VoiceRecorder2.vue";
 
 const userStore = useUserStore();
@@ -205,7 +196,7 @@ const openImageMenu = (event) => {
 }
 
 // image
-const imageUploader = ref();
+const imageUploader = ref(null);
 let images = ref([]);
 let imageSrc = ref([]); //used for preview
 const addImage = () => {
@@ -318,6 +309,10 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     chatStore.clearUnread(receiver.value);
 })
+
+// onBeforeRouteUpdate(async (to, from) => {
+//     console.log(to, from);
+// })
 
 </script>
 

@@ -28,7 +28,7 @@
 import Button from "primevue/button";
 import Image from "primevue/image";
 import FileUpload from "primevue/fileupload";
-import {onMounted, onUnmounted, ref, watch} from "vue";
+import {onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import Drawer from "primevue/drawer";
 
@@ -122,7 +122,7 @@ onMounted(() => {
     inputElement.value.addEventListener("change", change);
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
     inputElement.value.removeEventListener("change", change);
 })
 
