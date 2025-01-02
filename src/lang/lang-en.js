@@ -124,6 +124,13 @@ let enConfig = {
     user: {
         following: 'Following',
         followers: 'Followers',
+        follow: 'Follow',
+        followBack: 'Follow Back',
+        unfollow: 'Unfollow',
+        mutualFollowing: 'Mutual Following',
+        oops: 'Oops',
+        bannedPrompt: 'It seems that you are block by {\'@\'}{username}.',
+        unblock: 'Unblock',
     },
     lang: {
         en: 'English',
@@ -152,6 +159,7 @@ let enConfig = {
         message: 'Message',
         sending: 'Sending...',
         getOriginalImage: 'Get Original Image',
+        contact: 'Contact',
     },
     navi: {
         quote: 'Quote',
@@ -170,6 +178,7 @@ let enConfig = {
         language: 'Language',
         logout: 'Logout',
         editProfile: 'Edit Profile',
+        clickOneMoreTimeToLogout: 'Click One More Time to Logout',
     }
 }
 

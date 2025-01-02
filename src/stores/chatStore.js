@@ -14,6 +14,26 @@ export const useChatStore = defineStore('chat', () => {
     let msgMap = ref(new Map());
     let sending = ref(false); // TODO multi tab
 
+    function $reset(){
+        // 断开 WebSocket 连接
+        if (stompClient.value && stompClient.value.connected) {
+            try {
+                stompClient.value.disconnect();
+            } catch (e) {
+                console.error('Error while disconnecting:', e);
+            }
+        }
+        // 清空 WebSocket 客户端和 socket 实例
+        stompClient.value = null;
+        socket = null;
+        // 清空会话映射表
+        conversationMap.value.clear();
+        // 清空消息映射表
+        msgMap.value.clear();
+        // 重置发送状态
+        sending.value = false;
+    }
+
     // Conversation
     async function loadMoreConversation(){
         // get the last id
@@ -94,15 +114,26 @@ export const useChatStore = defineStore('chat', () => {
             const meId = userStore.userInfo.id;
             // system msg
             stompClient.value.subscribe("/topic/system", (res) => {
-                console.log(res);
+                console.log(JSON.parse(res.body));
             })
             // chat message
             stompClient.value.subscribe("/user/queue/chat/message", (res) => {
-                const body = JSON.parse(res.body);
-                const receiverId = body.senderId === meId? body.receiverId: body.senderId;
-                initMessage(receiverId);
-                msgMap.value.get(receiverId).push(body);
-                if(body.senderId === meId){
+                const response = JSON.parse(res.body);
+                if(response.code === 200){
+                    const body = response.data;
+                    const receiverId = body.senderId === meId? body.receiverId: body.senderId;
+                    initMessage(receiverId);
+                    msgMap.value.get(receiverId).push(body);
+                    if(body.senderId === meId){
+                        sending.value = false;
+                    }
+                } else {
+                    toastStore.add({
+                        severity: 'error',
+                        summary: `Error: ${response.code}`,
+                        detail: response.msg,
+                        life: 3000
+                    })
                     sending.value = false;
                 }
             })
@@ -118,5 +149,5 @@ export const useChatStore = defineStore('chat', () => {
     })
 
     return { connected, disconnect, connect, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, initMessage,
-    initConversation, sendTextMsg, sending, clearUnread};
+    initConversation, sendTextMsg, sending, clearUnread, $reset};
 });

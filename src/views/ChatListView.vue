@@ -2,7 +2,7 @@
     <div class="w-full">
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="t('chat.chat')"
                  :class="{'opacity-30': isScrollDown}" :show-back="false" />
-        <div class="flex flex-col divide-y">
+        <div class="flex flex-col divide-y min-h-[calc(100dvh-11rem)] md:min-h-[100vh]">
             <div class="p-4 flex cursor-pointer hover:bg-slate-100 transition-colors transform-gpu"
                  v-for="[key, item] in conversations" :key="key"
                  @click="router.push({ name: 'Chat', params: {id: key}})">
@@ -22,6 +22,10 @@
             </div>
             <div></div>
         </div>
+        <div class="sticky bottom-16 w-fit float-right md:bottom-0 pr-4 h-16">
+            <Button icon="pi pi-plus !text-xl" class="!p-7 shadow-lg"
+                    rounded severity="primary" @click="router.push({ name: 'Contact'} )"/>
+        </div>
     </div>
 </template>
 
@@ -34,6 +38,7 @@ import OverlayBadge from 'primevue/overlaybadge';
 import {onBeforeUnmount, onMounted} from "vue";
 import {useRouter} from "vue-router";
 import {useChatStore} from "@/stores/chatStore.js";
+import Button from "primevue/button";
 
 const router = useRouter();
 const chatStore = useChatStore();

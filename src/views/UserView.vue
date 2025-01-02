@@ -1,15 +1,18 @@
 <template>
     <div>
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :enable-slot="true">
-            <div class="flex items-center">
+            <div v-if="userInfo.id && userInfo.relationship !== -2" class="flex items-center">
                 <div class="h-10 w-10 mr-4 flex-shrink-0">
                     <img :src="userInfo.avatar" class="object-cover rounded-full" alt="avatar"/>
                 </div>
                 <div class="overflow-hidden text-ellipsis">{{userInfo.nickname}}</div>
             </div>
+            <div v-if="userInfo.relationship === -2" class="">
+                :(
+            </div>
         </EHeader>
         
-        <div v-if="userInfo.id" class="relative w-full">
+        <div v-if="userInfo.id && userInfo.relationship !== -2" class="relative w-full">
             <div class="h-32 w-full overflow-hidden">
                 <img class="w-full h-full object-cover blur scale-125" :src="userInfo.avatar" alt="banner"/>
             </div>
@@ -17,11 +20,17 @@
                 <img class="w-28 h-28 rounded-full ring-4 ring-white" :src="userInfo.avatar" alt="avatar"/>
             </div>
             <div class="w-full h-12 flex">
-                <div class="ml-auto mt-2 mr-3" v-if="isMe">
-                    <Button severity="secondary" icon="pi pi-pencil" rounded :label="t('common.edit')" outlined />
+                <div class="ml-auto mt-2 mr-3 *:ml-2">
+                    <Button v-if="!isMe" rounded
+                            :icon="userFollowButtonIcon"
+                            :severity="userFollowButtonSeverity"
+                            :label="userFollowButtonLabel"
+                            :loading="followLoading"
+                            @click="followClicked"/>
+                    <Button class="!border-none" outlined rounded icon="pi pi-ellipsis-v" severity="secondary" size="small" />
                 </div>
             </div>
-            <div class="px-4 flex flex-col py-4 w-full">
+            <div class="px-4 flex flex-col pt-4 pb-3 w-full">
                 <div class="flex w-full">
                     <div class="overflow-hidden text-ellipsis w-0 flex-1">
                         <div class="text-3xl font-bold whitespace-nowrap overflow-x-hidden text-ellipsis">
@@ -51,16 +60,24 @@
                 </div>
             </div>
         </div>
+        <div v-if="userInfo.relationship === -2" class="p-4">
+            <div class="text-4xl font-bold">
+                {{t('user.oops')}}
+            </div>
+            <div class="mt-4 text-xl">
+                {{ t('user.bannedPrompt', { username: userInfo.username }) }}
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
 import EHeader from "@/components/logo/EHeader.vue";
 import {useI18n} from "vue-i18n";
-import {onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore.js";
-import {apiGetCurrent, apiGetUser} from "@/api/user.js";
+import {apiFollow, apiGetCurrent, apiGetUser} from "@/api/user.js";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
 import {apiGetUserPosts, apiVote} from "@/api/post.js";
@@ -91,9 +108,58 @@ let userInfo = ref({
     "version": 1,
     "createTime": "",
     "updateTime": "",
-    languages: []
+    languages: [],
+    relationship: 0
 });
 
+// follow
+const followLoading = ref(false);
+const userFollowButtonLabel = computed(() => {
+    switch (userInfo.value.relationship) {
+        case -2: return t('user.unblock');
+        case -1: return t('user.unblock');
+        case 0: return t('user.follow');
+        case 1: return t('user.following');
+        case 2: return t('user.followBack');
+        case 3: return t('user.mutualFollowing');
+        default: return t('user.follow');
+    }
+})
+const userFollowButtonIcon = computed(() => {
+    switch (userInfo.value.relationship) {
+        case -2: return 'pi pi-ban';
+        case -1: return 'pi pi-ban';
+        case 0: return 'pi pi-plus';
+        case 1: return 'pi pi-heart';
+        case 2: return 'pi pi-plus';
+        case 3: return 'pi pi-heart-fill';
+        default: return 'pi pi-plus';
+    }
+})
+const userFollowButtonSeverity = computed(() => {
+    switch (userInfo.value.relationship) {
+        case -2: return 'warn';
+        case -1: return 'warn';
+        case 0: return 'secondary';
+        case 1: return 'primary';
+        case 2: return 'info';
+        case 3: return 'primary'
+        default: return 'primary';
+    }
+})
+const followClicked = () => {
+    if(userInfo.value.relationship === -1){
+        //unblock
+    } else if(userInfo.value.relationship >= 0){
+        followLoading.value = true;
+        const followOrNot = userInfo.value.relationship === 0 || userInfo.value.relationship === 2;
+        apiFollow(userInfo.value.id, followOrNot).then((res) => {
+            userInfo.value.followers = res.followers;
+            userInfo.value.following = res.following;
+            userInfo.value.relationship = res.relationship;
+        }).catch().finally(() => followLoading.value = false);
+    }
+}
 //user post
 let posts = ref([]);
 const postClicked = (post) => {

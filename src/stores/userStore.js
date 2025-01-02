@@ -22,9 +22,13 @@ export const useUserStore = defineStore('user', () => {
     };
 
     let empty = JSON.parse(JSON.stringify(emptyUser));
-    let userInfo = ref(empty);
+    let userInfo = ref({ ... empty });
 
     userInfo.value.id = localStorage.getItem("userId");
 
-    return {userInfo}
+    function $reset(){
+        userInfo.value = {... empty};
+    }
+
+    return {userInfo, $reset}
 });

@@ -1,7 +1,8 @@
 <template>
     <div class="w-full">
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :enable-slot="true" >
-            <div class="flex items-center">
+            <div class="flex items-center w-fit cursor-pointer hover:underline"
+                 @click="router.push({ name: 'User', params: { id: receiver } })">
                 <div class="h-10 w-10 mr-4 flex-shrink-0">
                     <img :src="receiverInfo.avatar" class="object-cover rounded-full" alt="avatar"/>
                 </div>

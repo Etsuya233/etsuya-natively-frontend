@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full">
+    <div class="w-full min-h-[calc(100dvh-3.5rem)] md:min-h-[calc(100dvh-3.5rem)]" @click="handleGlobalClicked">
         <EHeader :title="t('common.me')" :show-back="false" />
         <div class="w-full">
             <div class="w-full flex flex-col gap-4 p-4">
@@ -15,7 +15,9 @@
                 <ESelectList>
                     <ESelectItem icon="pi-pencil" :title="t('more.editProfile')" />
                     <ESelectItem @click="languageVisible = true" icon="pi-language" :title="t('more.language')" />
-                    <ESelectItem @click="logout" icon="pi-sign-out" :title="t('more.logout')" />
+                    <ESelectItem @click.stop="logoutClicked" icon="pi-sign-out"
+                                 :title="logoutCnt === 0? t('more.logout'): t('more.clickOneMoreTimeToLogout')"
+                                 :danger="logoutCnt !== 0" />
                 </ESelectList>
             </div>
         </div>
@@ -39,6 +41,7 @@ import {ref} from "vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {changeLanguage, getCurrentLanguage} from "@/utils/language.js";
 import {useRoute, useRouter} from "vue-router";
+import {useChatStore} from "@/stores/chatStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const userStore = useUserStore();
@@ -54,12 +57,18 @@ const changeLanguageClick = (code) => {
     location.reload();
 }
 
-const logout = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    
+// logout
+const handleGlobalClicked = () => {
+    logoutCnt.value = 0;
 }
-
+let logoutCnt = ref(0);
+const logoutClicked = () => {
+    if(logoutCnt.value === 0){
+        logoutCnt.value = 1;
+    } else {
+        router.push({ name: 'Logout'});
+    }
+}
 </script>
 
 <style scoped>

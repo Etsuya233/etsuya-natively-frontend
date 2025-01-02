@@ -1,5 +1,7 @@
 <template>
-    <Toast position="top-center" class="!w-full !top-0 !max-w-screen-sm" pt:root:class="*:!m-4" />
+    <Toast position="top-center" class="!w-full !top-0 !max-w-screen-sm"
+           pt:root:class="*:!m-4"
+           pt:messageContent:class=""/>
     <router-view class="selection:bg-primary-100 selection:text-primary-600 dark:selection:bg-primary-800" />
 </template>
 

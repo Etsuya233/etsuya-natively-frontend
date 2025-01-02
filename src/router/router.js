@@ -101,6 +101,15 @@ const routes = [
                         }
                     },
                     {
+                        path: 'contact',
+                        name: 'Contact',
+                        component: () => import('@/views/ContactView.vue'),
+                        meta: {
+                            nav: false,
+                            navTransparent: false
+                        }
+                    },
+                    {
                         path: ':id',
                         name: 'Chat',
                         // component: () => import('@/views/TestView2.vue'),
@@ -188,6 +197,15 @@ const routes = [
         path: '/test',
         name: 'Test',
         component: () => import('@/views/TestView.vue'),
+        meta: {
+            nav: false,
+            navTransparent: false
+        }
+    },
+    {
+        path: '/logout',
+        name: 'Logout',
+        component: () => import('@/views/LogoutView.vue'),
         meta: {
             nav: false,
             navTransparent: false

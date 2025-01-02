@@ -1,4 +1,5 @@
 import request from "@/utils/request.js";
+import {data} from "autoprefixer";
 
 const baseUrl = '/user';
 
@@ -70,5 +71,20 @@ export const apiGetUser = (id) => {
     return request({
         url: `${baseUrl}/${id}`,
         method: 'GET'
+    })
+}
+
+export const apiGetContact = () => {
+    return request({
+        url: `${baseUrl}/contact`,
+        method: 'GET'
+    });
+}
+
+export const apiFollow = (followeeId, follow) => {
+    return request({
+        url: `${baseUrl}/follow`,
+        method: 'POST',
+        data: { followeeId, follow }
     })
 }
