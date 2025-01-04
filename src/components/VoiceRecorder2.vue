@@ -87,8 +87,8 @@ const startRecording = async () => {
         // 停止录音时处理数据
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            url.value = URL.createObjectURL(audioBlob);
             value.value = audioBlob;
+            url.value = URL.createObjectURL(audioBlob);
             audioChunks = [];
             clearTimers(); // 清理计时器
         };

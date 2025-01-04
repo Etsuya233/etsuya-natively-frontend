@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full">
-        <article class="prose prose-code:font-mono dark:prose-invert" >
+        <article class="prose prose-slate prose-code:font-mono dark:prose-invert" >
             <div v-html="rendered"></div>
         </article>
     </div>
@@ -8,12 +8,25 @@
 
 <script setup>
 import MarkdownIt from "markdown-it";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 
 const md = new MarkdownIt();
 
-const props = defineProps(["markdown"]);
-const rendered = ref(md.render(props.markdown));
+const props = defineProps({
+    markdown: {
+        default: ''
+    },
+    dynamic: {
+        default: false
+    }
+});
+let rendered = ref(md.render(props.markdown));
+
+watch(() => props.markdown, () => {
+    if(props.dynamic){
+        rendered.value = md.render(props.markdown);
+    }
+})
 
 </script>
 

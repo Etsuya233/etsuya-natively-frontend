@@ -12,6 +12,7 @@
     "@primevue/themes": "^4.1.1",
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.7.7",
+    "diff": "^7.0.0",
     "joi": "^17.13.3",
     "markdown-it": "^14.1.0",
     "md-editor-v3": "^5.0.0",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
+    "@types/diff": "^6.0.0",
     "@vitejs/plugin-vue": "^5.1.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",

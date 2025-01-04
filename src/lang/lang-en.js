@@ -179,6 +179,19 @@ let enConfig = {
         logout: 'Logout',
         editProfile: 'Edit Profile',
         clickOneMoreTimeToLogout: 'Click One More Time to Logout',
+    },
+    editor: {
+        originalText: 'Original Text',
+        revisedText: 'Revised Text',
+        raw: 'Raw',
+        rendered: 'Rendered',
+        output: 'Output',
+        image: 'Image',
+        caption: 'Caption',
+        voice: 'Voice',
+        record: 'Record',
+        noRecordingFound: 'No recording found.',
+        upload: 'Upload',
     }
 }
 
