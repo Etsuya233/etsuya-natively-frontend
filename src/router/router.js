@@ -23,7 +23,7 @@ const routes = [
                     {
                         path: '',
                         name: 'Home',
-                        component: () => import('@/views/HomeView.vue'),
+                        component: () => import('@/views/HomeViewV2.vue'),
                         meta: {
                             nav: true,
                             navTransparent: true
@@ -41,25 +41,16 @@ const routes = [
                     {
                         path: 'composeNormal',
                         name: 'ComposeNormal',
-                        component: () => import('@/views/ComposeNormal.vue'),
+                        component: () => import('@/views/ComposeV2.vue'),
                         meta: {
                             nav: true,
                             navTransparent: false
                         }
                     },
                     {
-                        path: 'composeQuestion',
-                        name: 'ComposeQuestion',
-                        component: () => import('@/views/ComposeQuestion.vue'),
-                        meta: {
-                            nav: true,
-                            navTransparent: false
-                        }
-                    },
-                    {
-                        path: 'composeArticle',
-                        name: 'ComposeArticle',
-                        component: () => import('@/views/ComposeArticle.vue'),
+                        path: 'composeComment',
+                        name: 'ComposeComment',
+                        component: () => import('@/views/ComposeComment.vue'),
                         meta: {
                             nav: true,
                             navTransparent: false
@@ -68,13 +59,22 @@ const routes = [
                     {
                         path: 'post/:id',
                         name: 'Post',
-                        component: () => import('@/views/PostView.vue'),
+                        component: () => import('@/views/PostViewV3.vue'),
                         meta: {
                             nav: true,
                             navTransparent: true,
                             info: 'la'
                         }
                     },
+                    {
+                        path: 'comment',
+                        name: 'Comment',
+                        component: () => import('@/views/CommentView.vue'),
+                        meta: {
+                            nav: true,
+                            navTransparent: true,
+                        }
+                    }
                 ]
             },
             {
@@ -112,7 +112,6 @@ const routes = [
                     {
                         path: ':id',
                         name: 'Chat',
-                        // component: () => import('@/views/TestView2.vue'),
                         component: () => import('@/views/ChatView.vue'),
                         meta: {
                             nav: false,
@@ -197,6 +196,15 @@ const routes = [
         path: '/test',
         name: 'Test',
         component: () => import('@/views/TestView.vue'),
+        meta: {
+            nav: false,
+            navTransparent: false
+        }
+    },
+    {
+        path: '/test2',
+        name: 'Test2',
+        component: () => import('@/views/TestView2.vue'),
         meta: {
             nav: false,
             navTransparent: false

@@ -31,5 +31,7 @@ watch(() => props.markdown, () => {
 </script>
 
 <style>
-
+* {
+    user-select: text;
+}
 </style>

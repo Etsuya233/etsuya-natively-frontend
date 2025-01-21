@@ -112,7 +112,38 @@ let enConfig = {
         normalDesc: 'Share your daily life and communicate with native speakers.',
         questionDesc: 'Ask a question with a title and details. Don\'t forget to mark the best answer with a green checkmark!',
         article: 'Article',
-        articleDesc: 'Articles allow you to write formatted content in Markdown, perfect for structured writing or conclusions.'
+        articleDesc: 'Articles allow you to write formatted content in Markdown, perfect for structured writing or conclusions.',
+        menu: 'Menu',
+        bookmark: 'Bookmark',
+        navi: 'Navi',
+        report: 'Report',
+        containLanguages: 'Please the post mainly contain what languages',
+        next: 'Next',
+        back: 'Back',
+        selectedLanguage: 'Selected Languages',
+        title: 'Title',
+        titleOptional: 'Title (Optional)',
+        rule: 'Rule',
+        normalRule: '1, Title is optional. The max length of title is 250 characters.\n2, Max blocks count is 30. Max image blocks is 10. Max voices count is 10.\n3, The content length cannot pass 65530 characters.',
+        questionRule: '1, Title is required. The max length of title is 250 characters.\n2, Max blocks count is 30. Max image blocks is 10. Max voices count is 10.\n3, The content length cannot pass 65530 characters.'
+    },
+    composeComment: {
+        title: 'Comment',
+        compare: 'Compare',
+        placeholder: 'Write you comment...',
+        compareOldValue: 'Original Text',
+        compareNewValue: 'Revised Text',
+        compareOutput: 'Compare Result',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        imageMenu: 'Image',
+        voiceMenu: 'Voice',
+        compareMenu: 'Compare',
+        add: 'Add',
+        change: 'Change',
+        delete: 'Delete',
+        record: 'Record',
+        upload: 'Upload',
     },
     voiceRecorder: {
         title: 'Voice Recorder',
@@ -173,6 +204,7 @@ let enConfig = {
         enterHere: 'Enter here...',
         retry: 'Retry',
         pronounce: 'Pronounce',
+        autoDetect: 'Auto Detect',
     },
     more: {
         language: 'Language',
@@ -192,6 +224,9 @@ let enConfig = {
         record: 'Record',
         noRecordingFound: 'No recording found.',
         upload: 'Upload',
+        preview: 'Preview',
+        text: 'Text',
+        posting: 'Posting...',
     }
 }
 

@@ -1,0 +1,58 @@
+<template>
+    <div class="w-full">
+        <div class="py-3 px-4 rounded-2xl bg-slate-100 transition-colors transform-gpu text-slate-800 hover:bg-slate-200 active:bg-slate-300"
+             @click="listVisible = true">
+            {{ selected[props.displayField] }}
+        </div>
+        <Drawer v-model:visible="listVisible"
+                position="bottom"
+                class="rounded-t-2xl !h-auto"
+                :header="props.header">
+            <EList>
+                <EListItem v-for="(item, index) in props.data"
+                           :key="props.key? item[props.key]: index"
+                           :title="item[props.displayField]"
+                           :selected="item[props.valueField] === value"
+                           @click="select(item)" />
+            </EList>
+        </Drawer>
+    </div>
+</template>
+
+<script setup>
+import {computed, ref, watch} from "vue";
+import Drawer from "primevue/drawer";
+import EList from "@/components/EList.vue";
+import EListItem from "@/components/EListItem.vue";
+
+const props = defineProps({
+    data: {
+        default: []
+    },
+    displayField: {
+        default: 'key',
+    },
+    valueField: {
+        default: 'value',
+    },
+    keyField: {
+        default: null,
+    },
+    header: {
+        default: ':)',
+    },
+});
+const listVisible = ref(false);
+const value = defineModel();
+const selected = computed(() => {
+    return props.data.find(item => item[props.valueField] === value.value) || {};
+})
+const select = (item) => {
+    value.value = item[props.valueField];
+    listVisible.value = false;
+}
+</script>
+
+<style scoped>
+
+</style>

@@ -1,90 +1,9 @@
 <template>
     <div>
-        <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="t('post.comments')"
+        <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="t('post.post')"
                  :class="{'opacity-30': isScrollDown}" />
         
-        <!--        Post Info in history-->
-<!--        <div v-if="postLoading" class="px-4 py-2 flex flex-col">-->
-<!--            <div class="pb-4 flex w-full">-->
-<!--                <div class="h-12 w-12">-->
-<!--                    <Skeleton width="100%" height="100%" shape="circle"/>-->
-<!--                </div>-->
-<!--                <div class="w-full flex flex-col gap-1">-->
-<!--                    <div class="pl-3 h-6 items-center w-[7rem]">-->
-<!--                        <Skeleton height="100%" />-->
-<!--                    </div>-->
-<!--                    <div class="h-5 pl-3 w-[10rem] pt-1">-->
-<!--                        <Skeleton height="100%" />-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="h-6 mb-2">-->
-<!--                <Skeleton height="100%" />-->
-<!--            </div>-->
-<!--            <div class="flex flex-col gap-1 w-full">-->
-<!--                <Skeleton />-->
-<!--                <Skeleton />-->
-<!--                <Skeleton width="40%" />-->
-<!--            </div>-->
-<!--            <div class="flex gap-2 mt-4 w-full">-->
-<!--                <Skeleton height="2rem" width="4rem" />-->
-<!--                <Skeleton height="2rem" width="4rem" />-->
-<!--                <Skeleton class="ml-auto" height="2rem" width="4rem" />-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div v-else>-->
-<!--            <div class="w-full px-4 py-2 bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">-->
-<!--                <div class="flex w-full">-->
-<!--                    <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">-->
-<!--                        <div class="h-11 w-11 rounded-full overflow-hidden mt-1">-->
-<!--                            <img class="w-full h-full object-cover" :src="postInfo.avatar" alt="avatar"/>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="flex flex-col w-0 flex-1">-->
-<!--                        <div class="pl-3 overflow-hidden min-w-0">-->
-<!--                            <div class="w-full flex items-center cursor-text">-->
-<!--                                <div class="text-ellipsis overflow-hidden break-words whitespace-nowrap">{{postInfo.nickname}}</div>-->
-<!--                                <div class="text-sm text-slate-600 flex-shrink-0">&nbsp;·&nbsp;{{postInfo.createTime}}</div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="min-h-5 flex flex-wrap gap-2 pl-[0.675rem] w-full mt-[0.25rem]">-->
-<!--                            <ELangProgress v-for="lang in postInfo.userLanguages" :lang="lang.language" :proficiency="lang.proficiency" />-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div v-if="postInfo.title">-->
-<!--                    <div class="inline-block mr-2 align-top" v-if="postInfo.type === 2">-->
-<!--                        <Tag value="Question" class="h-6"/>-->
-<!--                    </div>-->
-<!--                    <div class="inline font-bold text-lg text-slate-900 md:select-text cursor-text">-->
-<!--                        {{postInfo.title}}-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="cursor-text text-slate-800">-->
-<!--                    <PostRenderer :content="JSON.parse(postInfo.content)" />-->
-<!--                </div>-->
-<!--                <div class="w-full" v-if="postInfo.image">-->
-<!--                    <img :src="postInfo.image" class="w-full max-h-[20rem] rounded-xl border object-cover" alt="image"/>-->
-<!--                </div>-->
-<!--                <div class="mt-1 mb-1" v-if="postInfo.voice">-->
-<!--                    <audio controls :src="postInfo.voice.url" @click.stop>-->
-<!--                        Your browser doesn't support Audio.-->
-<!--                    </audio>-->
-<!--                </div>-->
-<!--                <div class="flex gap-2">-->
-<!--                    <Button rounded icon="pi pi-thumbs-up" :label="postInfo.upvote.toString()" :severity="getButtonSeverity(postInfo.vote, 1)"-->
-<!--                            size="small" pt:icon:class="pl-1" pt:label:class="pr-1" />-->
-<!--                    <Button rounded icon="pi pi-thumbs-down" :label="postInfo.downvote.toString()" :severity="getButtonSeverity(postInfo.vote, -1)"-->
-<!--                            size="small" pt:icon:class="pl-1" pt:label:class="pr-1" />-->
-<!--                    <Button rounded icon="pi pi-comment" :label="postInfo.commentCount" severity="secondary" size="small"-->
-<!--                            @click.stop="" pt:icon:class="pl-1" pt:label:class="pr-1" @click="comment2Post" />-->
-<!--                    <Button text icon="pi pi-ellipsis-v" class="ml-auto" severity="secondary" size="small"-->
-<!--                            @click.stop="" pt:icon:class="pl-1" pt:label:class="pr-1" @click="postMenuVisible = true" />-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        Comment -->
+        <!--        Post Info-->
         <div v-if="postLoading" class="px-4 py-2 flex flex-col">
             <div class="pb-4 flex w-full">
                 <div class="h-12 w-12">
@@ -133,15 +52,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="cursor-text text-slate-800">
-                    {{ postInfo.content }}
+                <div v-if="postInfo.title">
+                    <div class="inline-block mr-2 align-top" v-if="postInfo.type === 2">
+                        <Tag value="Question" class="h-6"/>
+                    </div>
+                    <div class="inline font-bold text-lg text-slate-900 md:select-text cursor-text">
+                        {{postInfo.title}}
+                    </div>
                 </div>
-                <div class="w-full" v-if="postInfo.compare">
-                        <span v-for="d in postInfo.change"
-                              class="font-bold rounded select-text"
-                              :class="{ 'bg-red-200': d.removed, 'text-red-500': d.removed, 'bg-primary-100': d.added, 'text-primary-700': d.added }">
-                            {{ d.value }}
-                        </span>
+                <div class="cursor-text text-slate-800">
+                    <PostRenderer :content="JSON.parse(postInfo.content)" />
                 </div>
                 <div class="w-full" v-if="postInfo.image">
                     <img :src="postInfo.image" class="w-full max-h-[20rem] rounded-xl border object-cover" alt="image"/>
@@ -164,7 +84,7 @@
             </div>
         </div>
         
-        <!--        <Divider v-if="!postLoading" class="!mt-0 !mb-0" />-->
+<!--        <Divider v-if="!postLoading" class="!mt-0 !mb-0" />-->
         <div class="border-slate-100 border-4" />
         
         <!--        Comments-->
@@ -187,14 +107,6 @@
                             <div class="min-h-5 flex flex-wrap gap-2 pl-[0.675rem] w-full mt-[0.25rem]">
                                 <ELangProgress v-for="lang in item.userLanguages" :lang="lang.language" :proficiency="lang.proficiency" />
                             </div>
-                        </div>
-                    </div>
-                    <div v-if="item.title">
-                        <div class="inline-block mr-2 align-top" v-if="item.type === 2">
-                            <Tag value="Question" class="h-6"/>
-                        </div>
-                        <div class="inline font-bold text-lg text-slate-900 md:select-text cursor-text">
-                            {{item.title}}
                         </div>
                     </div>
                     <div class="cursor-text text-slate-800">
@@ -237,7 +149,7 @@
             <div>Hey!</div>
         </Teleport>
         
-        <!--        Menu -->
+<!--        Menu -->
         <Drawer v-model:visible="postMenuVisible" position="bottom" class="rounded-t-2xl !h-auto" :header="t('post.menu')">
             <EList>
                 <EListItem icon="pi-bookmark" :title="t('post.bookmark')" />
@@ -268,13 +180,14 @@ import {useToastStore} from "@/stores/toastStore.js";
 import {useScroll} from "@/utils/scroll.js";
 import ELangProgress from "@/components/ELangProgress.vue";
 import PostRenderer from "@/components/PostRenderer.vue";
-import {apiGetCommentById, apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
+import {apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
 import Diff from "diff/dist/diff.js";
+import Menu from "primevue/menu";
+import Popover from "primevue/popover";
 import {useNaviStore} from "@/stores/naviStore.js";
 import EListItem from "@/components/EListItem.vue";
 import Drawer from "primevue/drawer";
 import EList from "@/components/EList.vue";
-import {usePostStore} from "@/stores/postStore.js";
 
 const {isScrollDown} = useScroll();
 const { t, locale, availableLocales } = useI18n();
@@ -283,24 +196,20 @@ const router = useRouter();
 const toastStore = useToastStore();
 const naviStore = useNaviStore();
 
-// todo history
-const postStore = usePostStore();
-const post = postStore.post;
-
-// loading
+//loading
 let postLoading = ref(true);
 let commentLoading = ref(false);
 
-// post
+//post
 let id = ref(null);
 let postInfo = ref({
-    "id": 0, "content": '', "image": null, "voice": null,
+    "id": 0, "title": '', "content": '', "type": 1,
     "userId": 0, "nickname": '', "avatar": '', "bookmarked": 0,
     "upvote": 0, "downvote": 0, "commentCount": 0, "createTime": '',
-    contentHasMore: false, vote: 0
+    images: [], voice: null, contentHasMore: false, vote: 0
 });
 
-// comment history
+// comment
 const comment = ref([]);
 const comment2Post = () => {
     router.push({
@@ -327,24 +236,24 @@ const commentMenuVisible = ref(false);
 
 //lifespans
 onBeforeMount(() => {
-    // let postId = route.params.id;
-    // postId = route.params.id;
-    // if(postId === null || postId === undefined) {
-    //     router.push({ name: 'Home'});
-    // }
-    // id.value = route.params.id;
-    id.value = '1';
+    let postId = route.params.id;
+    postId = route.params.id;
+    if(postId === null || postId === undefined) {
+        router.push({ name: 'Home'});
+    }
+    id.value = route.params.id;
+    // id.value = '1876546043030147074';
 })
 
 onMounted(async () => {
     postLoading.value = true;
     try {
-        postInfo.value = await apiGetCommentById(id.value);
+        postInfo.value = await apiGetPostById(id.value);
     } catch (e) {}
     postLoading.value = false;
     commentLoading.value = true;
     try {
-        let res = await apiGetCommentList(false, id.value, null);
+        let res = await apiGetCommentList(true, id.value, null);
         res.forEach(item => {
             if(item.compare != null){
                 const compareObj = JSON.parse(item.compare);

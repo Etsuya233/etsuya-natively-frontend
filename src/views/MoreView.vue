@@ -12,20 +12,20 @@
                         <div class="text-sm">{{`@${userStore.userInfo.username}`}}</div>
                     </div>
                 </div>
-                <ESelectList>
-                    <ESelectItem icon="pi-pencil" :title="t('more.editProfile')" />
-                    <ESelectItem @click="languageVisible = true" icon="pi-language" :title="t('more.language')" />
-                    <ESelectItem @click.stop="logoutClicked" icon="pi-sign-out"
+                <EList>
+                    <EListItem icon="pi-pencil" :title="t('more.editProfile')" />
+                    <EListItem @click="languageVisible = true" icon="pi-language" :title="t('more.language')" />
+                    <EListItem @click.stop="logoutClicked" icon="pi-sign-out"
                                  :title="logoutCnt === 0? t('more.logout'): t('more.clickOneMoreTimeToLogout')"
                                  :danger="logoutCnt !== 0" />
-                </ESelectList>
+                </EList>
             </div>
         </div>
         <Drawer v-model:visible="languageVisible" position="bottom" class="rounded-t-2xl !h-auto" :header="t('more.language')">
-            <ESelectList>
-                <ESelectItem v-for="item in languages" :key="item" :title="item.name" :selected="item.code === currentLanguage"
+            <EList>
+                <EListItem v-for="item in languages" :key="item" :title="item.name" :selected="item.code === currentLanguage"
                 @click="changeLanguageClick(item.code)"/>
-            </ESelectList>
+            </EList>
         </Drawer>
     </div>
 </template>
@@ -33,10 +33,10 @@
 <script setup>
 import EHeader from "@/components/logo/EHeader.vue";
 import {useI18n} from "vue-i18n";
-import ESelectList from "@/components/ESelectList.vue";
+import EList from "@/components/EList.vue";
 import {useUserStore} from "@/stores/userStore.js";
 import Drawer from "primevue/drawer";
-import ESelectItem from "@/components/ESelectItem.vue";
+import EListItem from "@/components/EListItem.vue";
 import {ref} from "vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {changeLanguage, getCurrentLanguage} from "@/utils/language.js";
