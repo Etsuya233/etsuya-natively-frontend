@@ -54,12 +54,19 @@
                 </div>
             </div>
             <Divider class="!my-0" />
+            
+            
             <div class="flex flex-col divide-y divide-surface-200">
-                <div v-for="item in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2">
-                    <PostInfoCard :item="item" :header="false" @vote="postVote" />
+                <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2">
+                    <PostCard v-model="posts[index]" :show-user="false" />
                 </div>
             </div>
+            
+            
         </div>
+        
+        <div class="max-md:h-14"></div>
+        
         <div v-if="userInfo.relationship === -2" class="p-4">
             <div class="text-4xl font-bold">
                 {{t('user.oops')}}
@@ -83,6 +90,9 @@ import Button from "primevue/button";
 import {apiGetUserPosts, apiVote} from "@/api/post.js";
 import PostInfoCard from "@/components/PostInfoCard.vue";
 import ELangProgress from "@/components/ELangProgress.vue";
+import Tag from "primevue/tag";
+import {apiGetUserPostList} from "@/api/postV2.js";
+import PostCard from "@/components/PostCard.vue";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -171,30 +181,6 @@ const getButtonSeverity = (vote, value) => {
 }
 
 //vote
-const postVote = async (post, vote, isComment) => {
-    try {
-        let res = await apiVote({
-            id: post.id,
-            type: vote,
-            post: isComment
-        });
-        console.log(res === true, res === false);
-        if(res){
-            if(vote === 1){
-                if(post.vote === -1){
-                    post.downvote--;
-                }
-                post.upvote++;
-            } else {
-                if(post.vote === 1){
-                    post.upvote--;
-                }
-                post.downvote++;
-            }
-            post.vote = vote;
-        }
-    } catch (e) {}
-}
 
 //lifespans
 onBeforeMount(async () => {
@@ -214,7 +200,7 @@ onBeforeMount(async () => {
     }
     userInfo.value = res;
     //posts
-    res = await apiGetUserPosts(id.value, null);
+    res = await apiGetUserPostList(id.value, null);
     posts.value.splice(0, posts.value.length);
     res.forEach(post => {
         post.avatar = userInfo.value.avatar;

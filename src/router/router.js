@@ -123,7 +123,7 @@ const routes = [
             {
                 path: 'bookmark',
                 name: 'Bookmark',
-                component: () => import('@/views/BookmarkView.vue'),
+                component: () => import('@/views/BookmarkViewV2.vue'),
                 meta: {
                     nav: true,
                     navTransparent: false

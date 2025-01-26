@@ -5,7 +5,6 @@ export const themeChange = (mode) => {
         localStorage.theme = 'light';
     } else {
         localStorage.theme = 'system'
-        // localStorage.removeItem('theme');
     }
     document.documentElement.classList.toggle(
         'dark',

@@ -88,3 +88,40 @@ export const apiGetCommentById = (id) => {
         }
     })
 }
+
+export const apiGetBookmarkList = (lastId) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'GET',
+        params: {
+            lastId
+        }
+    })
+};
+
+export const apiUpdateBookmark = (id, content, note) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'PUT',
+        data: {
+            id, content, note
+        }
+    })
+}
+
+export const apiDeleteBookmark = (id) => {
+    return request({
+        url: `${baseUrl}/bookmark/${id}`,
+        method: 'DELETE',
+    })
+}
+
+export const apiGetUserPostList = (userId, lastId) => {
+    return request({
+        url: `${baseUrl}/user`,
+        method: 'GET',
+        params: {
+            userId, lastId
+        }
+    })
+}

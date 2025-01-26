@@ -17,7 +17,8 @@ const props = defineProps({
         default: ''
     },
     dynamic: {
-        default: false
+        default: false,
+        type: Boolean
     }
 });
 let rendered = ref(md.render(props.markdown));

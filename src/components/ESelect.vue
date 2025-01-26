@@ -1,6 +1,7 @@
 <template>
     <div class="w-full">
-        <div class="py-3 px-4 rounded-2xl bg-slate-100 transition-colors transform-gpu text-slate-800 hover:bg-slate-200 active:bg-slate-300"
+        <div class="py-3 px-4  bg-slate-100 transition-colors transform-gpu text-slate-800 hover:bg-slate-200 active:bg-slate-300"
+             :class="{ 'rounded-2xl': props.rounded }"
              @click="listVisible = true">
             {{ selected[props.displayField] }}
         </div>
@@ -10,7 +11,7 @@
                 :header="props.header">
             <EList>
                 <EListItem v-for="(item, index) in props.data"
-                           :key="props.key? item[props.key]: index"
+                           :key="props.keyField? item[props.key]: index"
                            :title="item[props.displayField]"
                            :selected="item[props.valueField] === value"
                            @click="select(item)" />
@@ -25,6 +26,7 @@ import Drawer from "primevue/drawer";
 import EList from "@/components/EList.vue";
 import EListItem from "@/components/EListItem.vue";
 
+const emits = defineEmits(["afterSelect"]);
 const props = defineProps({
     data: {
         default: []
@@ -41,6 +43,10 @@ const props = defineProps({
     header: {
         default: ':)',
     },
+    rounded: {
+        default: true,
+        type: Boolean
+    }
 });
 const listVisible = ref(false);
 const value = defineModel();
@@ -50,7 +56,14 @@ const selected = computed(() => {
 const select = (item) => {
     value.value = item[props.valueField];
     listVisible.value = false;
+    emits('afterSelect');
 }
+const open = () => {
+    listVisible.value = true;
+}
+
+
+defineExpose({ open });
 </script>
 
 <style scoped>

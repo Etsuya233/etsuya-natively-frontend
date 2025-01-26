@@ -10,7 +10,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 
-const value = defineModel('value');
+const value = defineModel();
 const props = defineProps({
     minHeight: {
         required: false,

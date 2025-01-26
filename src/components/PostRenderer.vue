@@ -1,6 +1,6 @@
 <template>
     <div class="w-full flex flex-col gap-2">
-        <div v-for="(item, index) in props.content"
+        <div v-for="(item, index) in convertedContent"
              class="*:select-text">
             <div v-if="item.type === 1" class="whitespace-pre-line">
                 {{ item.value }}
@@ -43,11 +43,23 @@
 
 <script setup>
 import MdRender from "@/components/logo/MdRender.vue";
+import {computed, ref, watch} from "vue";
+import Diff from "diff/dist/diff.js";
 
 const props = defineProps({
     content: {
-        default: []
+        default: '[]'
     }
+})
+
+const convertedContent = computed(() => {
+    const converted = JSON.parse(props.content);
+    converted.forEach(item => {
+        if(item.type === 2){
+            item.change = Diff.diffChars(item.oldValue, item.newValue);
+        }
+    })
+    return converted;
 })
 
 </script>

@@ -177,10 +177,7 @@ const menuItem = ref([{
     label: 'Navi',
     icon: 'pi pi-sparkles',
     command: () => {
-        naviStore.open({
-            quote: selectedMsg.value.content,
-            type: 2
-        });
+        naviStore.launch(selectedMsg.value.content);
         msgMenu.value.toggle();
     }
 },{
