@@ -40,14 +40,14 @@
             </div>
         </div>
         
-<!--        <div class="border-slate-100 border-4" />-->
-        
 <!--        History -->
         <div class="flex flex-col">
             <div v-for="(item, index) in history"
                  :key="item.id"
+                 class="relative"
                  @click="historyClicked(index)">
-                <div v-if="index !== 0" :id="`history-${index}`" class="border-primary-200 border-[0.25rem] ml-[2.125rem] h-12 w-0 rounded-full"></div>
+                <div v-if="index !== 0" class="border-primary-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
+                <div class="absolute -top-14" :id="`history-${index}`"></div>
                 <div v-if="index > 0" class="px-4 py-2 w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
                     <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" />
                 </div>
@@ -60,22 +60,24 @@
         <div class="p-4 text-xl font-bold">
             {{ t('post.comments') }}
         </div>
-        <div class="flex flex-col divide-y">
+        <div class="flex flex-col">
             <div v-for="(item, index) in comment[comment.length - 1]"
                  :key="item.id"
-                 :id="`comment-${item.id}`"
-                 class="px-4 py-2"
+                 class="relative border-b"
                  @click="commentClicked(index)">
-                <CommentCard v-model="comment[comment.length - 1][index]" />
+                <div class="absolute -top-14" :id="`comment-${item.id}`"></div>
+                <CommentCard class="px-4 py-2" v-model="comment[comment.length - 1][index]" />
+                <div v-if="lastCommentId === item.id" class="border-t text-center text-slate-600 text-sm py-1">
+                    {{ t('post.continueReading') }}
+                </div>
+            </div>
+            <div class="w-full select-none">
+                <Button @click="loadMoreComment" class="w-full" text severity="secondary" :label="t('post.clickLoadMore')" />
             </div>
             <div class="h-4"></div>
         </div>
         
         <div class="h-10"></div>
-        
-<!--        <Teleport defer to="#aside">-->
-<!--            <div>Hey!</div>-->
-<!--        </Teleport>-->
     
     </div>
 </template>
@@ -85,21 +87,13 @@ import {useRoute, useRouter} from "vue-router";
 import {nextTick, onBeforeMount, onMounted, ref} from "vue";
 import EHeader from "@/components/logo/EHeader.vue";
 import Button from "primevue/button";
-import Tag from "primevue/tag";
 import Skeleton from 'primevue/skeleton';
 import {useI18n} from "vue-i18n";
 import {useToastStore} from "@/stores/toastStore.js";
 import {useScroll} from "@/utils/scroll.js";
-import ELangProgress from "@/components/ELangProgress.vue";
-import PostRenderer from "@/components/PostRenderer.vue";
 import {apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
 import Diff from "diff/dist/diff.js";
-import Menu from "primevue/menu";
-import Popover from "primevue/popover";
 import {useNaviStore} from "@/stores/naviStore.js";
-import EListItem from "@/components/EListItem.vue";
-import Drawer from "primevue/drawer";
-import EList from "@/components/EList.vue";
 import PostCard from "@/components/PostCard.vue";
 import CommentCard from "@/components/CommentCard.vue";
 
@@ -137,7 +131,12 @@ const postClicked = () => {
 }
 
 // history
-const history = ref([{id: 0}]); // 0:comment1 1:comment2
+const history = ref([{id: 0}]);
+/**
+ * lastCommentId is the id of the last comment you clicked to see the detail, use to find the right position
+ * @type {Ref<UnwrapRef<number>, UnwrapRef<number> | number>}
+ */
+const lastCommentId = ref(-1);
 const historyClicked = (index) => {
     if(index === history.value.length - 1){
         const currentHistoryId = history.value[index].id;
@@ -145,14 +144,18 @@ const historyClicked = (index) => {
         history.value.splice(index);
         // remove the comment belongs to the comment after the clicked history comment
         comment.value.splice(index);
+        
+        lastCommentId.value = currentHistoryId;
+        
         // scroll to the right position
         nextTick(() => {
             document.getElementById(`comment-${currentHistoryId}`).scrollIntoView({
-                behavior: "smooth",
+                // behavior: "smooth",
                 block: "start",
             });
         })
     } else {
+        lastCommentId.value = -1;
         // remove the history after the clicked history comment
         history.value.splice(index + 1);
         // remove the comment belongs to the comment after the clicked history comment
@@ -168,17 +171,8 @@ const historyClicked = (index) => {
 }
 
 // comment
+// todo optimize the variable using compute
 const comment = ref([]); // 0:post 1:comment1 2:comment2
-const comment2Post = () => {
-    router.push({
-        name: 'ComposeComment',
-        query: {
-            postId: id.value,
-            post: true,
-            id: id.value,
-        }
-    });
-}
 /**
  * Process the comment got from backend.
  * @param res The response array.
@@ -190,6 +184,23 @@ const commentInit = (res) => {
             item.change = Diff.diffChars(compareObj.oldValue, compareObj.newValue);
         }
     })
+}
+const loadMoreComment = () => {
+    if(history.value.length === 1){
+        // post
+        apiGetCommentList(true, postInfo.value.id, comment.value[0].length === 0 ? null :
+            comment.value[0][comment.value[0].length - 1].id).then((res) => {
+            commentInit(res);
+            comment.value[0].push(... res);
+        })
+    } else {
+        // comment
+        apiGetCommentList(false, history.value[history.value.length - 1].id,
+            comment.value[comment.value.length - 1].length === 0? null: comment.value[comment.value.length - 1][comment.value[comment.value.length - 1].length - 1].id).then((res) => {
+                commentInit(res);
+                comment.value[comment.value.length - 1].push(... res);
+        })
+    }
 }
 const commentClicked = (index) => {
     const commentWhichClicked = comment.value[comment.value.length - 1][index];
@@ -212,15 +223,6 @@ const commentClicked = (index) => {
         comment.value[history.value.length - 1].push(... res);
     })
     commentLoading.value = false;
-}
-
-//vote
-const vote = (post, id, type) => {
-
-}
-const getButtonSeverity = (vote, value) => {
-    if(vote === value) return "primary";
-    else return "secondary";
 }
 
 //lifespans

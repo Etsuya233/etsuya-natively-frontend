@@ -45,6 +45,14 @@ const props = defineProps({
     opacity: 0;
 }
 
+.slide-up-enter-active, .slide-up-leave-active {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.slide-up-enter-from, .slide-up-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
 .rotate-enter-active, .rotate-leave-active {
     transition: transform 0.5s ease, opacity 0.5s ease;
 }

@@ -218,7 +218,7 @@
                     </EList>
                     <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
                         <Button :label="t('navi.back')" icon="pi pi-arrow-left" severity="secondary" class="!rounded-xl" @click="dictionaryBack" />
-                        <Button :label="t('navi.close')" icon="pi pi-times" severity="secondary" class="!rounded-xl" @click="naviStore.visible = fales" />
+                        <Button :label="t('navi.close')" icon="pi pi-times" severity="secondary" class="!rounded-xl" @click="naviStore.visible = false" />
                     </div>
                 </div>
             </div>

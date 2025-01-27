@@ -43,10 +43,13 @@
 <!--            Router-->
             <div class="w-full">
                 <div class="w-full">
+                    <ETransition name="slide-up">
+                        <div v-if="!chatStore.connected" class="sticky top-0 z-[100] bg-red-500 animate-pulse text-white text-center py-1 text-sm">
+                            {{ t('common.connectingNatively') }}
+                        </div>
+                    </ETransition>
                     <RouterView class="w-full" v-slot="{Component}" >
-<!--                        <ETransition name="fade">-->
-                            <component :is="Component" />
-<!--                        </ETransition>-->
+                        <component :is="Component" />
                     </RouterView>
                 </div>
                 <div class="h-14 md:hidden" :class="{ '!hidden': !route.meta.nav }"></div>
@@ -90,11 +93,13 @@ import {useSelect} from "@/utils/selection.js";
 import ProgressSpinner from 'primevue/progressspinner';
 import {useUserStore} from "@/stores/userStore.js";
 import Navi from "@/components/Navi.vue";
+import {useChatStore} from "@/stores/chatStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const {selected} = useSelect();
 const userStore = useUserStore();
+const chatStore = useChatStore();
 
 // ---- ui ----
 const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize); //TODO repeat code

@@ -56,8 +56,8 @@
             <Divider class="!my-0" />
             
             
-            <div class="flex flex-col divide-y divide-surface-200">
-                <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2">
+            <div class="flex flex-col divide-surface-200">
+                <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2 border-b">
                     <PostCard v-model="posts[index]" :show-user="false" />
                 </div>
             </div>

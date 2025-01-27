@@ -16,14 +16,30 @@
         </div>
         
         <!--        Recommendation-->
-        <div class="flex flex-col w-full divide-y dark:divide-gray-700">
-            <div v-if="selected === 1" v-for="(item, index) in recommendationPosts" :key="item.id" @click="postClicked(item)"
-                 class="w-full flex flex-col gap-1 px-4 py-2">
-                
-                <PostCard v-model="recommendationPosts[index]" />
-                
+        <div class="flex flex-col w-full">
+            <div v-if="selected === 0">
+                <div v-for="(item, index) in followingPosts" :key="item.id" @click="postClicked(item)"
+                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
+                    <PostCard v-model="followingPosts[index]" />
+                </div>
+            </div>
+            <div v-else-if="selected === 1">
+                <div v-for="(item, index) in recommendationPosts" :key="item.id" @click="postClicked(item)"
+                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
+                    <PostCard v-model="recommendationPosts[index]" />
+                </div>
+            </div>
+            <div v-else-if="selected === 2">
+                <div v-for="(item, index) in trendingPost" :key="item.id" @click="postClicked(item)"
+                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
+                    <PostCard v-model="trendingPost[index]" />
+                </div>
+            </div>
+            <div class="w-full select-none">
+                <Button @click="loadMore" class="w-full" text severity="secondary" :label="t('post.clickLoadMore')" />
             </div>
         </div>
+        
         
         <!--        Post-->
         <div class="fixed right-4 bottom-[4.5rem] md:hidden transition" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
@@ -35,16 +51,17 @@
 <script setup>
 import SelectButton from 'primevue/selectbutton';
 import Button from 'primevue/button';
-import {onMounted, ref} from 'vue';
+import {onActivated, onMounted, ref, watch} from 'vue';
 import router from "@/router/router.js";
 import {useI18n} from "vue-i18n";
 import {useScroll} from "@/utils/scroll.js";
 import Tag from "primevue/tag";
 import ELangProgress from "@/components/ELangProgress.vue";
-import {apiGetPostRecommendation} from "@/api/postV2.js";
+import {apiGetFollowing, apiGetPostRecommendation, apiGetTrending} from "@/api/postV2.js";
 import Logo from "@/components/logo/Logo.vue";
 import {useToast} from "primevue/usetoast";
 import PostCard from "@/components/PostCard.vue";
+import {useRoute} from "vue-router";
 
 const { t, locale, availableLocales } = useI18n();
 const {isScrollDown} = useScroll();
@@ -65,22 +82,63 @@ let selected = ref(1);
 
 //posts
 let recommendationPosts = ref([]);
+let followingPosts = ref([]);
+const trendingPost = ref([]);
 const postClicked = (post) => {
     router.push({ name: 'Post', params: { id: post.id }});
 }
+const loadMoreRecommendation = () => {
+    apiGetPostRecommendation(recommendationPosts.value.length === 0? null:
+        recommendationPosts.value[recommendationPosts.value.length - 1].id).then(res => {
+        recommendationPosts.value.push(... res);
+    })
+}
+const loadMoreFollowing = () => {
+    apiGetFollowing(followingPosts.value.length === 0? null:
+        followingPosts.value[followingPosts.value.length - 1].id).then(res => {
+        followingPosts.value.push(... res);
+    })
+}
+const loadMoreTrending = () => {
+    apiGetTrending(trendingPost.value.length + 1).then(res => {
+        trendingPost.value.push(... res);
+    })
+}
+watch(selected, (newVal, oldVal) => {
+    if(newVal === 0){
+        if(followingPosts.value.length === 0){
+            loadMoreFollowing();
+        }
+    } else if(newVal === 1){
+        if(recommendationPosts.value.length === 0){
+            loadMoreRecommendation();
+        }
+    } else if(newVal === 2){
+        if(trendingPost.value.length === 0){
+            loadMoreTrending();
+        }
+    }
+})
 
-// vote
-const vote = (item, type) => {
-    if(item.vote === type){
-        
-        return;
+// load more
+const loadMore = () => {
+    if(selected.value === 0){
+        loadMoreFollowing();
+    } else if(selected.value === 1){
+        loadMoreRecommendation();
+    } else if(selected.value === 2){
+        loadMoreTrending();
     }
 }
 
+
 // lifespan
 onMounted(async () => {
-    let res = await apiGetPostRecommendation();
-    recommendationPosts.value.push(... res);
+    if(recommendationPosts.value.length === 0){
+        let res = await apiGetPostRecommendation();
+        recommendationPosts.value.push(... res);
+    }
+    
 })
 
 </script>

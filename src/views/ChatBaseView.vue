@@ -5,12 +5,6 @@
 </template>
 
 <script setup>
-import {useRoute} from "vue-router";
-import {watch} from "vue";
-
-const route = useRoute();
-
-
 
 </script>
 

@@ -53,10 +53,26 @@
         <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <EList>
-                <EListItem icon="pi-bookmark" :title="t('post.bookmark')" />
+                <EListItem icon="pi-bookmark" :title="t('post.bookmark')" @click="bookmarkClicked" />
                 <EListItem icon="pi-sparkles" :title="t('post.navi')" />
                 <EListItem icon="pi-flag" :title="t('post.report')" />
             </EList>
+        </Drawer>
+        <Drawer v-model:visible="bookmarkVisible" position="bottom" :header="t('post.bookmark')"
+                class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
+            <div class="flex flex-col gap-4">
+                <div>
+                    {{t('post.bookmarkPostPrompt')}}
+                </div>
+                <EList :title="t('bookmark.note')" icon="pi pi-pencil">
+                    <EListItem enable-slot>
+                        <ETextarea v-model="bookmarkNote" />
+                    </EListItem>
+                </EList>
+                <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
+                    <Button :label="t('navi.ok')" @click="doBookmark" :loading="bookmarkLoading" icon="pi pi-check" class="!rounded-xl" />
+                </div>
+            </div>
         </Drawer>
     </div>
 </template>
@@ -72,8 +88,10 @@ import EListItem from "@/components/EListItem.vue";
 import EList from "@/components/EList.vue";
 import {useI18n} from "vue-i18n";
 import {useToastStore} from "@/stores/toastStore.js";
-import {apiVote} from "@/api/postV2.js";
+import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
+import ETextarea from "@/components/ETextarea.vue";
+import PostInfoCard from "@/components/PostInfoCard.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const toastStore = useToastStore();
@@ -107,6 +125,21 @@ const getButtonSeverity = (vote, value) => {
 
 // more
 const moreVisible = ref(false);
+const bookmarkVisible = ref(false);
+const bookmarkLoading = ref(false);
+const bookmarkNote = ref("");
+const bookmarkClicked = () => {
+    moreVisible.value = false;
+    bookmarkVisible.value = true;
+}
+const doBookmark = () => {
+    bookmarkLoading.value = true;
+    apiCreateBookmark(1, post.value.id, null, bookmarkNote.value).then(res => {
+        bookmarkVisible.value = false;
+    }).catch((err) => {}).finally(() => {
+        bookmarkLoading.value = false;
+    })
+}
 
 // vote
 const vote = (type) => {

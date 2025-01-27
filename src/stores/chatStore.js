@@ -8,6 +8,7 @@ import {useUserStore} from "@/stores/userStore.js";
 
 export const useChatStore = defineStore('chat', () => {
     let socket;
+    const connected = ref(false);
     let stompClient = ref(new StompJs.Client({
         connectHeaders: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -18,6 +19,7 @@ export const useChatStore = defineStore('chat', () => {
             return socket;
         },
         onConnect: (frame) => {
+            connected.value = true;
             const toastStore = useToastStore();
             const userStore = useUserStore();
             const meId = userStore.userInfo.id;
@@ -46,6 +48,9 @@ export const useChatStore = defineStore('chat', () => {
                     sending.value = false;
                 }
             })
+        },
+        onDisconnect: () => {
+            connected.value = false;
         }
     }));
 
@@ -155,10 +160,6 @@ export const useChatStore = defineStore('chat', () => {
     function disconnect(){
         stompClient.value.deactivate();
     }
-
-    let connected = computed(() => {
-        return stompClient.value.connected;
-    })
 
     return { connected, disconnect, connect, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, initMessage,
         initConversation, sendTextMsg, sending, clearUnread, $reset};

@@ -32,8 +32,28 @@ export const apiGetPostRecommendation = (lastId) => {
     return request({
         url: `${baseUrl}/recommendation`,
         method: 'GET',
-        data: {
+        params: {
             lastId: lastId,
+        }
+    })
+}
+
+export const apiGetFollowing = (lastId) => {
+    return request({
+        url: `${baseUrl}/following`,
+        method: 'GET',
+        params: {
+            lastId
+        }
+    })
+}
+
+export const apiGetTrending = (rank) => {
+    return request({
+        url: `${baseUrl}/trending`,
+        method: 'GET',
+        params: {
+            rank
         }
     })
 }
@@ -85,6 +105,16 @@ export const apiGetCommentById = (id) => {
         method: 'GET',
         params: {
             id
+        }
+    })
+}
+
+export const apiCreateBookmark = (type, referenceId, content, note) => {
+    return request({
+        url: `${baseUrl}/bookmark`,
+        method: 'POST',
+        data: {
+            type, referenceId, content, note
         }
     })
 }

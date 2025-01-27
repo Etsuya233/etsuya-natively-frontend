@@ -87,6 +87,7 @@ let enConfig = {
         translateFrom: 'Translate from {lang}',
         pronounce: 'Pronounce',
         originalText: 'Original',
+        connectingNatively: 'Connecting to Natively...'
     },
     post: {
         post: 'Post',
@@ -126,6 +127,10 @@ let enConfig = {
         rule: 'Rule',
         normalRule: '1. Title is optional. Maximum length is 250 characters.\n2. Maximum of 30 blocks, 10 image blocks, and 10 voice messages.\n3. Content length cannot exceed 65,530 characters.',
         questionRule: '1. Title is required. Maximum length is 250 characters.\n2. Maximum of 30 blocks, 10 image blocks, and 10 voice messages.\n3. Content length cannot exceed 65,530 characters.',
+        clickLoadMore: 'Click to load more...',
+        continueReading: 'Continue Reading',
+        more: 'More',
+        bookmarkPostPrompt: 'Bookmark this post',
     },
     composeComment: {
         title: 'Comment',
