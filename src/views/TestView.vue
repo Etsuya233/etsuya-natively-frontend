@@ -1,10 +1,10 @@
 <template>
-    <BookmarkViewV2 />
+    <BookmarkView />
 </template>
 
 <script setup>
 
-import BookmarkViewV2 from "@/views/BookmarkViewV2.vue";
+import BookmarkView from "@/views/tab/bookmark/BookmarkView.vue";
 </script>
 
 <style scoped>

@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useScroll} from "@/utils/scroll.js";
 import {useI18n} from "vue-i18n";
 import Avatar from 'primevue/avatar';

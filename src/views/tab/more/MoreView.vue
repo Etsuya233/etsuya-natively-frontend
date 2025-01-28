@@ -40,12 +40,12 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
-import EList from "@/components/EList.vue";
+import EList from "@/components/etsuya/EList.vue";
 import {useUserStore} from "@/stores/userStore.js";
 import Drawer from "primevue/drawer";
-import EListItem from "@/components/EListItem.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import {ref} from "vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {changeLanguage, getCurrentLanguage} from "@/utils/language.js";

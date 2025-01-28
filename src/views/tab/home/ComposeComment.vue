@@ -31,7 +31,7 @@
                     <div class="pi pi-send ml-auto" @click="send()"></div>
                 </div>
             </div>
-            <VoiceRecorder2
+            <VoiceRecorder
                     ref="voiceRecorder"
                     v-model:url="voiceTempUrl"
                     v-model:value="voiceTemp"
@@ -111,17 +111,17 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore.js";
 import {computed, onBeforeMount, ref} from "vue";
-import ETextarea from "@/components/ETextarea.vue";
-import VoiceRecorder2 from "@/components/VoiceRecorder2.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
+import VoiceRecorder from "@/components/natively/VoiceRecorder.vue";
 import Drawer from 'primevue/drawer';
 import ProgressBar from 'primevue/progressbar';
-import EListItem from "@/components/EListItem.vue";
-import EList from "@/components/EList.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
 import Diff from "diff/dist/diff.js";
 import {apiCreateComment} from "@/api/postV2.js";
 

@@ -98,8 +98,8 @@
             </div>
         </div>
         
-        <ImageUploader2 ref="imageUploader" :enable-send="true" :limit="1" v-model:images="images" v-model:imageSrc="imageSrc" @send="sendImage" />
-        <VoiceRecorder2 ref="voiceRecorder" :enable-send="true" v-model:value="voice" v-model:url="voiceUrl" @send="sendVoice" />
+        <ImageUploader ref="imageUploader" :enable-send="true" :limit="1" v-model:images="images" v-model:imageSrc="imageSrc" @send="sendImage" />
+        <VoiceRecorder ref="voiceRecorder" :enable-send="true" v-model:value="voice" v-model:url="voiceUrl" @send="sendVoice" />
         
 <!--        Popover -->
         <Popover ref="msgMenu" pt:content:class="!p-1" pt:root:class="!rounded-xl">
@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
 import {useI18n} from "vue-i18n";
@@ -121,14 +121,14 @@ import {useUserStore} from "@/stores/userStore.js";
 import {useRoute, useRouter} from "vue-router";
 import {useChatStore} from "@/stores/chatStore.js";
 import {apiGetUser} from "@/api/user.js";
-import ETransition from "@/components/ETransition.vue";
+import ETransition from "@/components/etsuya/ETransition.vue";
 import Popover from 'primevue/popover';
 import Menu from 'primevue/menu';
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {useNaviStore} from "@/stores/naviStore.js";
-import ImageUploader2 from "@/components/ImageUploader2.vue";
+import ImageUploader from "@/components/natively/ImageUploader.vue";
 import {apiSendFile} from "@/api/chat.js";
-import VoiceRecorder2 from "@/components/VoiceRecorder2.vue";
+import VoiceRecorder from "@/components/natively/VoiceRecorder.vue";
 
 const userStore = useUserStore();
 const {isScrollDown, isAtBottom, isAtTop} = useScroll();

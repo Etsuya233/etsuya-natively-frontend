@@ -172,7 +172,7 @@
                     <div class="pi pi-send ml-auto text-primary-500" @click="send()"></div>
                 </div>
             </div>
-            <VoiceRecorder2
+            <VoiceRecorder
                     ref="voiceRecorder"
                     v-model:url="voiceTempUrl"
                     v-model:value="voiceTemp"
@@ -193,25 +193,25 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore.js";
 import {computed, onBeforeMount, ref} from "vue";
 import Button from "primevue/button";
-import ETextarea from "@/components/ETextarea.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
 import Diff from "diff/dist/diff.js";
-import MdRender from "@/components/logo/MdRender.vue";
-import VoiceRecorder2 from "@/components/VoiceRecorder2.vue";
+import MdRender from "@/components/natively/MdRender.vue";
+import VoiceRecorder from "@/components/natively/VoiceRecorder.vue";
 import ToggleSwitch from 'primevue/toggleswitch';
 import {apiCreatePost, apiGetPostVerificationCode, apiUploadPostAttachment} from "@/api/postV2.js";
 import {cloneDeep} from "lodash";
 import Drawer from 'primevue/drawer';
 import ProgressBar from 'primevue/progressbar';
 import Divider from 'primevue/divider';
-import EList from "@/components/EList.vue";
+import EList from "@/components/etsuya/EList.vue";
 import Tag from 'primevue/tag';
-import EListItem from "@/components/EListItem.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import Panel from 'primevue/panel';
 

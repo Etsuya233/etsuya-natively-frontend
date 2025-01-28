@@ -56,11 +56,11 @@ import router from "@/router/router.js";
 import {useI18n} from "vue-i18n";
 import {useScroll} from "@/utils/scroll.js";
 import Tag from "primevue/tag";
-import ELangProgress from "@/components/ELangProgress.vue";
+import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import {apiGetFollowing, apiGetPostRecommendation, apiGetTrending} from "@/api/postV2.js";
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import {useToast} from "primevue/usetoast";
-import PostCard from "@/components/PostCard.vue";
+import PostCard from "@/components/natively/PostCard.vue";
 import {useRoute} from "vue-router";
 
 const { t, locale, availableLocales } = useI18n();

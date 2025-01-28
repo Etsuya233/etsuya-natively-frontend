@@ -62,19 +62,19 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useScroll} from "@/utils/scroll.js";
 import {onBeforeMount, ref} from "vue";
 import {apiDeleteBookmark, apiGetBookmarkList, apiUpdateBookmark} from "@/api/postV2.js";
 import Tag from "primevue/tag";
 import Button from "primevue/button";
 import {useI18n} from "vue-i18n";
-import PostCard from "@/components/PostCard.vue";
-import CommentCard from "@/components/CommentCard.vue";
-import EListItem from "@/components/EListItem.vue";
+import PostCard from "@/components/natively/PostCard.vue";
+import CommentCard from "@/components/natively/CommentCard.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import Drawer from "primevue/drawer";
-import EList from "@/components/EList.vue";
-import ETextarea from "@/components/ETextarea.vue";
+import EList from "@/components/etsuya/EList.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
 import {useRouter} from "vue-router";
 
 const {isScrollDown} = useScroll();

@@ -84,8 +84,8 @@
 
 <script setup>
 import {useRoute, useRouter} from "vue-router";
-import {nextTick, onBeforeMount, onMounted, ref} from "vue";
-import EHeader from "@/components/logo/EHeader.vue";
+import {computed, nextTick, onActivated, onBeforeMount, onMounted, ref, watch} from "vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import Button from "primevue/button";
 import Skeleton from 'primevue/skeleton';
 import {useI18n} from "vue-i18n";
@@ -94,8 +94,8 @@ import {useScroll} from "@/utils/scroll.js";
 import {apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
 import Diff from "diff/dist/diff.js";
 import {useNaviStore} from "@/stores/naviStore.js";
-import PostCard from "@/components/PostCard.vue";
-import CommentCard from "@/components/CommentCard.vue";
+import PostCard from "@/components/natively/PostCard.vue";
+import CommentCard from "@/components/natively/CommentCard.vue";
 
 const {isScrollDown} = useScroll();
 const { t, locale, availableLocales } = useI18n();
@@ -173,6 +173,11 @@ const historyClicked = (index) => {
 // comment
 // todo optimize the variable using compute
 const comment = ref([]); // 0:post 1:comment1 2:comment2
+const lastId = computed(() => {
+    return comment.value[comment.value.length - 1].length === 0?
+            null:
+            comment.value[comment.value.length - 1][comment.value[comment.value.length - 1].length - 1].id;
+});
 /**
  * Process the comment got from backend.
  * @param res The response array.
@@ -188,15 +193,13 @@ const commentInit = (res) => {
 const loadMoreComment = () => {
     if(history.value.length === 1){
         // post
-        apiGetCommentList(true, postInfo.value.id, comment.value[0].length === 0 ? null :
-            comment.value[0][comment.value[0].length - 1].id).then((res) => {
+        apiGetCommentList(true, postInfo.value.id, lastId.value).then((res) => {
             commentInit(res);
             comment.value[0].push(... res);
         })
     } else {
         // comment
-        apiGetCommentList(false, history.value[history.value.length - 1].id,
-            comment.value[comment.value.length - 1].length === 0? null: comment.value[comment.value.length - 1][comment.value[comment.value.length - 1].length - 1].id).then((res) => {
+        apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value).then((res) => {
                 commentInit(res);
                 comment.value[comment.value.length - 1].push(... res);
         })

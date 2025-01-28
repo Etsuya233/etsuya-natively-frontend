@@ -57,16 +57,16 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import EList from "@/components/EList.vue";
-import EListItem from "@/components/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import {useUserStore} from "@/stores/userStore.js";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {computed, ref} from "vue";
 import Button from 'primevue/button';
-import ETransition from "@/components/ETransition.vue";
+import ETransition from "@/components/etsuya/ETransition.vue";
 import Chip from 'primevue/chip';
 import Tag from 'primevue/tag';
 

@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import {useI18n} from 'vue-i18n'
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
@@ -75,7 +75,7 @@ import {apiHello, apiLogin} from "@/api/user.js";
 import {useToast} from 'primevue/usetoast';
 import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
-import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
+import ThirdPartyLogin from "@/components/natively/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore.js";
 

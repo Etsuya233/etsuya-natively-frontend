@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {onMounted, ref} from "vue";
 import {apiGetContact} from "@/api/user.js";

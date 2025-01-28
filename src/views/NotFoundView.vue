@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import {useI18n} from "vue-i18n";
 import Button from "primevue/button";
 import {useRouter} from "vue-router";

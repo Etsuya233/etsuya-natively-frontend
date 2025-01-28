@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from 'vue-i18n'
 import {onMounted} from "vue";

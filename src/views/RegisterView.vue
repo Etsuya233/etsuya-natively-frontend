@@ -213,7 +213,7 @@
 </template>
 
 <script setup>
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import {useI18n} from 'vue-i18n'
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
@@ -234,7 +234,7 @@ import Select from 'primevue/select';
 import Dialog from "primevue/dialog";
 import Rating from "primevue/rating";
 import Checkbox from 'primevue/checkbox';
-import ThirdPartyLogin from "@/components/logo/ThirdPartyLogin.vue";
+import ThirdPartyLogin from "@/components/natively/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useLanguageStore} from "@/stores/languageStore.js";
 

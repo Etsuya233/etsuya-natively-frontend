@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import MdRender from "@/components/logo/MdRender.vue";
+import MdRender from "@/components/natively/MdRender.vue";
 import {computed, ref, watch} from "vue";
 import Diff from "diff/dist/diff.js";
 

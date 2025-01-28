@@ -23,8 +23,8 @@
 <script setup>
 import {computed, ref, watch} from "vue";
 import Drawer from "primevue/drawer";
-import EList from "@/components/EList.vue";
-import EListItem from "@/components/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 
 const emits = defineEmits(["afterSelect"]);
 const props = defineProps({

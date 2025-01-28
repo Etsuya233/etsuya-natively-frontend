@@ -75,16 +75,16 @@
 </template>
 
 <script setup>
-import ELangProgress from "@/components/ELangProgress.vue";
+import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
 import {onMounted, ref} from "vue";
 import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
 import Drawer from "primevue/drawer";
-import EList from "@/components/EList.vue";
-import EListItem from "@/components/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
-import ETextarea from "@/components/ETextarea.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();

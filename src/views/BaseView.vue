@@ -43,14 +43,14 @@
 <!--            Router-->
             <div class="w-full">
                 <div class="w-full">
-                    <ETransition name="slide-up">
-                        <div v-if="!chatStore.connected" class="sticky top-0 z-[100] bg-red-500 animate-pulse text-white text-center py-1 text-sm">
-                            {{ t('common.connectingNatively') }}
-                        </div>
-                    </ETransition>
-                    <RouterView class="w-full" v-slot="{Component}" >
-                        <component :is="Component" />
-                    </RouterView>
+                    <router-view v-slot="{ Component, route }">
+                        <keep-alive :include="pageStore.cachedComponentArray">
+                            <component
+                                :is="Component"
+                                :key="route.meta.keepAliveKey || route.fullPath"
+                            />
+                        </keep-alive>
+                    </router-view>
                 </div>
                 <div class="h-14 md:hidden" :class="{ '!hidden': !route.meta.nav }"></div>
             </div>
@@ -71,44 +71,40 @@
             
 <!--            Navi-->
             <Navi />
+            
+<!--            Emergency-->
+            <ETransition name="slide-down">
+                <div v-if="!chatStore.connected" class="fixed bottom-0 left-0 right-0 z-[100] flex justify-center">
+                    <ProgressBar mode="indeterminate" class="!h-2 w-full max-w-screen-sm" />
+                </div>
+            </ETransition>
         </div>
     </div>
 </template>
 
 <script setup>
 import Card from 'primevue/card';
-import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
-import Logo from "@/components/logo/Logo.vue";
+import {computed, ref, watch} from 'vue';
+import Logo from "@/components/natively/Logo.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
-import EFade from "@/components/ETransition.vue";
-import ETransition from "@/components/ETransition.vue";
+import ETransition from "@/components/etsuya/ETransition.vue";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNaviStore} from "@/stores/naviStore.js";
-import MdRender from "@/components/logo/MdRender.vue";
-import Drawer from "primevue/drawer";
-import Skeleton from "primevue/skeleton";
 import {useSelect} from "@/utils/selection.js";
-import ProgressSpinner from 'primevue/progressspinner';
 import {useUserStore} from "@/stores/userStore.js";
-import Navi from "@/components/Navi.vue";
+import Navi from "@/components/natively/Navi.vue";
 import {useChatStore} from "@/stores/chatStore.js";
+import {usePageStore} from "@/stores/pageStore.js";
+import ProgressBar from "primevue/progressbar";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const {selected} = useSelect();
 const userStore = useUserStore();
 const chatStore = useChatStore();
-
-// ---- ui ----
-const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize); //TODO repeat code
-const textAreaMinHeight = 1.5 * rootFontSize;
-const textareaKeyDown = (e) => {
-    e.target.style.height = '1px';
-    let height = e.target.scrollHeight;
-    e.target.style.height = Math.max(height, textAreaMinHeight) + 'px';
-}
+const pageStore = usePageStore();
 
 // navi
 const naviStore = useNaviStore();

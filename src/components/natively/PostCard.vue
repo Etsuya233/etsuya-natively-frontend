@@ -1,6 +1,6 @@
 <template>
     <div class="w-full bg-white dark:bg-inherit rounded-lg flex flex-col gap-2 cursor-pointer">
-        <div v-if="props.showUser" class="flex w-full">
+        <div v-if="props.showUser" class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: post.userId }})">
             <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">
                 <div class="h-11 w-11 rounded-full overflow-hidden mt-1">
                     <img class="w-full h-full object-cover" :src="post.avatar" alt="avatar"/>
@@ -79,19 +79,18 @@
 
 <script setup>
 import Tag from "primevue/tag";
-import ELangProgress from "@/components/ELangProgress.vue";
+import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
 import {onMounted, ref, watch} from "vue";
-import PostRenderer from "@/components/PostRenderer.vue";
-import EListItem from "@/components/EListItem.vue";
-import EList from "@/components/EList.vue";
+import PostRenderer from "@/components/natively/PostRenderer.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
 import {useI18n} from "vue-i18n";
 import {useToastStore} from "@/stores/toastStore.js";
 import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
-import ETextarea from "@/components/ETextarea.vue";
-import PostInfoCard from "@/components/PostInfoCard.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const toastStore = useToastStore();

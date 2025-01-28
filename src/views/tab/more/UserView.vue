@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import EHeader from "@/components/logo/EHeader.vue";
+import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {computed, onBeforeMount, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
@@ -87,12 +87,9 @@ import {useUserStore} from "@/stores/userStore.js";
 import {apiFollow, apiGetCurrent, apiGetUser} from "@/api/user.js";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
-import {apiGetUserPosts, apiVote} from "@/api/post.js";
-import PostInfoCard from "@/components/PostInfoCard.vue";
-import ELangProgress from "@/components/ELangProgress.vue";
-import Tag from "primevue/tag";
+import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import {apiGetUserPostList} from "@/api/postV2.js";
-import PostCard from "@/components/PostCard.vue";
+import PostCard from "@/components/natively/PostCard.vue";
 
 const userStore = useUserStore();
 const router = useRouter();

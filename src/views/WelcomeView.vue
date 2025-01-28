@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import Logo from "@/components/logo/Logo.vue";
+import Logo from "@/components/natively/Logo.vue";
 import Button from 'primevue/button';
 import Select from 'primevue/select';
 import {onBeforeUnmount, onMounted, ref} from "vue";

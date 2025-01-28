@@ -232,17 +232,17 @@ import Button from "primevue/button";
 import {useNaviStore} from "@/stores/naviStore.js";
 import {nextTick, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import EList from "@/components/EList.vue";
-import EListItem from "@/components/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {getCurrentLanguage} from "@/utils/language.js";
 import {cloneDeep} from "lodash";
 import ProgressBar from 'primevue/progressbar';
-import ESelect from "@/components/ESelect.vue";
-import ETextarea from "@/components/ETextarea.vue";
+import ESelect from "@/components/etsuya/ESelect.vue";
+import ETextarea from "@/components/etsuya/ETextarea.vue";
 import Skeleton from "primevue/skeleton";
 import {apiNaviAsk, apiNaviExplain, apiNaviPronounce, apiNaviTranslate} from "@/api/naviV2.js";
-import MdRender from "@/components/logo/MdRender.vue";
+import MdRender from "@/components/natively/MdRender.vue";
 
 const { t, locale, availableLocales } = useI18n();
 
