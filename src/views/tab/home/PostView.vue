@@ -89,7 +89,6 @@ import EHeader from "@/components/etsuya/EHeader.vue";
 import Button from "primevue/button";
 import Skeleton from 'primevue/skeleton';
 import {useI18n} from "vue-i18n";
-import {useToastStore} from "@/stores/toastStore.js";
 import {useScroll} from "@/utils/scroll.js";
 import {apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
 import Diff from "diff/dist/diff.js";
@@ -101,7 +100,6 @@ const {isScrollDown} = useScroll();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const toastStore = useToastStore();
 const naviStore = useNaviStore();
 
 //loading

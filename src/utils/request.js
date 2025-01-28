@@ -1,12 +1,12 @@
-import axios, {Axios} from "axios";
 import {getCurrentLanguage} from "@/utils/language.js";
 import router from "@/router/router.js";
-import {useToastStore} from "@/stores/toastStore.js";
 import {apiRefreshToken} from "@/api/user.js";
 import axioss from "@/utils/axioss.js";
+import {useToast} from "@/utils/toast.js";
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const language = getCurrentLanguage();
+const toast = useToast();
 
 let lock = false;
 let refreshPromise = null;
@@ -14,7 +14,7 @@ let refreshPromise = null;
 const request = (options) => {
     //请求准备工作
     const authHeader = `Bearer ${localStorage.getItem('accessToken')}`;
-    if(options.headers){
+    if (options.headers) {
         options.headers.Authorization = authHeader;
         options['Time-Zone'] = timeZone;
         options['Accept-Language'] = language;
@@ -25,18 +25,17 @@ const request = (options) => {
             'Accept-Language': language,
         };
     }
-    if(!options.headers['Content-Type']) {
+    if (!options.headers['Content-Type']) {
         options.headers['Content-Type'] = 'application/json';
     }
     //发送请求
     return new Promise((resolve, reject) => {
-        const toastStore = useToastStore();
         axioss.request(options).then((res) => {
             let data = res.data;
-            if(data.code === 200){
+            if (data.code === 200) {
                 resolve(data.data);
-            } else if(data.code === 2000){ //access token failed
-                if(!lock){
+            } else if (data.code === 2000) { //access token failed
+                if (!lock) {
                     lock = true;
                     refreshPromise = apiRefreshToken().then((res) => {
                         localStorage.setItem('accessToken', res.accessToken);
@@ -46,12 +45,12 @@ const request = (options) => {
                             .catch((err) => reject(err));
                         return res.data;
                     }).catch((err) => {
-                        router.push({ name: 'Welcome'});
-                        toastStore.add({
-                            severity: 'error',
-                            summary: `Error: ${data.code}`,
-                            detail: data.msg,
-                            life: 3000
+                        router.push({name: 'Welcome'});
+                        toast.add({
+                            title: `Error: ${data.code}`,
+                            content: `${data.msg}`,
+                            type: 'error',
+                            timeout: 3000
                         })
                         reject(err);
                     }).finally(() => {
@@ -66,11 +65,11 @@ const request = (options) => {
                     }).catch(reject);
                 }
             } else {
-                toastStore.add({
-                    severity: 'error',
-                    summary: `Error: ${data.code}`,
-                    detail: data.msg,
-                    life: 3000
+                toast.add({
+                    title: `Error: ${data.code}`,
+                    content: `${data.msg}`,
+                    type: 'error',
+                    timeout: 3000
                 })
                 reject({
                     code: data.code,
@@ -78,11 +77,11 @@ const request = (options) => {
                 });
             }
         }).catch((err) => {
-            toastStore.add({
-                severity: 'error',
-                summary: `Error: ${err.code}`,
-                detail: err.message,
-                life: 3000
+            toast.add({
+                title: `Error: ${err.code}`,
+                content: `${err.message}`,
+                type: 'error',
+                timeout: 3000
             })
             reject({
                 code: err.code,

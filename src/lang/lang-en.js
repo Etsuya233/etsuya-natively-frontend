@@ -87,7 +87,8 @@ let enConfig = {
         translateFrom: 'Translate from {lang}',
         pronounce: 'Pronounce',
         originalText: 'Original',
-        connectingNatively: 'Connecting to Natively...'
+        connectingNatively: 'Connecting to Natively...',
+        connectNativelySuccess: 'Connected to Natively.'
     },
     post: {
         post: 'Post',

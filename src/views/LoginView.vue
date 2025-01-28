@@ -70,20 +70,18 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
-import {onBeforeMount, onMounted, ref, toRaw} from "vue";
+import {onBeforeMount, ref, toRaw} from "vue";
 import {apiHello, apiLogin} from "@/api/user.js";
-import {useToast} from 'primevue/usetoast';
-import {useToastStore} from "@/stores/toastStore.js";
 import Divider from 'primevue/divider';
 import ThirdPartyLogin from "@/components/natively/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useUserStore} from "@/stores/userStore.js";
+import {useToast} from "@/utils/toast.js";
 
 const userStore = useUserStore();
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
-const toastStore = useToastStore();
 const { t, locale, availableLocales } = useI18n();
 
 //login info
@@ -127,10 +125,10 @@ const goNext = () => {
 //hello
 const hello = () => {
     apiHello().then((res) => {
-        toastStore.add({
-            severity: 'success',
-            summary: 'Hello!',
-            detail: res,
+        toast.add({
+            type: 'success',
+            title: 'Hello!',
+            content: res
         })
     })
 }

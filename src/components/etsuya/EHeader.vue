@@ -7,7 +7,7 @@
                     pt:label:class="hidden"
             />
         </div>
-        <div class="text-xl font-bold flex-1 w-0 overflow-hidden" :class="{ 'ml-3': !props.showBack }">
+        <div class="text-lg font-bold flex-1 w-0 overflow-hidden" :class="{ 'ml-3': !props.showBack }">
             <div v-if="props.enableSlot">
                 <slot></slot>
             </div>

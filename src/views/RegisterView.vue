@@ -223,11 +223,8 @@ import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Password from 'primevue/password';
 import {computed, onBeforeMount, onMounted, ref, toRaw} from "vue";
-import {apiEmailUnique, apiLogin, apiRegister, apiUsernameUnique} from "@/api/user.js";
-import {useToast} from 'primevue/usetoast';
-import {useToastStore} from "@/stores/toastStore.js";
+import {apiEmailUnique, apiRegister, apiUsernameUnique} from "@/api/user.js";
 import Divider from 'primevue/divider';
-import Fieldset from 'primevue/fieldset';
 import {emailRegex, nicknameRegex, passwordRegex, usernameRegex} from "@/utils/regex.js";
 import Message from 'primevue/message';
 import Select from 'primevue/select';
@@ -237,9 +234,9 @@ import Checkbox from 'primevue/checkbox';
 import ThirdPartyLogin from "@/components/natively/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useLanguageStore} from "@/stores/languageStore.js";
+import {useToast} from "@/utils/toast.js";
 
 const toast = useToast();
-const toastStore = useToastStore();
 const languageStore = useLanguageStore();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
@@ -395,10 +392,10 @@ onBeforeMount(() => {
 
 onMounted(() => {
     if(route.query.oauth2){
-        toastStore.add({
-            severity: 'success',
-            summary: t('login.continueYourRegistration'),
-            life: 3000
+        toast.add({
+            title: t('login.continueYourRegistration'),
+            type: 'success',
+            timeout: 3000
         })
     }
 })

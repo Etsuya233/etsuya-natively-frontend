@@ -9,6 +9,8 @@ import pinia from "@/stores/pinia.js";
 import i18n from '@/lang/i18n.js';
 import ToastService from 'primevue/toastservice';
 import Tooltip from 'primevue/tooltip';
+import Vue3Toastify, {toast} from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const app = createApp(App)
 
@@ -24,6 +26,14 @@ app.use(PrimeVue, {
     }
 });
 app.use(ToastService);
+app.use(
+    Vue3Toastify,
+    {
+        autoClose: 3000,
+        position: toast.POSITION.TOP_CENTER,
+        transition: toast.TRANSITIONS.SLIDE,
+    }
+);
 app.directive('tooltip', Tooltip);
 
 app.mount('#app')

@@ -71,20 +71,13 @@
             
 <!--            Navi-->
             <Navi />
-            
-<!--            Emergency-->
-            <ETransition name="slide-down">
-                <div v-if="!chatStore.connected" class="fixed bottom-0 left-0 right-0 z-[100] flex justify-center">
-                    <ProgressBar mode="indeterminate" class="!h-2 w-full max-w-screen-sm" />
-                </div>
-            </ETransition>
         </div>
     </div>
 </template>
 
 <script setup>
 import Card from 'primevue/card';
-import {computed, ref, watch} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import Logo from "@/components/natively/Logo.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
@@ -98,19 +91,59 @@ import Navi from "@/components/natively/Navi.vue";
 import {useChatStore} from "@/stores/chatStore.js";
 import {usePageStore} from "@/stores/pageStore.js";
 import ProgressBar from "primevue/progressbar";
+import LoadingNotification from "@/components/natively/LoadingNotification.vue";
+import { toast } from 'vue3-toastify';
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const {selected} = useSelect();
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const {isScrollDown} = useScroll();
 const pageStore = usePageStore();
+
+// connect
+const reconnectToastId = 'reconnect';
+const reconnectNotificationOptions = {
+    toastId: reconnectToastId,
+    autoClose: false,
+    expandCustomProps: true,
+    type: toast.TYPE.INFO,
+    contentProps: {
+        title: t('common.connectingNatively'),
+        loading: true
+    },
+    hideProgressBar: true,
+    closeButton: false,
+    closeOnClick: false
+};
+const connectionNotificationWatch = (newVal, oldValue) => {
+    if (!newVal) {
+        if (toast.isActive(reconnectToastId)) {
+            toast.update(reconnectToastId, reconnectNotificationOptions);
+        } else {
+            toast(LoadingNotification, reconnectNotificationOptions);
+        }
+    } else {
+        toast.update(reconnectToastId, {
+            toastId: reconnectToastId,
+            autoClose: 3000,
+            expandCustomProps: true,
+            type: toast.TYPE.SUCCESS,
+            contentProps: {
+                title: t('common.connectNativelySuccess'),
+                loading: false
+            },
+            hideProgressBar: false,
+        })
+    }
+}
+watch(() => chatStore.connected, connectionNotificationWatch);
 
 // navi
 const naviStore = useNaviStore();
 
-const {isScrollDown} = useScroll();
-
+// tab
 let menuItem = ref([
     { name: t('common.home'), icon: 'pi pi-home', to: { name: 'Home'}},
     { name: t('common.search'), icon: 'pi pi-search', to: { name: 'Search'}},
@@ -118,7 +151,15 @@ let menuItem = ref([
     { name: 'Navi', icon: 'pi pi-sparkles'},
     { name: t('common.bookmark'), icon: 'pi pi-bookmark', to: { name: 'Bookmark'}},
     { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }}
-])
+]);
+
+onMounted(() => {
+    setTimeout(() => {
+        if(chatStore.connected === false){
+            connectionNotificationWatch(false, true);
+        }
+    }, 5000);
+});
 
 </script>
 

@@ -3,8 +3,10 @@ import {computed, ref} from "vue";
 import * as StompJs from '@stomp/stompjs';
 import SockJS from 'sockjs-client/dist/sockjs.min.js';
 import {apiGetConversations, apiGetMoreOldMessage} from "@/api/chat.js";
-import {useToastStore} from "@/stores/toastStore.js";
 import {useUserStore} from "@/stores/userStore.js";
+import {useToast} from "@/utils/toast.js";
+
+const toast = useToast();
 
 export const useChatStore = defineStore('chat', () => {
     let socket;
@@ -20,7 +22,6 @@ export const useChatStore = defineStore('chat', () => {
         },
         onConnect: (frame) => {
             connected.value = true;
-            const toastStore = useToastStore();
             const userStore = useUserStore();
             const meId = userStore.userInfo.id;
             // system msg
@@ -39,18 +40,31 @@ export const useChatStore = defineStore('chat', () => {
                         sending.value = false;
                     }
                 } else {
-                    toastStore.add({
-                        severity: 'error',
-                        summary: `Error: ${response.code}`,
-                        detail: response.msg,
-                        life: 3000
+                    toast.add({
+                        title: `Error: ${response.code}`,
+                        content: response.msg,
+                        type: 'error',
+                        timeout: 3000
                     })
                     sending.value = false;
                 }
             })
         },
         onDisconnect: () => {
+            console.log('Disconnected');
             connected.value = false;
+        },
+        onStompError: (frame) => {
+            console.log('Stomp error:', frame);
+            connected.value = stompClient.value.connected;
+        },
+        onWebSocketError: (event) => {
+            console.log('WebSocket error:', event);
+            connected.value = stompClient.value.connected;
+        },
+        onWebSocketClose: () => {
+            console.log('WebSocket closed');
+            connected.value = stompClient.value.connected;
         }
     }));
 

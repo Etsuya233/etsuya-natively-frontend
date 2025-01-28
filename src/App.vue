@@ -46,4 +46,8 @@ onBeforeMount(() => {
     font-family: 'Inter', sans-serif;
     user-select: none;
 }
+:root {
+    --toastify-color-info: theme('colors.primary');
+    --toastify-color-success: theme('colors.primary');
+}
 </style>

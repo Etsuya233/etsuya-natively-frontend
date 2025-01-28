@@ -87,13 +87,11 @@ import PostRenderer from "@/components/natively/PostRenderer.vue";
 import EListItem from "@/components/etsuya/EListItem.vue";
 import EList from "@/components/etsuya/EList.vue";
 import {useI18n} from "vue-i18n";
-import {useToastStore} from "@/stores/toastStore.js";
 import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 
 const { t, locale, availableLocales } = useI18n();
-const toastStore = useToastStore();
 const router = useRouter();
 
 // props
