@@ -7,7 +7,7 @@
             <div class="md:hidden">
                 <Logo position="center" size="sm" />
             </div>
-            <SelectButton class="flex-1" :options="options" v-model="selected" option-label="name" option-value="value"
+            <SelectButton class="flex-1" :options="options" v-model="optionSelectionProxy" option-label="name" option-value="value"
                           :allow-empty="false"
                           :pt="{ root: '*:w-full'}"/>
             <div class="hidden md:block">
@@ -51,7 +51,7 @@
 <script setup>
 import SelectButton from 'primevue/selectbutton';
 import Button from 'primevue/button';
-import {onActivated, onMounted, ref, watch} from 'vue';
+import {nextTick, onActivated, onMounted, ref, watch} from 'vue';
 import router from "@/router/router.js";
 import {useI18n} from "vue-i18n";
 import {useScroll} from "@/utils/scroll.js";
@@ -74,10 +74,11 @@ const getButtonSeverity = (vote, value) => {
 
 //options
 let options = ref([
-    { name: 'Following', value: 0},
-    { name: 'Flow', value: 1},
-    { name: 'Trending', value: 2},
+    { name: 'Following', value: 0, top: 0},
+    { name: 'Flow', value: 1, top: 0},
+    { name: 'Trending', value: 2, top: 0},
 ])
+let optionSelectionProxy = ref(1);
 let selected = ref(1);
 
 //posts
@@ -104,7 +105,14 @@ const loadMoreTrending = () => {
         trendingPost.value.push(... res);
     })
 }
-watch(selected, (newVal, oldVal) => {
+watch(optionSelectionProxy, (newVal, oldVal) => {
+    if(newVal !== oldVal){
+        options.value[oldVal].top = window.scrollY;
+        selected.value = newVal;
+        nextTick(() => {
+            window.scrollY = options.value[newVal].top;
+        })
+    }
     if(newVal === 0){
         if(followingPosts.value.length === 0){
             loadMoreFollowing();
@@ -118,6 +126,7 @@ watch(selected, (newVal, oldVal) => {
             loadMoreTrending();
         }
     }
+    
 })
 
 // load more

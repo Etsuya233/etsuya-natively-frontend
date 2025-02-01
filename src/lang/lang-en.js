@@ -255,6 +255,11 @@ let enConfig = {
         preview: 'Preview',
         text: 'Text',
         posting: 'Posting...',
+    },
+    search: {
+        placeholder: 'Search here...',
+        search: 'Search',
+        history: 'History'
     }
 }
 

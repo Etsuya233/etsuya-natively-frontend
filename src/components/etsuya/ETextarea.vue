@@ -3,6 +3,7 @@
               v-model="value"
               ref="textarea"
               class="w-full outline-none align-top bg-white/0 resize-none"
+              :class="{ 'whitespace-nowrap': props.singleLine, 'overflow-auto': props.singleLine }"
               :placeholder="props.placeholder">
     </textarea>
 </template>
@@ -19,6 +20,11 @@ const props = defineProps({
     placeholder: {
         required: false,
         default: ''
+    },
+    singleLine: {
+        required: false,
+        default: false,
+        type: Boolean
     }
 })
 const emits = defineEmits(['inputHandler'])

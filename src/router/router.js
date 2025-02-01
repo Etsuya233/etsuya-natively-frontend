@@ -8,7 +8,7 @@ const routes = [
         component: () => import('@/views/BaseView.vue'),
         children: [
             {
-                path: '',
+                path: '/home',
                 name: 'Home',
                 component: () => import('@/views/tab/home/HomeView.vue'),
                 meta: {
@@ -65,7 +65,7 @@ const routes = [
                 component: () => import('@/views/tab/home/PostView.vue'),
                 meta: {
                     component: 'PostView',
-                    nav: true,
+                    nav: false,
                     navTransparent: true,
                     keepAlive: false,
                     tab: 'Home'
@@ -242,47 +242,55 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        // 如果通过浏览器前进/后退触发，且存在保存的滚动位置
+        const pageStore = usePageStore();
+        const y = pageStore.getScrollY(to?.meta.component);
+
+        if(y){
+            return { top: y }
+        } else if (savedPosition) {
+            return savedPosition;
+        }
+        return { top: 0 };
+    },
 });
 
 router.beforeEach((to, from, next) => {
     const pageStore = usePageStore();
 
+    const toComponentName = to?.meta.component;
+    const fromComponentName = from?.meta.component;
+
     if(!to?.meta.keepAliveParent && from && !from?.meta.keepAlive){
-        const componentName = from?.meta.component;
-        if(componentName){
-            console.log('Remove keep alive: ', componentName);
-            pageStore.removeComponent(componentName);
+        if(fromComponentName){
+            console.log('Remove keep alive: ', fromComponentName);
+            pageStore.removeComponent(fromComponentName);
+        }
+    }
+
+    if(from?.meta.keepAlive){
+        if(fromComponentName){
+            pageStore.setScrollY(fromComponentName, window.scrollY);
         }
     }
 
     if(to?.meta.keepAliveParent){
-        const parentComponentName = from?.meta.component;
-        if(parentComponentName){
-            console.log('Keep alive parent: ', parentComponentName);
-            pageStore.addComponent(parentComponentName);
+        if(fromComponentName){
+            console.log('Keep alive parent: ', fromComponentName);
+            pageStore.addComponent(fromComponentName);
+            pageStore.setScrollY(fromComponentName, window.scrollY)
         }
     }
 
     if(to?.meta.keepAlive){
-        const componentName = to?.meta.component;
-        if(componentName){
-            console.log('Keep alive: ', componentName);
-            pageStore.addComponent(componentName);
+        if(toComponentName){
+            console.log('Keep alive: ', toComponentName);
+            pageStore.addComponent(toComponentName);
         }
     }
 
     next();
 });
-
-// router.afterEach((to, from) => {
-//     const pageStore = usePageStore();
-//     if(from && !from?.meta.keepAlive){
-//         const componentName = from?.meta.component;
-//         if(componentName){
-//             console.log('Remove keep alive: ', componentName);
-//             pageStore.removeComponent(componentName);
-//         }
-//     }
-// })
 
 export default router;

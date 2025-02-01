@@ -6,7 +6,7 @@
             <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface max-md:bg-white/80 z-10
             backdrop-blur-xl h-14 transition-opacity transform-gpu
             md:sticky md:top-0 md:right-auto md:flex-col md:justify-normal md:border-t-0 md:border-r md:p-4 md:gap-2
-            md:h-dvh md:w-fit
+            md:h-dvh md:w-fit md:min-w-[11rem]
             max-md:dark:bg-surface-900/70 max-md:dark:opacity-80" :class="{ 'max-sm:opacity-30': isScrollDown && route.meta.navTransparent }" >
 <!--                , 'max-md:!hidden': !route.meta.nav }-->
                 <div class="px-4 py-2 hidden md:block" >
@@ -22,13 +22,13 @@
                                 pt:label:class="text-xl ml-4 hidden md:block whitespace-nowrap"
                                 :pt:icon:class="selected && !naviStore.visible? '!text-2xl w-8 animate-ping': '!text-2xl w-8'" />
                     </div>
-                    <RouterLink v-else :to="item.to" class="p-2 flex items-center hover:bg-surface-100
+                    <div v-else class="p-2 flex items-center hover:bg-surface-100
                         rounded-full cursor-pointer transition-colors
                         md:px-4 md:py-2
                         hover:dark:bg-surface-800"
-                        v-slot="{isActive}"
+                                @click="router.push(item.to)"
                     >
-                        <Button v-if="isActive" unstyled :label="item.name" :icon="item.icon"
+                        <Button v-if="item.value === route.meta.tab" unstyled :label="item.name" :icon="item.icon"
                                 pt:root:class="flex items-center"
                                 pt:label:class="text-xl ml-4 hidden md:block !font-bold whitespace-nowrap"
                                 pt:icon:class="!text-2xl w-8 !font-bold" />
@@ -36,7 +36,7 @@
                                 pt:root:class="flex items-center"
                                 pt:label:class="text-xl ml-4 hidden md:block whitespace-nowrap"
                                 pt:icon:class="!text-2xl w-8" />
-                    </RouterLink>
+                    </div>
                 </div>
             </div>
             
@@ -46,8 +46,8 @@
                     <router-view v-slot="{ Component, route }">
                         <keep-alive :include="pageStore.cachedComponentArray">
                             <component
-                                :is="Component"
-                                :key="route.meta.keepAliveKey || route.fullPath"
+                                    :is="Component"
+                                    :key="route.meta.keepAliveKey || route.fullPath"
                             />
                         </keep-alive>
                     </router-view>
@@ -82,7 +82,7 @@ import Logo from "@/components/natively/Logo.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
 import ETransition from "@/components/etsuya/ETransition.vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNaviStore} from "@/stores/naviStore.js";
 import {useSelect} from "@/utils/selection.js";
@@ -101,6 +101,7 @@ const userStore = useUserStore();
 const chatStore = useChatStore();
 const {isScrollDown} = useScroll();
 const pageStore = usePageStore();
+const router = useRouter();
 
 // connect
 const reconnectToastId = 'reconnect';
@@ -145,12 +146,12 @@ const naviStore = useNaviStore();
 
 // tab
 let menuItem = ref([
-    { name: t('common.home'), icon: 'pi pi-home', to: { name: 'Home'}},
-    { name: t('common.search'), icon: 'pi pi-search', to: { name: 'Search'}},
-    { name: t('common.chat'), icon: 'pi pi-envelope', to: { name: 'ChatList'}},
+    { name: t('common.home'), icon: 'pi pi-home', to: { name: 'Home'}, value: 'Home'},
+    { name: t('common.search'), icon: 'pi pi-search', to: { name: 'Search'}, value: 'Search'},
+    { name: t('common.chat'), icon: 'pi pi-envelope', to: { name: 'ChatList'}, value: 'Chat'},
     { name: 'Navi', icon: 'pi pi-sparkles'},
-    { name: t('common.bookmark'), icon: 'pi pi-bookmark', to: { name: 'Bookmark'}},
-    { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }}
+    { name: t('common.bookmark'), icon: 'pi pi-bookmark', to: { name: 'Bookmark'}, value: 'Bookmark'},
+    { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }, value: 'More' }
 ]);
 
 onMounted(() => {

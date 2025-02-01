@@ -10,7 +10,7 @@
                 <div class="pl-3 overflow-hidden min-w-0">
                     <div class="w-full flex items-center cursor-text">
                         <div class="text-ellipsis overflow-hidden break-words whitespace-nowrap">{{post.nickname}}</div>
-                        <div class="text-sm text-slate-600 dark:text-slate-100 flex-shrink-0">&nbsp;·&nbsp;{{post.createTime}}</div>
+                        <div v-if="post.createTime" class="text-sm text-slate-600 dark:text-slate-100 flex-shrink-0">&nbsp;·&nbsp;{{post.createTime}}</div>
                     </div>
                 </div>
                 <div class="min-h-5 flex flex-wrap gap-2 pl-[0.675rem] w-full mt-[0.25rem]">
@@ -29,7 +29,10 @@
         <div v-if="props.fullMode" class="cursor-text text-slate-800">
             <PostRenderer :content="post.content" />
         </div>
-        <div v-if="!props.fullMode" class="line-clamp-5 cursor-text text-slate-800 dark:text-inherit">
+        <div v-if="props.searchMode" class="line-clamp-3">
+            <div class="searchContent" v-html="post.highlightedContent"></div>
+        </div>
+        <div v-if="!props.fullMode && !props.searchMode" class="line-clamp-5 cursor-text text-slate-800 dark:text-inherit">
             <span class="md:select-text whitespace-pre-line">{{post.content}}</span>
             <span class="inline mr-2 align-top" v-if="post.hasMore">…</span>
         </div>
@@ -112,6 +115,9 @@ const props = defineProps({
     fullMode: {
         default: false,
     },
+    searchMode: {
+        default: false
+    }
 })
 
 // ui
@@ -167,6 +173,13 @@ const doComposeComment = () => {
 
 </script>
 
-<style scoped>
-
+<style>
+.searchContent > em {
+    font-style: normal;
+    background-color: theme('colors.primary-100');
+    border-radius: 0.25em;
+    font-weight: bold;
+    color: theme('colors.primary-700');
+    overflow: hidden;
+}
 </style>
