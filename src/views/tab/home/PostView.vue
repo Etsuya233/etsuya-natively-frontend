@@ -46,7 +46,7 @@
                  :key="item.id"
                  class="relative"
                  @click="historyClicked(index)">
-                <div v-if="index !== 0" class="border-primary-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
+                <div v-if="index !== 0" class="border-slate-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
                 <div class="absolute -top-14" :id="`history-${index}`"></div>
                 <div v-if="index > 0" class="px-4 py-2 w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
                     <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" />
@@ -72,7 +72,9 @@
                 </div>
             </div>
             <div class="w-full select-none">
-                <Button @click="loadMoreComment" class="w-full" text severity="secondary" :label="t('post.clickLoadMore')" />
+                <div class="h-12 flex justify-center items-center">
+                    <div v-if="isLoadingMore" class="pi pi-spin pi-spinner-dotted !text-2xl text-slate-700"></div>
+                </div>
             </div>
             <div class="h-4"></div>
         </div>
@@ -95,12 +97,14 @@ import Diff from "diff/dist/diff.js";
 import {useNaviStore} from "@/stores/naviStore.js";
 import PostCard from "@/components/natively/PostCard.vue";
 import CommentCard from "@/components/natively/CommentCard.vue";
+import {useSelect} from "@/utils/selection.js";
 
-const {isScrollDown} = useScroll();
+const {isScrollDown, isAtBottom} = useScroll();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const naviStore = useNaviStore();
+const { selected } = useSelect();
 
 //loading
 let postLoading = ref(true);
@@ -115,6 +119,9 @@ let postInfo = ref({
     images: [], voice: null, contentHasMore: false, vote: 0
 });
 const postClicked = () => {
+    if(selected.value){
+        return;
+    }
     // remove the history after the clicked history comment
     history.value.splice(1);
     // remove the comment belongs to the comment after the clicked history comment
@@ -136,6 +143,9 @@ const history = ref([{id: 0}]);
  */
 const lastCommentId = ref(-1);
 const historyClicked = (index) => {
+    if(selected.value){
+        return;
+    }
     if(index === history.value.length - 1){
         const currentHistoryId = history.value[index].id;
         // remove the history after the clicked history comment
@@ -169,6 +179,7 @@ const historyClicked = (index) => {
 }
 
 // comment
+const isLoadingMore = ref(false);
 // todo optimize the variable using compute
 const comment = ref([]); // 0:post 1:comment1 2:comment2
 const lastId = computed(() => {
@@ -188,19 +199,17 @@ const commentInit = (res) => {
         }
     })
 }
-const loadMoreComment = () => {
+const loadMoreComment = async () => {
     if(history.value.length === 1){
         // post
-        apiGetCommentList(true, postInfo.value.id, lastId.value).then((res) => {
-            commentInit(res);
-            comment.value[0].push(... res);
-        })
+        const res = await apiGetCommentList(true, postInfo.value.id, lastId.value);
+        commentInit(res);
+        comment.value[0].push(... res);
     } else {
         // comment
-        apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value).then((res) => {
-                commentInit(res);
-                comment.value[comment.value.length - 1].push(... res);
-        })
+        const res = apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
+        commentInit(res);
+        comment.value[comment.value.length - 1].push(... res);
     }
 }
 const commentClicked = (index) => {
@@ -225,6 +234,20 @@ const commentClicked = (index) => {
     })
     commentLoading.value = false;
 }
+watch(isAtBottom, async (newVal, oldValue) => {
+    if(isLoadingMore.value){
+        return;
+    }
+    if(newVal && !oldValue){
+        try {
+            isLoadingMore.value = true;
+            await loadMoreComment();
+        } catch (e){}
+        finally {
+            isLoadingMore.value = false;
+        }
+    }
+})
 
 //lifespans
 onBeforeMount(() => {

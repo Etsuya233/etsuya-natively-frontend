@@ -1,5 +1,10 @@
 <template>
-    <div class="w-full bg-white dark:bg-inherit rounded-lg flex flex-col gap-2 cursor-pointer">
+    <div class="w-full relative dark:bg-inherit rounded-lg flex flex-col gap-2 cursor-pointer">
+        <div v-if="props.rank" class="absolute right-0 top-0">
+            <div class="text-surface-200/70 text-6xl font-bold">
+                {{props.rank}}
+            </div>
+        </div>
         <div v-if="props.showUser" class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: post.userId }})">
             <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">
                 <div class="h-11 w-11 rounded-full overflow-hidden mt-1">
@@ -18,7 +23,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="post.title">
+        <div v-if="post.title" class="z-[2]">
             <div class="inline-block mr-2 align-top" v-if="post.type === 2">
                 <Tag value="Question" class="h-6"/>
             </div>
@@ -57,8 +62,7 @@
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <EList>
                 <EListItem icon="pi-bookmark" :title="t('post.bookmark')" @click="bookmarkClicked" />
-                <EListItem icon="pi-sparkles" :title="t('post.navi')" />
-                <EListItem icon="pi-flag" :title="t('post.report')" />
+                <EListItem icon="pi-language" :title="t('post.translation')" />
             </EList>
         </Drawer>
         <Drawer v-model:visible="bookmarkVisible" position="bottom" :header="t('post.bookmark')"
@@ -93,9 +97,11 @@ import {useI18n} from "vue-i18n";
 import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
+import {useNaviStore} from "@/stores/naviStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
+const naviStore = useNaviStore();
 
 // props
 const post = defineModel();
@@ -117,6 +123,9 @@ const props = defineProps({
     },
     searchMode: {
         default: false
+    },
+    rank: {
+        default: null
     }
 })
 

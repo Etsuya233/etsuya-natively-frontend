@@ -17,6 +17,7 @@ export function useScroll() {
 
             // 判断是否向下滚动
             isScrollDown.value = currentScrollPosition > lastScrollPosition;
+            console.log(currentScrollPosition, currentScrollPosition, isScrollDown.value);
 
             // 判断是否触底
             isAtBottom.value = (currentScrollPosition + windowHeight) >= (documentHeight - 1);
@@ -31,10 +32,12 @@ export function useScroll() {
 
     onMounted(() => {
         window.addEventListener('scroll', handleScroll);
+        console.log('scroll.js mounted!');
     });
 
     onBeforeUnmount(() => {
         window.removeEventListener('scroll', handleScroll);
+        console.log('scroll.js unmounted!');
     });
 
     // 返回响应式数据

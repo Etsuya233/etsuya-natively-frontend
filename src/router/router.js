@@ -277,7 +277,7 @@ router.beforeEach((to, from, next) => {
 
     if(to?.meta.keepAliveParent){
         if(fromComponentName){
-            console.log('Keep alive parent: ', fromComponentName);
+            console.log('Keep alive parent and save y position: ', fromComponentName);
             pageStore.addComponent(fromComponentName);
             pageStore.setScrollY(fromComponentName, window.scrollY)
         }

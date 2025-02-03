@@ -1,7 +1,7 @@
 <template>
     <div class="relative">
         <!--        Header-->
-        <div class="w-full gap-2 md:gap-4 flex flex-col md:flex-row py-2 px-4 sticky top-0 bg-white z-10 border-surface border-b transition-opacity transform-gpu
+        <div class="w-full gap-2 md:gap-4 flex flex-col md:flex-row py-2 px-4 sticky top-0 bg-white z-30 border-surface border-b transition-opacity transform-gpu
                     hover:!opacity-100 dark:bg-surface-900"
              :class="{'opacity-30': isScrollDown}">
             <div class="md:hidden">
@@ -32,17 +32,19 @@
             <div v-else-if="selected === 2">
                 <div v-for="(item, index) in trendingPost" :key="item.id" @click="postClicked(item)"
                      class="w-full flex flex-col gap-1 px-4 py-2 border-b">
-                    <PostCard v-model="trendingPost[index]" />
+                    <PostCard v-model="trendingPost[index]" :rank="index + 1" />
                 </div>
             </div>
             <div class="w-full select-none">
-                <Button @click="loadMore" class="w-full" text severity="secondary" :label="t('post.clickLoadMore')" />
+                <div class="h-12 flex justify-center items-center">
+                    <div v-if="isLoadingMore" class="pi pi-spin pi-spinner-dotted !text-2xl text-slate-700"></div>
+                </div>
             </div>
         </div>
         
         
         <!--        Post-->
-        <div class="fixed right-4 bottom-[4.5rem] md:hidden transition" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
+        <div class="fixed right-4 bottom-[4.5rem] md:hidden transition z-10" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
             <Button icon="pi pi-pencil !text-xl" class="!p-7 shadow-lg" rounded as="router-link" :to="{ name: 'PostType'}" />
         </div>
     </div>
@@ -62,15 +64,10 @@ import Logo from "@/components/natively/Logo.vue";
 import {useToast} from "primevue/usetoast";
 import PostCard from "@/components/natively/PostCard.vue";
 import {useRoute} from "vue-router";
+import ETransition from "@/components/etsuya/ETransition.vue";
 
 const { t, locale, availableLocales } = useI18n();
-const {isScrollDown} = useScroll();
-const toastStore = useToast();
-
-const getButtonSeverity = (vote, value) => {
-    if(vote === value) return "primary";
-    else return "secondary";
-}
+const { isScrollDown, isAtBottom } = useScroll();
 
 //options
 let options = ref([
@@ -88,29 +85,29 @@ const trendingPost = ref([]);
 const postClicked = (post) => {
     router.push({ name: 'Post', params: { id: post.id }});
 }
-const loadMoreRecommendation = () => {
-    apiGetPostRecommendation(recommendationPosts.value.length === 0? null:
-        recommendationPosts.value[recommendationPosts.value.length - 1].id).then(res => {
-        recommendationPosts.value.push(... res);
-    })
+const loadMoreRecommendation = async () => {
+    let res = await apiGetPostRecommendation(recommendationPosts.value.length === 0? null:
+        recommendationPosts.value[recommendationPosts.value.length - 1].id);
+    recommendationPosts.value.push(... res);
 }
-const loadMoreFollowing = () => {
-    apiGetFollowing(followingPosts.value.length === 0? null:
-        followingPosts.value[followingPosts.value.length - 1].id).then(res => {
-        followingPosts.value.push(... res);
-    })
+const loadMoreFollowing = async () => {
+    let res = await apiGetFollowing(followingPosts.value.length === 0? null:
+        followingPosts.value[followingPosts.value.length - 1].id);
+    followingPosts.value.push(... res);
 }
-const loadMoreTrending = () => {
-    apiGetTrending(trendingPost.value.length + 1).then(res => {
-        trendingPost.value.push(... res);
-    })
+const loadMoreTrending = async () => {
+    let res = await apiGetTrending(trendingPost.value.length + 1);
+    trendingPost.value.push(... res);
 }
 watch(optionSelectionProxy, (newVal, oldVal) => {
     if(newVal !== oldVal){
         options.value[oldVal].top = window.scrollY;
         selected.value = newVal;
         nextTick(() => {
-            window.scrollY = options.value[newVal].top;
+            window.scrollTo({
+                top: options.value[newVal].top,
+                behavior: 'auto'
+            });
         })
     }
     if(newVal === 0){
@@ -128,15 +125,31 @@ watch(optionSelectionProxy, (newVal, oldVal) => {
     }
     
 })
+watch(isAtBottom, (newVal, oldValue) => {
+    if(newVal && !oldValue){
+        loadMore();
+    }
+})
 
 // load more
-const loadMore = () => {
-    if(selected.value === 0){
-        loadMoreFollowing();
-    } else if(selected.value === 1){
-        loadMoreRecommendation();
-    } else if(selected.value === 2){
-        loadMoreTrending();
+const isLoadingMore = ref(false);
+const loadMore = async () => {
+    if(isLoadingMore.value){
+        return;
+    }
+    isLoadingMore.value = true;
+    try {
+        if(selected.value === 0){
+            await loadMoreFollowing();
+        } else if(selected.value === 1){
+            await loadMoreRecommendation();
+        } else if(selected.value === 2){
+            await loadMoreTrending();
+        }
+    } catch (e) {
+    
+    } finally {
+        isLoadingMore.value = false;
     }
 }
 
@@ -145,7 +158,7 @@ const loadMore = () => {
 onMounted(async () => {
     if(recommendationPosts.value.length === 0){
         let res = await apiGetPostRecommendation();
-        recommendationPosts.value.push(... res);
+        loadMore();
     }
     
 })

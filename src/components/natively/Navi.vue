@@ -18,7 +18,8 @@
                 </EList>
                 <EList icon="pi pi-sliders-h" :title="t('navi.ability')">
                     <EListItem icon="pi pi-comment" :title="t('navi.ask')" @click="ask" />
-                    <EListItem icon="pi pi-language" :title="t('navi.translate')" @click="translate" />
+                    <EListItem icon="pi pi-language" :title="t('navi.translate')" @click="translateFast" />
+                    <EListItem icon="pi pi-language" :title="t('navi.translateInDeep')" @click="translate" />
                     <EListItem icon="pi pi-lightbulb" :title="t('navi.explain')" @click="explain"/>
                     <EListItem icon="pi pi-volume-up" :title="t('navi.pronounce')" @click="pronounce" />
                     <EListItem icon="pi pi-book" :title="t('navi.dictionary')" @click="dictionary" />
@@ -55,10 +56,10 @@
                     <div class="">
                         <EList :title="t('navi.answer')" icon="pi pi-language">
                             <EListItem :enable-slot="true">
-                                <div v-show="!askData.loading" class="select-text">
-                                    <MdRender :markdown="askData.result" dynamic />
+                                <div v-if="naviStore.getStreamOutput(askData.counter)" class="select-text">
+                                    <MdRender :markdown="naviStore.getStreamOutput(askData.counter)" dynamic />
                                 </div>
-                                <div v-show="askData.loading" class="flex flex-col gap-1">
+                                <div v-else class="flex flex-col gap-1">
                                     <Skeleton class="h-4" /><Skeleton class="h-4" /><Skeleton class="h-4" /><Skeleton class="h-4 !w-3/5" />
                                 </div>
                             </EListItem>
@@ -66,7 +67,7 @@
                     </div>
                     <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
                         <Button class="!rounded-xl" :label="t('navi.back')" @click="askBack" icon="pi pi-arrow-left" severity="secondary" />
-                        <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="askData.loading" @click="doAsk" icon="pi pi-replay" severity="warn" />
+                        <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="!naviStore.getStreamStatus(askData.counter)" @click="doAskStream" icon="pi pi-replay" severity="warn" />
                     </div>
                 </div>
             </div>
@@ -93,10 +94,10 @@
                     <div class="">
                         <EList :title="t('navi.explanation')" icon="pi pi-lightbulb">
                             <EListItem :enable-slot="true">
-                                <div v-show="!explainData.loading" class="select-text">
-                                    <MdRender :markdown="explainData.result" dynamic />
+                                <div v-if="naviStore.getStreamOutput(explainData.counter)" class="select-text">
+                                    <MdRender :markdown="naviStore.getStreamOutput(explainData.counter)" dynamic />
                                 </div>
-                                <div v-show="explainData.loading" class="flex flex-col gap-1">
+                                <div v-else class="flex flex-col gap-1">
                                     <Skeleton class="h-4" /><Skeleton class="h-4" /><Skeleton class="h-4" /><Skeleton class="h-4 !w-3/5" />
                                 </div>
                             </EListItem>
@@ -104,7 +105,7 @@
                     </div>
                     <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
                         <Button class="!rounded-xl" :label="t('navi.back')" @click="explainBack" icon="pi pi-arrow-left" severity="secondary" />
-                        <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="explainData.loading" @click="doExplain" icon="pi pi-replay" severity="warn" />
+                        <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="!naviStore.getStreamStatus(explainData.counter)" @click="doExplainStream" icon="pi pi-replay" severity="warn" />
                     </div>
                 </div>
             </div>
@@ -147,13 +148,13 @@
                 </div>
             </div>
             
-            <!--                Translation-->
+<!--            Translate in Deep -->
             <div v-if="mode === 'translate'" class="flex flex-col gap-4">
                 <div v-if="naviStore.page !== 1" class="flex flex-col gap-4">
                     <div class="flex items-center gap-3">
-                        <ESelect v-model="translateFrom" :data="availableLanguages" :title="t('navi.translateFrom')" display-field="name" value-field="code" />
+                        <ESelect v-model="translateFrom" :data="availableLanguages" :header="t('navi.translateFrom')" display-field="name" value-field="code" />
                         <div class="pi pi-arrow-right !text-lg" />
-                        <ESelect v-model="translateTo" :data="availableTranslateToLanguage" :title="t('navi.translateTo')" display-field="name" value-field="code" />
+                        <ESelect v-model="translateTo" :data="availableTranslateToLanguage" :header="t('navi.translateTo')" display-field="name" value-field="code" />
                     </div>
                     <EList :title="`${t('navi.originalText')}${(translateFrom === null && naviStore.page === 3 && !translateLoading)? ' · ' + getLanguageName(translateFromAutoDetect): ''} `"
                            icon="pi pi-align-left">
@@ -190,6 +191,50 @@
                     <div class="flex *:flex-1 gap-4">
                         <Button class="!rounded-xl" :label="t('navi.back')" @click="translateBack" icon="pi pi-arrow-left" severity="secondary" />
                         <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="translateLoading" @click="doTranslate" icon="pi pi-replay" severity="warn" />
+                    </div>
+                </div>
+            </div>
+            
+            <!--                Translation Fast-->
+            <div v-if="mode === 'translateFast'" class="flex flex-col gap-4">
+                <div v-if="naviStore.page !== 1" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <ESelect v-model="translateFastData.targetLanguage" :data="translateFastData.targetList" :header="t('navi.translateTo')" display-field="name" value-field="code" />
+                    </div>
+                    <EList :title="t('navi.originalText')" icon="pi pi-align-left">
+                        <EListItem :enable-slot="true">
+                            <ETextarea v-if="naviStore.page === 2" v-model="translateFastData.original" :placeholder="t('navi.originalText')" />
+                            <div v-else class="line-clamp-5">
+                                {{ translateFastData.original }}
+                            </div>
+                        </EListItem>
+                    </EList>
+                </div>
+                <div v-if="naviStore.page === 2" class="flex flex-col gap-4">
+                    <div class="flex *:flex-1 gap-4">
+                        <Button class="!rounded-xl" @click="translateFastBack" :label="t('navi.back')" icon="pi pi-arrow-left" severity="secondary" />
+                        <Button class="!rounded-xl" :label="t('navi.translate')" icon="pi pi-language" @click="translateFast" />
+                    </div>
+                </div>
+                <div v-if="naviStore.page === 3" class="flex flex-col gap-4">
+                    <div class="">
+                        <EList :title="t('navi.translation')" icon="pi pi-language">
+                            <EListItem :enable-slot="true">
+                                <div v-if="naviStore.getStreamOutput(translateFastData.counter)" class="select-text">
+                                    {{ naviStore.getStreamOutput(translateFastData.counter) }}
+                                </div>
+                                <div v-else class="flex flex-col gap-1">
+                                    <Skeleton class="h-4" />
+                                    <Skeleton class="h-4" />
+                                    <Skeleton class="h-4" />
+                                    <Skeleton class="h-4 !w-3/5" />
+                                </div>
+                            </EListItem>
+                        </EList>
+                    </div>
+                    <div class="flex *:flex-1 gap-4">
+                        <Button class="!rounded-xl" :label="t('navi.back')" @click="translateFastBack" icon="pi pi-arrow-left" severity="secondary" />
+                        <Button class="!rounded-xl" :label="t('navi.retry')" :disabled="!naviStore.getStreamStatus(translateFastData.counter)" @click="doTranslateFast" icon="pi pi-replay" severity="warn" />
                     </div>
                 </div>
             </div>
@@ -243,6 +288,7 @@ import ETextarea from "@/components/etsuya/ETextarea.vue";
 import Skeleton from "primevue/skeleton";
 import {apiNaviAsk, apiNaviExplain, apiNaviPronounce, apiNaviTranslate} from "@/api/naviV2.js";
 import MdRender from "@/components/natively/MdRender.vue";
+import PostCard from "@/components/natively/PostCard.vue";
 
 const { t, locale, availableLocales } = useI18n();
 
@@ -347,6 +393,7 @@ const askData = ref({
     loading: false,
     result: '',
     quote: '',
+    counter: -1
 });
 const ask = () => {
     if(naviStore.page === 1){ // click from menu
@@ -362,7 +409,8 @@ const ask = () => {
         }
     }
     if(naviStore.page === 3){ // sending request
-        doAsk();
+        // doAsk();
+        doAskStream();
     }
 }
 const doAsk = () => {
@@ -377,6 +425,11 @@ const doAsk = () => {
         askData.value.loading = false;
     })
 }
+const doAskStream = () => {
+    const currentCounter = ++naviStore.counter;
+    askData.value.counter = currentCounter;
+    naviStore.sendAskStreamRequest(askData.value.question, askData.value.quote, currentCounter);
+}
 const askBack = () => {
     if(naviStore.page === 3){
         naviStore.page = 2;
@@ -390,6 +443,7 @@ const explainData = ref({
     loading: false,
     result: '',
     quote: '',
+    counter: -1
 });
 const explain = () => {
     if(naviStore.page === 1){ // click from menu
@@ -407,7 +461,8 @@ const explain = () => {
         }
     }
     if(naviStore.page === 3){ // sending request
-        doExplain();
+        // doExplain();
+        doExplainStream();
     }
 }
 const doExplain = () => {
@@ -421,6 +476,11 @@ const doExplain = () => {
     }).catch((err) => {}).finally(() => {
         explainData.value.loading = false;
     })
+}
+const doExplainStream = () => {
+    const currentCounter = ++naviStore.counter;
+    explainData.value.counter = currentCounter;
+    naviStore.sendExplainStreamRequest(explainData.value.quote, currentCounter);
 }
 const explainBack = () => {
     if(naviStore.quoteMode){
@@ -500,8 +560,6 @@ const getLanguageName = (code) => {
 const translateLoading = ref(true);
 const translateFrom = ref(null);
 const translateTo = ref(currentLanguage);
-const translateFromSelectVisible = ref(false);
-const translateToSelectVisible = ref(false);
 const translateOriginal = ref('');
 const translateResult = ref('');
 const translateFromAutoDetect = ref('');
@@ -555,6 +613,55 @@ watch(translateFrom, () => {
 watch(translateTo, () => {
     if(naviStore.page === 3){
         doTranslate();
+    }
+});
+
+// translateFast
+const translateFastData = ref({
+    targetLanguage: getCurrentLanguage(),
+    targetList: cloneDeep(languageStore.languageData),
+    original: '',
+    counter: -1
+});
+const translateFast = () => {
+    if(naviStore.page === 1){
+        mode.value = 'translateFast';
+        if(naviStore.quoteMode){
+            translateFastData.value.original = naviStore.quote;
+            naviStore.page = 3;
+        } else {
+            naviStore.page = 2;
+        }
+    } else if(naviStore.page === 2){
+        if(translateFastData.value.original){
+            naviStore.page = 3;
+        }
+    }
+    if(naviStore.page === 3){ // sending request
+        doTranslateFast();
+    }
+}
+const doTranslateFast = () => {
+    const currentCounter = ++naviStore.counter;
+    translateFastData.value.counter = currentCounter;
+    naviStore.sendTranslateFastStreamRequest(translateFastData.value.original, translateFastData.value.targetLanguage, currentCounter);
+}
+const translateFastBack = () => {
+    if(naviStore.quoteMode){
+        if(naviStore.page === 3){
+            naviStore.page = 1;
+        }
+    } else {
+        if(naviStore.page === 3){
+            naviStore.page = 2;
+        } else if(naviStore.page === 2){
+            naviStore.page = 1;
+        }
+    }
+}
+watch(() => translateFastData.value.targetLanguage, () => {
+    if(naviStore.page === 3){
+        doTranslateFast();
     }
 });
 

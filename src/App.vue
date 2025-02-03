@@ -15,17 +15,23 @@ import {useChatStore} from "@/stores/chatStore.js";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {apiGetLanguageInNative, apiGetLanguages} from "@/api/language.js";
 import {useRoute} from "vue-router";
+import {useWsStore} from "@/stores/wsStore.js";
+import {useNaviStore} from "@/stores/naviStore.js";
 
 let currentTheme = detectTheme();
 themeChange(currentTheme);
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const wsStore = useWsStore();
 const languageStore = useLanguageStore();
 const route = useRoute();
+const naviStore = useNaviStore();
 
 onBeforeMount(() => {
-    chatStore.connect();
+    wsStore.connect();
+    chatStore.init();
+    naviStore.init();
     apiGetCurrent().then(res => {
         userStore.userInfo = res;
     })

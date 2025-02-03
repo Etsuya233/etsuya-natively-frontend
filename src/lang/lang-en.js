@@ -231,7 +231,8 @@ let enConfig = {
         search: 'Search',
         dictionary: 'Dictionary',
         all: 'All',
-        word: 'Word'
+        word: 'Word',
+        translateInDeep: 'Translate with Thinking'
     },
     more: {
         language: 'Language',

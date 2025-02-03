@@ -3,10 +3,10 @@
         <div class="flex w-full max-w-screen-xl">
         
 <!--            Navigation-->
-            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface max-md:bg-white/80 z-10
+            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface max-md:bg-white/80 z-30
             backdrop-blur-xl h-14 transition-opacity transform-gpu
             md:sticky md:top-0 md:right-auto md:flex-col md:justify-normal md:border-t-0 md:border-r md:p-4 md:gap-2
-            md:h-dvh md:w-fit md:min-w-[11rem]
+            md:h-dvh md:w-fit
             max-md:dark:bg-surface-900/70 max-md:dark:opacity-80" :class="{ 'max-sm:opacity-30': isScrollDown && route.meta.navTransparent }" >
 <!--                , 'max-md:!hidden': !route.meta.nav }-->
                 <div class="px-4 py-2 hidden md:block" >
