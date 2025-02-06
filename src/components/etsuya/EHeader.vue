@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full flex border-b border-surface items-center gap-4 h-14 px-2 bg-white/70 backdrop-blur-xl dark:bg-surface-900/70">
+    <div class="w-full flex border-b border-surface items-center gap-4 h-14 px-2 bg-blur dark:bg-surface-900/70">
         <div class="hover:bg-surface-100/50 hover:dark:bg-surface-800 rounded-full h-12 w-12 transition-colors flex-shrink-0"
              @click="back" v-if="props.showBack" >
             <Button icon="pi pi-arrow-left !text-xl" rounded unstyled

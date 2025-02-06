@@ -168,6 +168,14 @@ let enConfig = {
         oops: 'Oops',
         bannedPrompt: 'It seems you are blocked by {\'@\'}{username}.',
         unblock: 'Unblock',
+        basicInformation: 'Basic Information',
+        username: 'Username',
+        nickname: 'Nickname',
+        avatar: 'Avatar',
+        language: 'Languages',
+        linkedAccount: 'Linked Accounts',
+        unlink: 'Unlink',
+        link: 'Link'
     },
     lang: {
         en: 'English',

@@ -87,3 +87,38 @@ export const apiFollow = (followeeId, follow) => {
         data: { followeeId, follow }
     })
 }
+
+export const apiGetUserLinkedAccounts = () => {
+    return request({
+        url: `${baseUrl}/linked`,
+        method: 'GET'
+    })
+}
+
+export const apiOauthUnlink = (owner) => {
+    return request({
+        url: `${baseUrl}/unlink`,
+        method: 'PUT',
+        data: { owner }
+    })
+}
+
+export const apiUserFollowings = (userId, lastId) => {
+    return request({
+        url: `${baseUrl}/following`,
+        method: 'GET',
+        params: {
+            userId, lastId
+        }
+    })
+}
+
+export const apiUserFollowers = (userId, lastId) => {
+    return request({
+        url: `${baseUrl}/follower`,
+        method: 'GET',
+        params: {
+            userId, lastId
+        }
+    })
+}

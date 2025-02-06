@@ -13,7 +13,7 @@
                 <Button icon="pi pi-language" :label="t('common.language')" severity="secondary" @click="languageModal = true" />
                 <Button icon="pi pi-sun" :label="t('common.theme')" severity="secondary" @click="themeModal = true" />
                 <Button icon="pi pi-user" class="col-span-2" :label="t('login.login')" @click="router.push({ name: 'Login'})" />
-                <Button icon="pi pi-user-plus" class="col-span-2" :label="t('login.register')" />
+                <Button icon="pi pi-user-plus" class="col-span-2" :label="t('login.register')" @click="router.push({ name: 'Register'})" />
             </div>
         </div>
         <Dialog class="min-w-80" v-model:visible="languageModal" modal :header="t('common.language')">

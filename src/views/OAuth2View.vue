@@ -16,7 +16,7 @@
 import Logo from "@/components/natively/Logo.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from 'vue-i18n'
-import {onMounted} from "vue";
+import {onBeforeMount, onMounted, ref} from "vue";
 import ProgressBar from "primevue/progressbar";
 import {apiOAuth2} from "@/api/user.js";
 import {useUserStore} from "@/stores/userStore.js";
@@ -32,15 +32,15 @@ const login = async () => {
     try {
         let res = await apiOAuth2({
             owner: owner,
-            code: code,
+            code: code
         });
-        if(res.login){
+        if(res.mode === 'login'){
             localStorage.setItem('accessToken', res.loginInfo.accessToken);
             localStorage.setItem('refreshToken', res.loginInfo.refreshToken);
             localStorage.setItem('userId', res.userId);
             userStore.userInfo.id = res.userId;
             await router.push({name: 'Login', query: { completed: 'true'}});
-        } else {
+        } else if(res.mode === 'register') {
             await router.push({name: 'Register', query: {
                     oauth2: 'true',
                     email: res.registerInfo.email,
@@ -48,6 +48,8 @@ const login = async () => {
                     owner: res.registerInfo.owner,
                     ownerId: res.registerInfo.ownerId
                 }});
+        } else {
+            router.push({ name: 'UserEdit' });
         }
     } catch (err){
         await router.push({name: 'Welcome'});

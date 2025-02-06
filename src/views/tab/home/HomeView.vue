@@ -1,7 +1,7 @@
 <template>
     <div class="relative">
         <!--        Header-->
-        <div class="w-full gap-2 md:gap-4 flex flex-col md:flex-row py-2 px-4 sticky top-0 bg-white z-30 border-surface border-b transition-opacity transform-gpu
+        <div class="w-full gap-2 md:gap-4 flex flex-col md:flex-row py-2 px-4 sticky top-0 bg-blur z-30 border-surface border-b transition-opacity transform-gpu
                     hover:!opacity-100 dark:bg-surface-900"
              :class="{'opacity-30': isScrollDown}">
             <div class="md:hidden">
@@ -67,7 +67,7 @@ import {useRoute} from "vue-router";
 import ETransition from "@/components/etsuya/ETransition.vue";
 
 const { t, locale, availableLocales } = useI18n();
-const { isScrollDown, isAtBottom } = useScroll();
+const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
 
 //options
 let options = ref([
@@ -125,7 +125,7 @@ watch(optionSelectionProxy, (newVal, oldVal) => {
     }
     
 })
-watch(isAtBottom, (newVal, oldValue) => {
+watch(isAtBottomSoon, (newVal, oldValue) => {
     if(newVal && !oldValue){
         loadMore();
     }

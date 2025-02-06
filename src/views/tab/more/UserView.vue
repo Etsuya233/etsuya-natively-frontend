@@ -43,11 +43,11 @@
                     <ELangProgress v-for="(lang, index) in userInfo.languages" :key="index" :lang="lang.lang" :proficiency="lang.proficiency" />
                 </div>
                 <div class="pt-2">
-                    <span class="hover:underline">
+                    <span class="hover:underline" @click="router.push({ name: 'UserFollowing', params: { id: userInfo.id }})">
                         <span class="font-bold">{{userInfo.following}}</span>
                         <span class="text-slate-600 pr-4">&nbsp{{t('user.following')}}</span>
                     </span>
-                    <span class="hover:underline">
+                    <span class="hover:underline" @click="router.push({ name: 'UserFollower', params: { id: userInfo.id }})">
                         <span class="font-bold">{{userInfo.followers}}</span>
                         <span class="text-slate-600">&nbsp{{t('user.followers')}}</span>
                     </span>

@@ -13,7 +13,7 @@
                     </div>
                 </div>
                 <EList>
-                    <EListItem icon="pi-pencil" :title="t('more.editProfile')" />
+                    <EListItem @click="router.push({ name: 'UserEdit' })" icon="pi-pencil" :title="t('more.editProfile')" />
                     <EListItem @click="languageVisible = true" icon="pi-language" :title="t('more.language')" />
                     <EListItem icon="pi-palette" :title="t('more.theme')" @click="themeVisible = true"/>
                     <EListItem @click.stop="logoutClicked" icon="pi-sign-out"

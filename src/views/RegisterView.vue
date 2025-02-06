@@ -127,34 +127,13 @@
                     </Message>
                 </div>
                 <div v-else-if="progress === 6" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-globe"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <Select id="location" v-model="userInfo.location" :options="location" optionLabel="name"
-                                    optionValue="code" :loading="locationLoading" filter />
-                            <label for="location">{{t('login.locationOrCountry')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.nicknameRule')}}
-                        </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 7" class="flex flex-col gap-4">
                     <div class="">{{t('login.chooseLanguage')}}</div>
                     <Button :label="t('login.addALanguage')" icon="pi pi-plus" @click="addLanguage" />
                     <div v-if="userInfo.language.length > 0" class="flex flex-col gap-2">
                         <div v-for="(item, index) in userInfo.language" :key="item.code">
                             <div class="relative overflow-hidden border rounded-lg border-surface" :class="item.native? {'bg-primary-50': true, 'dark:bg-primary-900': true}: {}" >
                                 <div class="px-4 py-2 border-surface-200 mb-1 flex gap-4 items-center">
-                                    <div class="text-3xl">🇫🇷</div>
+<!--                                    <div class="text-3xl">🇫🇷</div>-->
                                     <div class="font-bold text-xl">{{lang.find((ele) => ele.code === item.language).name}}</div>
                                     <Button @click="editLanguage(index)" class="ml-auto" icon="pi pi-pencil" severity="secondary" />
                                     <Button @click="deleteLanguage(index)" icon="pi pi-trash" severity="secondary" />
@@ -176,7 +155,7 @@
                         </div>
                     </Message>
                 </div>
-                <div v-else-if="progress === 9" class="flex flex-col gap-4">
+                <div v-else-if="progress === 7" class="flex flex-col gap-4">
                     <div class="font-bold text-2xl">{{t('login.registerSuccess')}}</div>
                     <div class="text-surface-600">{{t('login.redirect')}}</div>
                     <div class="flex">
@@ -193,10 +172,6 @@
                 <div class="border border-surface p-4 rounded-lg flex items-center">
                     <div>{{t('login.proficiency')}}</div>
                     <div class="ml-auto"><Rating v-model="addingLanguage.proficiency" /></div>
-                </div>
-                <div class="border border-surface p-4 rounded-lg flex items-center">
-                    <div>{{t('login.native')}}</div>
-                    <div class="ml-auto"><Checkbox v-model="addingLanguage.native" binary /></div>
                 </div>
                 <Message severity="info">
                     <div class="whitespace-pre-line">
@@ -249,10 +224,9 @@ let userInfo = ref({
 })
 
 //langs
-let langLoading = ref(false);
 let lang = languageStore.languageData;
 let selectableLang = computed(() => {
-    return lang.value.filter((item) => {
+    return lang.filter((item) => {
         let ul = userInfo.value.language.find((ele) => {
             return ele.language === item.code;
         });
@@ -299,11 +273,6 @@ const editLanguage = (index) => {
     addingLanguage.value.proficiency = obj.proficiency;
     addingLanguage.value.native = obj.native;
 }
-apiGetLanguages().then((res) => {
-    lang.value.splice(0, location.value.length);
-    lang.value.push(... res);
-}).catch(err => console.log(err))
-    .finally(() => langLoading.value = false);
 
 //progress and validation
 let progress = ref(1);
@@ -353,9 +322,6 @@ const goNext = async () => {
             errMsg.value = t('login.passwordContentLimit');
         }
     } else if(progress.value === 5){
-        if(lang.value.length < 2){
-            langLoading.value = true;
-        }
         if(userInfo.value.password !== userInfo.value.rePassword){
             errMsg.value = t('login.rePasswordContentLimit')
         }
@@ -377,7 +343,7 @@ const goNext = async () => {
     if(errMsg.value.length > 0){
         return;
     }
-    progress.value = Math.min(8, progress.value + 1)
+    progress.value = Math.min(7, progress.value + 1)
 }
 
 //lifespan

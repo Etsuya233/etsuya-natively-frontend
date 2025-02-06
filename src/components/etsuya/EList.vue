@@ -1,9 +1,9 @@
 <template>
     <div class="w-full">
         <div class="text-xl font-bold pl-2 mb-2" v-if="props.title || props.icon">
-            <span :class="props.icon"></span><span>&nbsp;{{ props.title }}</span>
+            <span :class="props.icon"></span><span>&nbsp;&nbsp;{{ props.title }}</span>
         </div>
-        <div class="rounded-2xl divide-y overflow-hidden">
+        <div class="overflow-hidden" :class="{ 'rounded-2xl': !props.customSlot, 'divide-y': !props.customSlot }">
             <slot></slot>
         </div>
     </div>
@@ -16,6 +16,10 @@ const props = defineProps({
     },
     icon: {
         default: '',
+    },
+    customSlot: {
+        default: false,
+        type: Boolean
     }
 })
 </script>

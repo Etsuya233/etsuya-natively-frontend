@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+    .bg-blur {
+        backdrop-filter: blur(60px) saturate(220%);
+        background-color: hsla(0, 0%, 100%, 0.84);
+    }
+}
+
 @font-face {
     font-family: 'Inter';
     src: url('./fonts/Inter-VariableFont_opsz,wght.ttf');

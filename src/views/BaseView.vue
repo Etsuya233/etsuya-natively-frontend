@@ -3,8 +3,7 @@
         <div class="flex w-full max-w-screen-xl">
         
 <!--            Navigation-->
-            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface max-md:bg-white/80 z-30
-            backdrop-blur-xl h-14 transition-opacity transform-gpu
+            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface z-50 bg-blur h-14 transition-opacity transform-gpu
             md:sticky md:top-0 md:right-auto md:flex-col md:justify-normal md:border-t-0 md:border-r md:p-4 md:gap-2
             md:h-dvh md:w-fit
             max-md:dark:bg-surface-900/70 max-md:dark:opacity-80" :class="{ 'max-sm:opacity-30': isScrollDown && route.meta.navTransparent }" >
@@ -77,7 +76,7 @@
 
 <script setup>
 import Card from 'primevue/card';
-import {computed, onMounted, ref, watch} from 'vue';
+import {computed, onBeforeMount, onMounted, ref, watch} from 'vue';
 import Logo from "@/components/natively/Logo.vue";
 import Button from 'primevue/button';
 import {useScroll} from "@/utils/scroll.js";
@@ -93,12 +92,15 @@ import {usePageStore} from "@/stores/pageStore.js";
 import ProgressBar from "primevue/progressbar";
 import LoadingNotification from "@/components/natively/LoadingNotification.vue";
 import { toast } from 'vue3-toastify';
+import {useWsStore} from "@/stores/wsStore.js";
+import {apiGetCurrent} from "@/api/user.js";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const {selected} = useSelect();
 const userStore = useUserStore();
 const chatStore = useChatStore();
+const wsStore = useWsStore();
 const {isScrollDown} = useScroll();
 const pageStore = usePageStore();
 const router = useRouter();
@@ -154,7 +156,16 @@ let menuItem = ref([
     { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }, value: 'More' }
 ]);
 
+onBeforeMount(() => {
+    wsStore.connect();
+    chatStore.init();
+    naviStore.init();
+})
+
 onMounted(() => {
+    apiGetCurrent().then(res => {
+        userStore.userInfo = res;
+    })
     setTimeout(() => {
         if(chatStore.connected === false){
             connectionNotificationWatch(false, true);

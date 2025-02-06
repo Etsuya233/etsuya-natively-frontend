@@ -19,8 +19,11 @@
                     {{ item.content }}
                 </div>
                 
-                <div class="mt-2">
+                <div class="mt-2" v-if="item.note">
                     <EListItem enable-slot rounded>
+                        <div class="!text-slate-600">
+                            <span class="pi pi-pencil !text-xs"></span><span class="ml-2 text-sm">{{t('bookmark.note')}}</span>
+                        </div>
                         <div class="w-full overflow-hidden">
                             {{ item.note }}
                             <div class="inline-block float-right translate-y-1/4 text-slate-600 text-sm">{{ item.createTime }}</div>
@@ -29,10 +32,10 @@
                 </div>
                 
                 <div class="mt-2 flex gap-2">
-                    <Tag class="!rounded-2xl mr-auto" @click.stop
+                    <Tag class="!rounded-2xl ml-auto" @click.stop severity="secondary"
                             :value="item.type === 1? t('bookmark.post'): item.type === 2? t('bookmark.comment'): t('bookmark.note')" />
                     <Button rounded severity="secondary" size="small" icon="pi pi-pencil" :label="t('bookmark.editNote')" @click.stop="noteEdit(item)" />
-                    <Button rounded severity="warn" size="small" icon="pi pi-trash" :label="t('bookmark.remove')" :loading="item.removeLoading" @click.stop="deleteBookmark(item)" />
+                    <Button rounded severity="secondary" size="small" icon="pi pi-trash" :label="t('bookmark.remove')" :loading="item.removeLoading" @click.stop="deleteBookmark(item)" />
                 </div>
             </div>
             

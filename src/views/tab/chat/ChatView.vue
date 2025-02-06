@@ -71,7 +71,7 @@
         </div>
         
 <!--        Input -->
-        <div class="sticky bottom-14 md:bottom-0 flex flex-col bg-white/80 backdrop-blur-xl p-2 border-t transition-all transform-gpu"
+        <div class="sticky bottom-14 md:bottom-0 flex flex-col bg-blur p-2 border-t transition-all transform-gpu"
             :class="{ '!animate-pulse': chatStore.sending }">
             <ETransition name="scale">
                 <div class="absolute bottom-[4.5rem] right-4" v-if="!isAtBottom" @click="goBottom" :class="{ 'bottom-40': tools }">
@@ -82,7 +82,11 @@
                 </div>
             </ETransition>
             <div class="w-full flex gap-2 items-end">
-                <Button :disabled="chatStore.sending" v-if="!msgContent" @click="tools = !tools" icon="pi pi-plus"
+                <Button :disabled="chatStore.sending" v-if="!msgContent" @click="tools = !tools" :icon="'pi ' + (tools? 'pi-minus': 'pi-plus')"
+                        rounded severity="secondary" pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0"/>
+                <Button :disabled="chatStore.sending" v-if="!msgContent && tools" @click="addImage" icon="pi pi-image"
+                        rounded severity="secondary" pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0"/>
+                <Button :disabled="chatStore.sending" v-if="!msgContent && tools" @click="addVoice" icon="pi pi-microphone"
                         rounded severity="secondary" pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0"/>
                 <textarea :disabled="chatStore.sending" @input="textareaKeyDown" v-model="msgContent"
                           class="h-10 outline-none text-base py-2 px-4 rounded-[1.25rem] ring-1 resize-none w-0
@@ -91,11 +95,11 @@
                 <Button :disabled="!msgContent || chatStore.sending" icon="pi pi-send" rounded
                         pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0" @click="sendTextMsg"/>
             </div>
-            <div class="pt-3 flex *:flex-1 gap-2" v-if="tools">
-                <Button @click="addImage" icon="pi pi-image" label="Images" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
-                <Button  icon="pi pi-camera" label="Camera" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
-                <Button @click="addVoice" icon="pi pi-microphone" label="Voice" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />
-            </div>
+<!--            <div class="pt-3 flex *:flex-1 gap-2" v-if="tools">-->
+<!--                <Button @click="addImage" icon="pi pi-image" label="Images" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />-->
+<!--                <Button  icon="pi pi-camera" label="Camera" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />-->
+<!--                <Button @click="addVoice" icon="pi pi-microphone" label="Voice" severity="secondary" outlined iconPos="top" pt:root:class="!bg-white/50" />-->
+<!--            </div>-->
         </div>
         
         <ImageUploader ref="imageUploader" :enable-send="true" :limit="1" v-model:images="images" v-model:imageSrc="imageSrc" @send="sendImage" />

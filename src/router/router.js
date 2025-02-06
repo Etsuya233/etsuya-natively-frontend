@@ -108,7 +108,7 @@ const routes = [
                 }
             },
             {
-                path: ':id',
+                path: 'chat/:id',
                 name: 'Chat',
                 component: () => import('@/views/tab/chat/ChatView.vue'),
                 meta: {
@@ -144,7 +144,43 @@ const routes = [
                 }
             },
             {
-                path: ':id',
+                path: 'user/edit',
+                name: 'UserEdit',
+                component: () => import('@/views/tab/more/UserEditView.vue'),
+                meta: {
+                    component: 'UserEditView',
+                    nav: true,
+                    navTransparent: false,
+                    tab: 'More',
+                    keepAliveParent: true
+                }
+            },
+            {
+                path: 'user/following/:id',
+                name: 'UserFollowing',
+                component: () => import('@/views/tab/more/UserFollowingView.vue'),
+                meta: {
+                    component: 'UserFollowingView',
+                    nav: true,
+                    navTransparent: false,
+                    tab: 'More',
+                    keepAliveParent: true,
+                }
+            },
+            {
+                path: 'user/follower/:id',
+                name: 'UserFollower',
+                component: () => import('@/views/tab/more/UserFollowerView.vue'),
+                meta: {
+                    component: 'UserFollowerView',
+                    nav: true,
+                    navTransparent: false,
+                    tab: 'More',
+                    keepAliveParent: true,
+                }
+            },
+            {
+                path: 'user/:id',
                 name: 'User',
                 component: () => import('@/views/tab/more/UserView.vue'),
                 meta: {

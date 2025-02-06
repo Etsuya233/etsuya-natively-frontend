@@ -29,12 +29,6 @@ const route = useRoute();
 const naviStore = useNaviStore();
 
 onBeforeMount(() => {
-    wsStore.connect();
-    chatStore.init();
-    naviStore.init();
-    apiGetCurrent().then(res => {
-        userStore.userInfo = res;
-    })
     if(languageStore.languageData.length === 0){
         apiGetLanguages().then(res => {
             languageStore.languageData = res;

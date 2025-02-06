@@ -99,7 +99,7 @@ import PostCard from "@/components/natively/PostCard.vue";
 import CommentCard from "@/components/natively/CommentCard.vue";
 import {useSelect} from "@/utils/selection.js";
 
-const {isScrollDown, isAtBottom} = useScroll();
+const {isScrollDown, isAtBottom, isAtBottomSoon} = useScroll();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -234,7 +234,7 @@ const commentClicked = (index) => {
     })
     commentLoading.value = false;
 }
-watch(isAtBottom, async (newVal, oldValue) => {
+watch(isAtBottomSoon, async (newVal, oldValue) => {
     if(isLoadingMore.value){
         return;
     }
