@@ -122,3 +122,22 @@ export const apiUserFollowers = (userId, lastId) => {
         }
     })
 }
+
+export const apiUserAvatarUpload = (data) => {
+    return request({
+        url: `${baseUrl}/avatar`,
+        method: 'POST',
+        data: data,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
+
+export const apiModifyUser = (data) => {
+    return request({
+        url: `${baseUrl}`,
+        method: 'PUT',
+        data: data
+    })
+}

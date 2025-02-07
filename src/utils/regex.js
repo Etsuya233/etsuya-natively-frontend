@@ -11,7 +11,7 @@ export const passwordRegexStr = "^[a-zA-Z0-9_!#$%&*+,-.:;<=>?@^]{6,32}$";
 export const passwordRegex = new RegExp(passwordRegexStr);
 
 // 昵称正则表达式
-export const nicknameRegexStr = "^[\\p{L}\\p{N}\\p{M}\\p{P}\\p{S}]{6,64}$";
+export const nicknameRegexStr = "^.{6,64}$";
 export const nicknameRegex = new RegExp(nicknameRegexStr, "u");
 
 // 邮箱正则表达式

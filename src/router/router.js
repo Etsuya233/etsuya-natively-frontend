@@ -84,6 +84,19 @@ const routes = [
                 }
             },
             {
+                path: 'search/:content',
+                name: 'SearchResult',
+                component: () => import('@/views/tab/search/SearchResultView.vue'),
+                meta: {
+                    component: 'SearchResultView',
+                    nav: true,
+                    navTransparent: false,
+                    tab: 'Search',
+                    keepAlive: false,
+                    keepAliveParent: true
+                }
+            },
+            {
                 path: 'chat',
                 name: 'ChatList',
                 component: () => import('@/views/tab/chat/ChatListView.vue'),

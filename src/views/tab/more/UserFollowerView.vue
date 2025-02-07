@@ -16,7 +16,7 @@
                 <div></div>
             </div>
             <div class="w-full select-none">
-                <ELoading :loading="loading" />
+                <ELoadMore :loading="loading" />
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@ import {apiUserFollowers} from "@/api/user.js";
 import {useRoute, useRouter} from "vue-router";
 import Avatar from "primevue/avatar";
 import {useScroll} from "@/utils/scroll.js";
-import ELoading from "@/components/etsuya/ELoading.vue";
+import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();

@@ -36,9 +36,7 @@
                 </div>
             </div>
             <div class="w-full select-none">
-                <div class="h-12 flex justify-center items-center">
-                    <div v-if="isLoadingMore" class="pi pi-spin pi-spinner-dotted !text-2xl text-slate-700"></div>
-                </div>
+                <ELoadMore :loading="isLoadingMore" @click="loadMore" />
             </div>
         </div>
         
@@ -65,6 +63,7 @@ import {useToast} from "primevue/usetoast";
 import PostCard from "@/components/natively/PostCard.vue";
 import {useRoute} from "vue-router";
 import ETransition from "@/components/etsuya/ETransition.vue";
+import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
@@ -124,11 +123,6 @@ watch(optionSelectionProxy, (newVal, oldVal) => {
         }
     }
     
-})
-watch(isAtBottomSoon, (newVal, oldValue) => {
-    if(newVal && !oldValue){
-        loadMore();
-    }
 })
 
 // load more

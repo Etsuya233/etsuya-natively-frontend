@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="post.title" class="z-[2]">
+        <div v-if="post.title" class="">
             <div class="inline-block mr-2 align-top" v-if="post.type === 2">
                 <Tag value="Question" class="h-6"/>
             </div>

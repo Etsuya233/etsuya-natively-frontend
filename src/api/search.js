@@ -9,3 +9,11 @@ export const apiSearch = (data) => {
         data
     })
 }
+
+export const apiSearchUser = (data) => {
+    return request({
+        url: `${baseUrl}/user`,
+        method: 'POST',
+        data
+    })
+}

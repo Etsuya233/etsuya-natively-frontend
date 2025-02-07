@@ -6,11 +6,13 @@
             <EList icon="pi pi-user" :title="t('user.basicInformation')">
                 <EListInput :title="t('user.username')" v-model="userInfo.username" />
                 <EListInput :title="t('user.nickname')" v-model="userInfo.nickname" />
-                <EListItem enable-slot>
+                <EListInput :title="t('user.email')" v-model="userInfo.email" />
+                <EListItem enable-slot @click="avatarClicked" :class="{ 'cursor-not-allowed': avatarLoading }" >
                     <div class="flex items-center">
                         <div>{{t('user.avatar')}}</div>
                         <div class="ml-auto h-10 w-10">
-                            <img class="rounded-full" :src="userInfo.avatar" alt="Avatar" />
+                            <img v-if="!avatarLoading" class="rounded-full" :src="userInfo.avatar" alt="Avatar" />
+                            <Skeleton v-else size="2.5rem" shape="circle" />
                         </div>
                     </div>
                 </EListItem>
@@ -19,14 +21,21 @@
                 <EListItem class="relative" enable-slot v-for="(item, index) in userInfo.languages" :key="item.code">
                     <div class="mb-1 flex items-center">
                         <div class="font-bold text-lg">{{lang.find((ele) => ele.code === item.language).name}}</div>
-                        <Button text @click="editLanguage(index)" class="ml-auto" icon="pi pi-pencil" severity="secondary" />
-                        <Button text @click="deleteLanguage(index)" icon="pi pi-trash" severity="secondary" />
+                        <Button size="small" text @click="editLanguage(index)" class="ml-auto" icon="pi pi-pencil" severity="secondary" />
+                        <Button size="small" text @click="deleteLanguage(index)" icon="pi pi-trash" severity="secondary" />
                     </div>
                     <div class="absolute left-0 bottom-0 border-primary-500 border-2 w-full" :style="languageProficiencyStyle(item.proficiency)"></div>
                 </EListItem>
             </EList>
             <Button class="!rounded-2xl" severity="secondary" icon="pi pi-plus" :label="t('user.addLanguage')" @click="addLanguage" />
             <EList icon="pi pi-link" :title="t('user.linkedAccount')">
+                <EListItem enable-slot>
+                    <div>
+                        {{ t('user.linkedAccountChangePrompt') }}
+                    </div>
+                </EListItem>
+            </EList>
+            <EList>
                 <EListItem enable-slot v-for="item in linkedServices">
                     <div class="flex items-center gap-4">
                         <div :class="item.icon" class="flex-shrink-0"></div>
@@ -36,6 +45,9 @@
                     </div>
                 </EListItem>
             </EList>
+            <div class="sticky bottom-[4.5rem] md:bottom-4">
+                <Button @click="updateUserInfo" :loading="userInfoUpdating" class="!rounded-2xl w-full shadow-2xl" severity="primary" :label="t('user.save')" icon="pi pi-save" />
+            </div>
         </div>
         <Dialog class="min-w-80 max-w-[95%]" v-model:visible="addLangDialog" modal :header="langEditing >= 0? t('common.edit'): t('login.addALanguage')">
             <div class="mb-4 flex flex-col gap-2">
@@ -55,6 +67,7 @@
                 <Button type="button" :label="langEditing === -1? t('common.add'): t('common.save')" @click="updateLangList" :disabled="!addingLanguage.language"></Button>
             </div>
         </Dialog>
+        <input ref="avatarUploader" class="hidden" type="file" accept="image/*" @input="imageSelected" />
     </div>
 </template>
 
@@ -73,17 +86,64 @@ import Rating from "primevue/rating";
 import Select from "primevue/select";
 import Dialog from "primevue/dialog";
 import Message from "primevue/message";
+import Skeleton from "primevue/skeleton";
 import ProgressBar from "primevue/progressbar";
-import {googleOauthLink, githubOauthLink, giteeOauthLink} from "@/utils/oauth.js";
-import {apiGetCurrent, apiGetUserLinkedAccounts, apiOauthUnlink} from "@/api/user.js";
+import {giteeOauthLink, githubOauthLink, googleOauthLink} from "@/utils/oauth.js";
+import {apiGetUserLinkedAccounts, apiModifyUser, apiOauthUnlink, apiUserAvatarUpload} from "@/api/user.js";
+import {useToast} from "@/utils/toast.js";
 
 const { t, locale, availableLocales } = useI18n();
 const userStore = useUserStore();
 const languageStore = useLanguageStore();
+const toast = useToast();
 
 // userInfo
 const firstLoading = ref(true);
 const userInfo = ref(cloneDeep(userStore.userInfo));
+const userInfoUpdating = ref(false);
+const updateUserInfo = () => {
+    userInfoUpdating.value = true;
+    const updatedUserInfo = cloneDeep(userInfo.value);
+    apiModifyUser(updatedUserInfo).then(() => {
+        toast.add({
+            type: 'success',
+            title: t('user.userInfoUpdated'),
+        });
+    }).catch((e) => {}).finally(() => {
+        userInfoUpdating.value = false;
+    })
+}
+
+// avatar
+const avatarLoading = ref(false);
+const avatarUploader = ref(null);
+const avatarClicked = () => {
+    if(avatarLoading.value){
+        toast.add({
+            type: 'warning',
+            timeout: 1200,
+            content: t('user.avatarIsUploading')
+        })
+        return;
+    }
+    avatarUploader.value.click();
+}
+const imageSelected = async (event) => {
+    if(event.target.files.length === 0){
+        return;
+    }
+    avatarLoading.value = true;
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('avatar', file);
+    try {
+        userInfo.value.avatar = await apiUserAvatarUpload(formData);
+    } catch (e) {
+        console.log(e);
+    } finally {
+        avatarLoading.value = false;
+    }
+}
 
 // linked
 const linkedServices = ref([

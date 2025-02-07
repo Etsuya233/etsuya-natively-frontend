@@ -5,6 +5,9 @@
             <div class="w-full">
                 <div ref="searchContainer" class="relative z-[3]">
                     <div class="w-full flex items-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 active:bg-slate-300">
+                        <div class="h-10 w-10 mr-1 ml-1 rounded-full bg-white flex justify-center items-center cursor-pointer" @click="goBack">
+                            <span class="pi pi-arrow-left !text-sm"></span>
+                        </div>
                         <input
                                 v-model="searchData.content"
                                 class="flex-1 outline-none bg-none pl-4 py-3 bg-transparent min-w-0"
@@ -46,29 +49,12 @@
         
         <!--        Result-->
         <div v-if="searchData.mode === 'post'" class="">
-            <PostCard class="px-4 py-2 border-b" v-for="(item, index) in searchResult.post.data" v-model="searchResult.post.data[index]" :show-footer="false" :show-attachment="false" :search-mode="true" />
+            <PostCard class="px-4 py-2 border-b" v-for="(item, index) in searchResult.post" v-model="searchResult.post[index]" :show-footer="false" :show-attachment="false" :search-mode="true" />
         </div>
         <div v-else-if="searchData.mode === 'user'" class="">
-            <div class="flex flex-col divide-y">
-                <div class="p-4 flex cursor-pointer hover:bg-slate-100 transition-colors transform-gpu"
-                     v-for="(item, index) in searchResult.user.data" :key="index" @click="router.push({ name: 'User', params: { id: item.id } })">
-                    <div class="w-12 flex-shrink-0 flex items-center">
-                        <div class="w-12 h-12">
-                            <Avatar class="!w-full !h-full" shape="circle" :image="item.avatar" />
-                        </div>
-                    </div>
-                    <div class="pl-5 flex-1 min-w-0 overflow-hidden">
-                        <div class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{{item.nickname}}</div>
-                        <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">@{{item.username}}</div>
-                        <div>
-                            <ELangProgress class="mr-2" v-for="(lang, index) in item.languages" :lang="lang.language" :proficiency="lang.proficiency" />
-                        </div>
-                    </div>
-                </div>
-                <div></div>
-            </div>
+            <PostCard class="px-4 py-2 border-b" v-for="(item, index) in searchResult.user" v-model="searchResult.user[index]" :show-footer="false" :show-attachment="false" :search-mode="true" />
         </div>
-        <ELoadMore :loading="loading" @click="loadMore" />
+        <ELoadMore :loading="loading" />
     </div>
 </template>
 
@@ -78,13 +64,11 @@ import {ref, onMounted, onUnmounted, onBeforeMount, watch, nextTick, onActivated
 import EList from "@/components/etsuya/EList.vue";
 import EListItem from "@/components/etsuya/EListItem.vue";
 import ETransition from "@/components/etsuya/ETransition.vue";
-import {apiSearch, apiSearchUser} from "@/api/search.js";
+import {apiSearch} from "@/api/search.js";
 import PostCard from "@/components/natively/PostCard.vue";
 import {useRoute, useRouter} from "vue-router";
 import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 import {useScroll} from "@/utils/scroll.js";
-import Avatar from "primevue/avatar";
-import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -106,47 +90,35 @@ const searchData = ref({
     mode: 'post',
 });
 const searchResult = ref({
-    post: {
-        data: [],
-        from: 0
-    },
-    user: {
-        data: [],
-        from: 0
-    },
+    post: [],
+    user: [],
+    bookmark: []
 })
 const searchYPosition = ref({ post: 0, user: 0, bookmark: 0 });
 const changeSearchMode = (mode) => {
     searchData.value.mode = mode;
 };
 const handleSearch = () => {
-    if(!searchData.value.content.trim()){
-        return;
+    if (searchData.value.content.trim()) {
+        router.push({ name: 'SearchResult', params: { content: searchData.value.content }});
+        showHistory.value = false;
     }
-    searchResult.value.user = {
-        data: [],
-        from: 0
-    };
-    searchResult.value.post = {
-        data: [],
-        from: 0
-    };
-    loadMore();
-    showHistory.value = false;
 };
+const goBack = () => {
+    router.go(-1);
+}
 const loadMore = async () => {
-    if(loading.value || !searchData.value.content.trim()) return;
+    if(loading.value) return;
     loading.value = true;
-    const from = searchResult.value[searchData.value.mode].from;
+    const from = searchResult.value[searchData.value.mode].length;
     try {
         let res;
         if(searchData.value.mode === 'post'){
             res = await apiSearch({ ...searchData.value, from });
         } else if(searchData.value.mode === 'user'){
-            res = await apiSearchUser({ ...searchData.value, from });
+        
         }
-        searchResult.value[searchData.value.mode].data.push(... res.data);
-        searchResult.value[searchData.value.mode].from = res.from;
+        searchResult.value[searchData.value.mode].push(... res);
     } catch (e){
         console.log(e);
     } finally {
@@ -156,7 +128,7 @@ const loadMore = async () => {
 watch(() => searchData.value.mode, (newVal, oldValue) => {
     if(newVal === oldValue) return;
     searchYPosition.value[oldValue] = window.scrollY;
-    if(searchResult.value[newVal].data.length === 0){
+    if(searchResult.value[oldValue].length === 0){
         loadMore();
     }
     nextTick(() => {
@@ -165,6 +137,12 @@ watch(() => searchData.value.mode, (newVal, oldValue) => {
             behavior: 'auto'
         });
     })
+})
+watch(isAtBottomSoon, (newVal, oldVal) => {
+    console.log(newVal, oldVal, searchData.value);
+    if(newVal && !oldVal) {
+        loadMore();
+    }
 })
 
 // 新增搜索历史相关逻辑
@@ -211,9 +189,16 @@ const handleClickOutside = (event) => {
 
 // 生命周期
 onBeforeMount(async () => {
+    searchData.value.content = route.params.content;
+    
     // history
     loadHistory();
     saveSearchHistory(searchData.value.content);
+
+    loadMore();
+})
+onActivated(() => {
+    searchData.value.content = route.params.content;
 })
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);

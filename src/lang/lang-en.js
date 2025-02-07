@@ -175,7 +175,12 @@ let enConfig = {
         language: 'Languages',
         linkedAccount: 'Linked Accounts',
         unlink: 'Unlink',
-        link: 'Link'
+        link: 'Link',
+        linkedAccountChangePrompt: 'Please save other settings before making changes to linked accounts.',
+        save: 'Save',
+        avatarIsUploading: 'Avatar is uploading...',
+        userInfoUpdated: 'User info updated.',
+        email: 'Email'
     },
     lang: {
         en: 'English',
@@ -268,7 +273,13 @@ let enConfig = {
     search: {
         placeholder: 'Search here...',
         search: 'Search',
-        history: 'History'
+        history: 'History',
+        user: 'User',
+        bookmark: 'Bookmark',
+        post: 'Post'
+    },
+    loadMore: {
+        clickPrompt: 'Clicked to Load More...',
     }
 }
 
