@@ -36,7 +36,7 @@
             <div class="w-full px-4 py-2 bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer"
                  id="history-0"
                  @click="postClicked">
-                <PostCard v-model="postInfo" :full-mode="true" :show-more="true" />
+                <PostCard v-model="postInfo" :full-mode="true" :show-footer="history.length === 1" :show-footer-lite="history.length !== 1" :show-more="true" />
             </div>
         </div>
         
@@ -49,7 +49,7 @@
                 <div v-if="index !== 0" class="border-slate-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
                 <div class="absolute -top-14" :id="`history-${index}`"></div>
                 <div v-if="index > 0" class="px-4 py-2 w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
-                    <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" />
+                    <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" :show-footer-lite="index !== history.length - 1" />
                 </div>
             </div>
         </div>
@@ -72,9 +72,7 @@
                 </div>
             </div>
             <div class="w-full select-none">
-                <div class="h-12 flex justify-center items-center">
-                    <div v-if="isLoadingMore" class="pi pi-spin pi-spinner-dotted !text-2xl text-slate-700"></div>
-                </div>
+                <ELoadMore :loading="isLoadingMore" @click="loadMoreComment" />
             </div>
             <div class="h-4"></div>
         </div>
@@ -98,8 +96,9 @@ import {useNaviStore} from "@/stores/naviStore.js";
 import PostCard from "@/components/natively/PostCard.vue";
 import CommentCard from "@/components/natively/CommentCard.vue";
 import {useSelect} from "@/utils/selection.js";
+import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 
-const {isScrollDown, isAtBottom, isAtBottomSoon} = useScroll();
+const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -200,16 +199,26 @@ const commentInit = (res) => {
     })
 }
 const loadMoreComment = async () => {
-    if(history.value.length === 1){
-        // post
-        const res = await apiGetCommentList(true, postInfo.value.id, lastId.value);
-        commentInit(res);
-        comment.value[0].push(... res);
-    } else {
-        // comment
-        const res = apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
-        commentInit(res);
-        comment.value[comment.value.length - 1].push(... res);
+    if(isLoadingMore.value){
+        return;
+    }
+    isLoadingMore.value = false;
+    try{
+        if(history.value.length === 1){
+            // post
+            const res = await apiGetCommentList(true, postInfo.value.id, lastId.value);
+            commentInit(res);
+            comment.value[0].push(... res);
+        } else {
+            // comment
+            const res = apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
+            commentInit(res);
+            comment.value[comment.value.length - 1].push(... res);
+        }
+    } catch (e){
+        console.log(e);
+    } finally {
+        isLoadingMore.value = false;
     }
 }
 const commentClicked = (index) => {
@@ -234,20 +243,6 @@ const commentClicked = (index) => {
     })
     commentLoading.value = false;
 }
-watch(isAtBottomSoon, async (newVal, oldValue) => {
-    if(isLoadingMore.value){
-        return;
-    }
-    if(newVal && !oldValue){
-        try {
-            isLoadingMore.value = true;
-            await loadMoreComment();
-        } catch (e){}
-        finally {
-            isLoadingMore.value = false;
-        }
-    }
-})
 
 //lifespans
 onBeforeMount(() => {

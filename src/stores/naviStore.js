@@ -19,23 +19,21 @@ export const useNaviStore = defineStore('naviStore', () => {
 
     // quote
     const quoteMode = ref(false);
-    // const quoteType = ref('text');
     const quote = ref('');
 
+    // todo stream identifier should not repeat easily.
     /**
      * Launch Navi
      * @param userQuote the quote
-     * @param userQuoteType text post comment or null
      * @param menuDisplay the menu items should be display
      * */
-    function launch(userQuoteType, userQuote, menuDisplay = ['translation', 'ask', 'explain', 'pronounce', 'bookmark']){
+    function launch(userQuote, menuDisplay = ['translation', 'ask', 'explain', 'pronounce', 'bookmark']){
         menu.value = menuDisplay;
         quote.value = '';
         quoteMode.value = false;
         page.value = 1;
         streamOutput.value.clear();
-        if(userQuoteType){
-            quoteType.value = userQuoteType;
+        if(userQuote){
             quoteMode.value = true;
             quote.value = userQuote;
         } else {

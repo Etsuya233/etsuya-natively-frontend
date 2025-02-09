@@ -3,9 +3,7 @@
         <EHeader class="sticky top-0 z-10" :enable-slot="true">
             <div class="flex items-center">
                 <div>{{ type === '1'? t('post.normal'): t('post.question') }}</div>
-                <div class="text-base ml-auto mr-2">Advance</div>
-                <ToggleSwitch v-model="advanceMode" class="mr-2" />
-                <div class="text-base ml-2 mr-2">{{t('editor.preview')}}</div>
+                <div class="text-base ml-auto mr-2">{{t('editor.preview')}}</div>
                 <ToggleSwitch v-model="preview" class="mr-2" />
             </div>
         </EHeader>
@@ -21,8 +19,8 @@
                             @click="currentIndex = index"
                             :key="item.id"
                             class="transform-gpu transition-colors"
-                            :class="{ '!bg-slate-100': !preview && advanceMode && index === currentIndex, 'hover:bg-slate-50': !preview && advanceMode }">
-                            <td v-show="!preview && advanceMode" class="border-r pl-2 pr-2 text-right pt-[0.31rem] align-text-top rounded-l-lg">
+                            :class="{ '!bg-slate-100': !preview && index === currentIndex, 'hover:bg-slate-50': !preview }">
+                            <td v-show="!preview" class="border-r pl-2 pr-2 text-right pt-[0.31rem] align-text-top rounded-l-lg">
                                 <div v-if="item.type === 'markdown'">M</div>
                                 <div v-else class="pi" :class="{
                                 'pi-align-left': item.type === 'text',
@@ -128,40 +126,45 @@
                     </table>
                 </div>
             </div>
-            <div v-show="!preview" class="sticky w-full bottom-12 pt-0 pb-2 px-4">
-                <div class="flex px-2 gap-2 py-1 border rounded-xl bg-white/80 backdrop-blur-xl
+            <div v-show="!preview" class="sticky w-full bottom-16 pt-0 pb-2 px-4">
+                <div class="flex px-2 gap-2 py-1 border rounded-xl bg-blur
                 *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100">
-                    <div class="pi pi-align-left" @click="addText(currentIndex)" v-show="advanceMode"></div>
+                    <div class="pi pi-align-left" @click="addText(currentIndex)"></div>
                     <div class="pi pi-image" @click="addImage(currentIndex)"></div>
                     <div class="pi pi-microphone" @click="addVoice(currentIndex)"></div>
                     <div class="pi pi-arrow-right-arrow-left" @click="addCompare(currentIndex)"></div>
                     <div class="" @click="addMarkdown(currentIndex)">M</div>
-                    <div class="pi pi-trash text-red-600 " @click="deleteBlock" v-show="advanceMode"></div>
+                    <div class="pi pi-trash text-red-600 " @click="deleteBlock"></div>
                     <div class="pi pi-send ml-auto text-primary-500" @click="send()"></div>
                 </div>
             </div>
-            <div class="px-4">
-                <div class="mt-2" v-show="!preview && languages">
-                    <EList>
-                        <EListItem :enable-slot="true">
-                            <div>
-                                <div class="font-bold">{{ t('post.selectedLanguage') }}</div>
-                                <div class="mt-1">
-                                    <Tag v-for="item in languageText" :value="item" class="ml-2 first:ml-0" />
-                                </div>
-                            </div>
-                        </EListItem>
-                    </EList>
-                </div>
-                <div v-show="!preview">
-                    <Panel :header="t('post.rule')"
-                           class="mt-4"
-                           toggleable
-                           collapsed
-                           pt:root:class="!rounded-2xl" pt:content:class="!whitespace-pre-line" >
+            <div v-show="!preview" class="px-4 pt-2">
+                <EListItem enable-slot rounded>
+                    <div class="font-bold pb-1">{{ t('post.stat') }}</div>
+                    <div>{{ t('post.characterCount') }}: {{charCount}}</div>
+                    <div>{{ t('post.blockCount') }}: {{blockCount}}</div>
+                    <div>{{ t('post.imageBlockCount') }}: {{imageBlockCount}}</div>
+                    <div>{{ t('post.voiceBlockCount') }}: {{voiceBlockCount}}</div>
+                </EListItem>
+            </div>
+            <div class="px-4 pt-4" v-show="!preview && languages">
+                <EListItem :enable-slot="true" rounded>
+                    <div class="font-bold">{{ t('post.selectedLanguage') }}</div>
+                    <div class="mt-1">
+                        <Tag v-for="item in languageText" :value="item" class="ml-2 first:ml-0" />
+                    </div>
+                </EListItem>
+            </div>
+            <div v-show="!preview" class="px-4 mt-4">
+                <EListItem enable-slot rounded>
+                    <div class="font-bold pb-1">{{ t('post.rule') }}</div>
+                    <div class="whitespace-pre-line">
                         {{ type === "1"? t('post.normalRule'): t('post.questionRule') }}
-                    </Panel>
-                </div>
+                    </div>
+                </EListItem>
+            </div>
+            <div class="h-4">
+            
             </div>
             <VoiceRecorder
                     ref="voiceRecorder"
@@ -205,14 +208,13 @@ import Tag from 'primevue/tag';
 import EListItem from "@/components/etsuya/EListItem.vue";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import Panel from 'primevue/panel';
+import { v4 as uuidv4 } from 'uuid';
 
 const route = useRoute();
 const router = useRouter();
 const { t, locale, availableLocales } = useI18n()
 const userStore = useUserStore();
 const languageStore = useLanguageStore();
-
-const advanceMode = ref(false);
 
 // lang
 const languages = ref([]);
@@ -312,30 +314,15 @@ const send = async () => {
     }
 }
 
-// simple mode util
-const keepFormat = (index) => {
-    if(index === content.value.length - 1){
-        addText();
-    }
-    if(index !== 0 && index !== content.value.length - 1 && content.value[index].type === 'text' && content.value[index].value === ""){
-        currentIndex.value = index;
-        index--;
-        deleteBlock();
-    }
-    return index;
-}
-
 // text
 const textTemplate = {
     type: "text",
     value: ""
 };
 const addText = (index = content.value.length - 1) => {
-    // console.log('Before: ', content.value, '. Index: ', index);
     index++;
-    content.value.splice(index, 0, {... textTemplate, id: self.crypto.randomUUID()});
+    content.value.splice(index, 0, {... textTemplate, id: uuidv4()});
     currentIndex.value = index;
-    // console.log('After: ', content.value);
 }
 
 // compare
@@ -346,11 +333,8 @@ const compareTemplate = {
     change: []
 }
 const addCompare = (index = content.value.length - 1) => {
-    if(!advanceMode.value){
-        index = keepFormat(index);
-    }
     index++;
-    content.value.splice(index, 0, {... compareTemplate, id: self.crypto.randomUUID()});
+    content.value.splice(index, 0, {... compareTemplate, id: uuidv4()});
     currentIndex.value = index;
 }
 const compareUpdate = (index) => {
@@ -363,11 +347,8 @@ const markdownTemplate = {
     value: ""
 }
 const addMarkdown = (index = content.value.length - 1) => {
-    if(!advanceMode.value){
-        index = keepFormat(index);
-    }
     index++;
-    content.value.splice(index, 0, {... markdownTemplate, id: self.crypto.randomUUID()});
+    content.value.splice(index, 0, {... markdownTemplate, id: uuidv4()});
     currentIndex.value = index;
 }
 
@@ -379,15 +360,9 @@ const imageTemplate = {
     caption: ""
 }
 const addImage = (index = content.value.length - 1) => {
-    if(!advanceMode.value){
-        index = keepFormat(index);
-    }
     index++;
-    content.value.splice(index, 0, {... imageTemplate, id: self.crypto.randomUUID()});
+    content.value.splice(index, 0, {... imageTemplate, id: uuidv4() });
     currentIndex.value = index;
-    if(!advanceMode.value){
-        uploadImageClicked(index);
-    }
 }
 const imageUploader = ref(null);
 const uploadImageClicked = (index) => {
@@ -416,11 +391,8 @@ const voiceTemplate = {
     caption: ''
 };
 const addVoice = (index = content.value.length - 1) => {
-    if(!advanceMode.value){
-        index = keepFormat(index);
-    }
     index++;
-    content.value.splice(index, 0, {... voiceTemplate, id: self.crypto.randomUUID()});
+    content.value.splice(index, 0, {... voiceTemplate, id: uuidv4()});
     currentIndex.value = index;
 }
 const voiceRecorder = ref(null);
@@ -452,6 +424,7 @@ const uploadVoice = (e) => {
 
 // move up
 const blockMoveUp = (index) => {
+
 }
 
 // count
@@ -463,6 +436,27 @@ const charCount = computed(() => {
         } else if(item.type === "compare") {
             count += item.oldValue.length;
             count += item.newValue.length;
+        }
+    })
+    return count;
+})
+const blockCount = computed(() => {
+    return content.value.length;
+})
+const imageBlockCount = computed(() => {
+    let count = 0;
+    content.value.forEach((item) => {
+        if(item.type === "image") {
+            count ++;
+        }
+    })
+    return count;
+})
+const voiceBlockCount = computed(() => {
+    let count = 0;
+    content.value.forEach((item) => {
+        if(item.type === "voice") {
+            count ++;
         }
     })
     return count;

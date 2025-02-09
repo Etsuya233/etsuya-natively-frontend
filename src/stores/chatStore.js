@@ -4,6 +4,8 @@ import {apiGetConversations, apiGetMoreOldMessage} from "@/api/chat.js";
 import {useUserStore} from "@/stores/userStore.js";
 import {useToast} from "@/utils/toast.js";
 import {useWsStore} from "@/stores/wsStore.js";
+import {apiGetUser} from "@/api/user.js";
+import ChatNotification from "@/components/natively/ChatNotification.vue";
 
 const toast = useToast();
 
@@ -15,18 +17,59 @@ export const useChatStore = defineStore('chat', () => {
             onConnect: () => {
                 const userStore = useUserStore();
                 const meId = userStore.userInfo.id;
+
                 // system msg
                 wsStore.stompClient.subscribe("/topic/system", (res) => {
                     console.log(JSON.parse(res.body));
                 });
+
                 // chat message
-                wsStore.stompClient.subscribe("/user/queue/chat/message", (res) => {
+                wsStore.stompClient.subscribe("/user/queue/chat/message", async (res) => {
                     const response = JSON.parse(res.body);
                     if(response.code === 200){
+
+                        // basic infomation
                         const body = response.data;
                         const receiverId = body.senderId === meId? body.receiverId: body.senderId;
-                        initMessage(receiverId);
-                        msgMap.value.get(receiverId).push(body);
+
+                        // make sure conversation exist
+                        const conversation = await getConversation(receiverId)
+
+                        // make sure user msg list exists
+                        const msgList = getMessageList(receiverId);
+
+                        // save msg
+                        msgList.push(body);
+
+                        // notification
+                        if(body.senderId !== meId){
+                            const userInfo = userInfoMap.get(receiverId);
+                            toast.addRaw(ChatNotification, {
+                                autoClose: 2000,
+                                icon: false,
+                                closeButton: false,
+                                expandCustomProps: true,
+                                contentProps: {
+                                    nickname: userInfo.nickname,
+                                    content: body.content,
+                                    avatar: userInfo.avatar
+                                },
+                                onClick: () => {
+                                    // const router = useRouter();
+                                    // router.push({ name: 'Chat', params: { id: receiverId }});
+                                }
+                            })
+                        }
+
+                        // conversation
+                        conversation.lastId = body.id;
+                        conversation.lastTimeDisplay = body.time; // todo its it okay?
+                        conversation.content = body.content;
+
+                        // unread
+                        conversation.unread ++;
+
+                        // sending state
                         if(body.senderId === meId){
                             sending.value = false;
                         }
@@ -53,7 +96,7 @@ export const useChatStore = defineStore('chat', () => {
 
     function $reset(){
         const wsStore = useWsStore();
-        wsStore.stompClient.unsubscribe("/user/queue/chat");
+        // wsStore.stompClient.unsubscribe("/user/queue/chat");
         // 清空会话映射表
         conversationMap.value.clear();
         // 清空消息映射表
@@ -62,7 +105,29 @@ export const useChatStore = defineStore('chat', () => {
         sending.value = false;
     }
 
+    // User
+    const userInfoMap = new Map();
+    const getUserInfo = async (userId) => {
+        let userInfo = userInfoMap.get(userId);
+        if(!userInfo){
+            userInfo = await apiGetUser(userId);
+            userInfoMap.set(userInfo.id, userInfo);
+        }
+        return userInfo;
+    }
+
     // Conversation
+    async function getConversation(receiverId){
+        let user = await getUserInfo(receiverId);
+        let conversation = conversationMap.value.get(receiverId);
+        if(!conversation){
+            conversation = {
+                receiverId, nickname: user.nickname, avatar: user.avatar, unread: 0
+            };
+        }
+        conversationMap.value.set(receiverId, conversation);
+        return conversation;
+    }
     async function loadMoreConversation(){
         // get the last id
         let lastId = BigInt("9223372036854775807");
@@ -81,7 +146,7 @@ export const useChatStore = defineStore('chat', () => {
             conversationMap.value.set(conversation.receiverId, conversation);
         })
     }
-    function initConversation(){
+    function isConversationEmpty(){
         return conversationMap.value.size === 0;
     }
 
@@ -100,7 +165,7 @@ export const useChatStore = defineStore('chat', () => {
     }
     async function loadMoreOldMessage(userId){
         // msg array
-        initMessage(userId);
+        getMessageList(userId);
         let msgs = msgMap.value.get(userId);
         // lastId (oldest id)
         let lastId = BigInt("9223372036854775807");
@@ -117,18 +182,28 @@ export const useChatStore = defineStore('chat', () => {
         let res = await apiGetMoreOldMessage(userId, lastIdStr);
         msgs.unshift(... res);
     }
-    function initMessage(userId){
+
+    /**
+     * 获取用户消息映射表存在
+     * @param userId
+     * @returns {Array}
+     */
+    function getMessageList(userId){
         let msgs = msgMap.value.get(userId);
         if(msgs === null || msgs === undefined) {
             msgs = [];
             msgMap.value.set(userId, msgs);
-            return true;
         }
-        return false;
+        return msgs;
     }
-    function clearUnread(userId){
+
+    /**
+     * 清除未读消息
+     * @param userId
+     */
+    async function clearUnread(userId){
         const wsStore = useWsStore();
-        let conversation = conversationMap.value.get(userId);
+        let conversation = await getConversation(userId);
         conversation.unread = 0;
         wsStore.stompClient.publish({
             destination: "/ws/clear",
@@ -138,6 +213,6 @@ export const useChatStore = defineStore('chat', () => {
         });
     }
 
-    return { init, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, initMessage,
-        initConversation, sendTextMsg, sending, clearUnread, $reset};
+    return { init, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, getMessageList,
+        isConversationEmpty, sendTextMsg, sending, clearUnread, $reset, getUserInfo};
 });

@@ -48,7 +48,7 @@ const { t, locale, availableLocales } = useI18n();
 const conversations = chatStore.conversationMap;
 
 onMounted(() => {
-    if(chatStore.initConversation()){
+    if(chatStore.isConversationEmpty()){
         chatStore.loadMoreConversation();
     }
 })

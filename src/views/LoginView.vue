@@ -29,19 +29,21 @@
                     <ThirdPartyLogin />
                 </div>
                 <div v-else-if="progress === 2 || progress === 3" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-lock"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <Password id="password" v-model="userInfo.password" :feedback="false" toggleMask />
-                            <label for="password">{{t('login.password')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :label="t('common.next')" :loading="loginLoading" @click="goNext" />
-                    </div>
+                    <form @submit.prevent="goNext" class="flex flex-col gap-4">
+                        <InputGroup>
+                            <InputGroupAddon>
+                                <i class="pi pi-lock"></i>
+                            </InputGroupAddon>
+                            <FloatLabel variant="in">
+                                <Password id="password" v-model="userInfo.password" :feedback="false" toggleMask />
+                                <label for="password">{{ t('login.password') }}</label>
+                            </FloatLabel>
+                        </InputGroup>
+                        <div class="flex gap-2">
+                            <Button type="button" class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                            <Button type="submit" class="w-full" :label="t('common.next')" :loading="loginLoading" />
+                        </div>
+                    </form>
                 </div>
                 <div v-else class="flex flex-col gap-4">
                     <div class="font-bold text-2xl md:text-center">{{t('login.loginSuccess')}}</div>

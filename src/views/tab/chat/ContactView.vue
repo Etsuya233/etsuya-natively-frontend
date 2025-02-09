@@ -3,16 +3,7 @@
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="t('chat.contact')" />
         <div class="w-full">
             <div class="flex flex-col divide-y">
-                <div class="p-4 flex cursor-pointer hover:bg-slate-100 transition-colors transform-gpu"
-                     v-for="(item, index) in contacts" :key="index" @click="router.push({ name: 'Chat', params: { id: item.id } })">
-                    <div class="w-12 h-12 flex-shrink-0">
-                        <Avatar class="!w-full !h-full" shape="circle" :image="item.avatar" />
-                    </div>
-                    <div class="pl-5 flex-1 min-w-0 overflow-hidden">
-                        <div class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{{item.nickname}}</div>
-                        <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">@{{item.username}}</div>
-                    </div>
-                </div>
+                <UserEntry class="px-4 py-2" v-for="item in contacts" :value="item" @click="router.push({ name: 'Chat', params: { id: item.id }})" />
                 <div></div>
             </div>
         </div>
@@ -26,6 +17,7 @@ import {onMounted, ref} from "vue";
 import {apiGetContact} from "@/api/user.js";
 import Avatar from "primevue/avatar";
 import {useRouter} from "vue-router";
+import UserEntry from "@/components/natively/UserEntry.vue";
 
 const router = useRouter();
 const { t, locale, availableLocales } = useI18n();

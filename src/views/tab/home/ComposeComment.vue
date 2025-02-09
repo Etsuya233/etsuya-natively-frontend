@@ -22,7 +22,7 @@
                     <audio :src="voicePreview" controls />
                 </div>
             </div>
-            <div class="sticky w-full bottom-0 p-2">
+            <div class="sticky w-full bottom-0 py-2 px-4">
                 <div class="flex px-2 gap-2 py-1 border rounded-xl bg-white/80 backdrop-blur-xl
                 *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100">
                     <div class="pi pi-image" @click="imageMenuVisible = true"></div>
@@ -56,21 +56,21 @@
             <EList>
                 <EListItem v-if="!imagePreview" icon="pi-plus" :title="t('composeComment.add')" @click="addImage" />
                 <EListItem v-else icon="pi-refresh" :title="t('composeComment.change')" @click="addImage" />
-                <EListItem icon="pi-trash" :title="t('composeComment.delete')" />
+                <EListItem icon="pi-trash" :title="t('composeComment.delete')" @click="deleteImage" />
             </EList>
         </Drawer>
         <Drawer v-model:visible="voiceMenuVisible" position="bottom" class="rounded-t-2xl !h-auto" :header="t('composeComment.voiceMenu')">
             <EList>
                 <EListItem icon="pi-microphone" :title="t('composeComment.record')" @click="recordVoice" />
                 <EListItem icon="pi-plus" :title="t('composeComment.upload')" @click="uploadVoiceClick" />
-                <EListItem icon="pi-trash" :title="t('composeComment.delete')" />
+                <EListItem icon="pi-trash" :title="t('composeComment.delete')" @click="deleteVoice"/>
             </EList>
         </Drawer>
         <Drawer v-model:visible="compareMenuVisible" position="bottom" class="rounded-t-2xl !h-auto" :header="t('composeComment.compareMenu')">
             <EList>
                 <EListItem v-if="compareChange.length === 0" icon="pi-plus" :title="t('composeComment.add')" @click="addCompare" />
                 <EListItem v-else icon="pi-refresh" :title="t('composeComment.change')" @click="addCompare" />
-                <EListItem icon="pi-trash" :title="t('composeComment.delete')" />
+                <EListItem icon="pi-trash" :title="t('composeComment.delete')" @click="deleteCompare" />
             </EList>
         </Drawer>
         
@@ -186,6 +186,12 @@ const uploadImage = (e) => {
     // close the drawer
     imageMenuVisible.value = false;
 }
+const deleteImage = () => {
+    imageValue.value = null;
+    imagePreview.value = null;
+    // close the drawer
+    imageMenuVisible.value = false;
+}
 
 // voice
 const voiceMenuVisible = ref(false);
@@ -221,6 +227,12 @@ const voiceRecorded = () => {
     voicePreview.value = voiceTempUrl.value;
     voiceRecorder.value.toggle();
 }
+const deleteVoice = () => {
+    voiceValue.value = null;
+    voicePreview.value = null;
+    // close the drawer
+    voiceMenuVisible.value = false;
+}
 
 // compare
 const compareTempOldValue = ref('');
@@ -245,6 +257,14 @@ const confirmCompare = () => {
     compareOldValue.value = compareTempOldValue.value;
     compareNewValue.value = compareTempNewValue.value;
     compareChange.value = compareTempChange.value;
+    // close
+    compareDetailVisible.value = false;
+}
+const deleteCompare = () => {
+    compareOldValue.value = '';
+    compareNewValue.value = '';
+    compareChange.value = [];
+    compareMenuVisible.value = false;
 }
 
 // lifespan

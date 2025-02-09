@@ -52,23 +52,12 @@
             <div class="flex flex-col divide-y">
                 <div class="p-4 flex cursor-pointer hover:bg-slate-100 transition-colors transform-gpu"
                      v-for="(item, index) in searchResult.user.data" :key="index" @click="router.push({ name: 'User', params: { id: item.id } })">
-                    <div class="w-12 flex-shrink-0 flex items-center">
-                        <div class="w-12 h-12">
-                            <Avatar class="!w-full !h-full" shape="circle" :image="item.avatar" />
-                        </div>
-                    </div>
-                    <div class="pl-5 flex-1 min-w-0 overflow-hidden">
-                        <div class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{{item.nickname}}</div>
-                        <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">@{{item.username}}</div>
-                        <div>
-                            <ELangProgress class="mr-2" v-for="(lang, index) in item.languages" :lang="lang.language" :proficiency="lang.proficiency" />
-                        </div>
-                    </div>
+                    <UserEntry :value="item" />
                 </div>
                 <div></div>
             </div>
         </div>
-        <ELoadMore :loading="loading" @click="loadMore" />
+        <ELoadMore :loading="loading" @click="loadMore" v-if="searchedOnce" />
     </div>
 </template>
 
@@ -85,6 +74,7 @@ import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 import {useScroll} from "@/utils/scroll.js";
 import Avatar from "primevue/avatar";
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
+import UserEntry from "@/components/natively/UserEntry.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -92,6 +82,7 @@ const router = useRouter();
 const { isAtBottomSoon } = useScroll();
 
 // 搜索相关
+const searchedOnce = ref(false);
 const loading = ref(false);
 const showHistory = ref(false);
 const searchContainer = ref(null);
@@ -123,6 +114,9 @@ const handleSearch = () => {
     if(!searchData.value.content.trim()){
         return;
     }
+    searchData.value.content = searchData.value.content.trim();
+    saveSearchHistory(searchData.value.content);
+    searchedOnce.value = true;
     searchResult.value.user = {
         data: [],
         from: 0
@@ -213,7 +207,6 @@ const handleClickOutside = (event) => {
 onBeforeMount(async () => {
     // history
     loadHistory();
-    saveSearchHistory(searchData.value.content);
 })
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);

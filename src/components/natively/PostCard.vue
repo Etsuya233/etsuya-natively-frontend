@@ -56,13 +56,16 @@
                     size="small" :loading="post.voteLoading" pt:icon:class="pl-1" pt:label:class="pr-1" @click.stop="vote(-1)" />
             <Button rounded icon="pi pi-comment" :label="post.commentCount" severity="secondary" size="small" @click="doComposeComment"
                     @click.stop="" pt:icon:class="pl-1" pt:label:class="pr-1" />
-            <Button v-if="props.showMore" class="ml-auto" text severity="secondary" size="small" icon="pi pi-ellipsis-v" @click.stop="moreVisible = true" />
+            <Button v-if="props.showMore" class="ml-auto" text severity="secondary" size="small" icon="pi pi-ellipsis-v" @click.stop="openMenu" />
+        </div>
+        <div v-if="props.showFooterLite" class="text-sm text-slate-600">
+            {{ post.upvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-up !text-sm"></span>&nbsp;·&nbsp;{{ post.downvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-down !text-sm"></span>&nbsp;·&nbsp;{{ post.commentCount.toString() }}&nbsp;<span class="pi pi-comment"></span>
         </div>
         <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <EList>
                 <EListItem icon="pi-bookmark" :title="t('post.bookmark')" @click="bookmarkClicked" />
-                <EListItem icon="pi-language" :title="t('post.translation')" />
+                <EListItem icon="pi-trash" :title="deleteButtonInfo.label" :danger="deleteButtonInfo.danger" :loading="deleteButtonInfo.loading" @click="deletePost" />
             </EList>
         </Drawer>
         <Drawer v-model:visible="bookmarkVisible" position="bottom" :header="t('post.bookmark')"
@@ -89,12 +92,12 @@ import Tag from "primevue/tag";
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import PostRenderer from "@/components/natively/PostRenderer.vue";
 import EListItem from "@/components/etsuya/EListItem.vue";
 import EList from "@/components/etsuya/EList.vue";
 import {useI18n} from "vue-i18n";
-import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
+import {apiCreateBookmark, apiDeletePost, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 import {useNaviStore} from "@/stores/naviStore.js";
@@ -126,6 +129,10 @@ const props = defineProps({
     },
     rank: {
         default: null
+    },
+    showFooterLite: {
+        default: false,
+        type: Boolean
     }
 })
 
@@ -136,6 +143,10 @@ const getButtonSeverity = (vote, value) => {
 }
 
 // more
+const openMenu = () => {
+    deleteClickedCount.value = 0;
+    moreVisible.value = true;
+}
 const moreVisible = ref(false);
 const bookmarkVisible = ref(false);
 const bookmarkLoading = ref(false);
@@ -151,6 +162,38 @@ const doBookmark = () => {
     }).catch((err) => {}).finally(() => {
         bookmarkLoading.value = false;
     })
+}
+const deleteClickedCount = ref(0);
+const deleteButtonInfo = computed(() => {
+    if(deleteClickedCount.value === 0){
+        return {
+            label: t('post.delete'),
+            danger: false,
+            loading: false
+        }
+    } else if(deleteClickedCount.value === 1) {
+        return {
+            label: t('post.deleteConfirm'),
+            danger: true,
+            loading: false,
+        }
+    } else {
+        return {
+            label: t('post.deleting'),
+            danger: true,
+            loading: true,
+        }
+    }
+})
+const deletePost = () => {
+    if(deleteClickedCount.value === 0){
+        deleteClickedCount.value++;
+    } else {
+        deleteClickedCount.value++;
+        apiDeletePost(post.value.id).then(res => {
+            router.go(-1);
+        });
+    }
 }
 
 // vote

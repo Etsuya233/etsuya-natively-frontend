@@ -155,3 +155,23 @@ export const apiGetUserPostList = (userId, lastId) => {
         }
     })
 }
+
+export const apiDeletePost = (id) => {
+    return request({
+        url: `${baseUrl}`,
+        method: 'DELETE',
+        data: {
+            id
+        }
+    })
+}
+
+export const apiDeleteComment = (id) => {
+    return request({
+        url: `${baseUrl}/comment`,
+        method: 'DELETE',
+        data: {
+            id
+        }
+    })
+}

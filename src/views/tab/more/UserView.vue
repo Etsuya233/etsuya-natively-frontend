@@ -22,9 +22,9 @@
             <div class="w-full h-12 flex">
                 <div class="ml-auto mt-2 mr-3 *:ml-2">
                     <Button v-if="!isMe" rounded
-                            :icon="userFollowButtonIcon"
-                            :severity="userFollowButtonSeverity"
-                            :label="userFollowButtonLabel"
+                            :icon="userFollowButtonInfo.icon"
+                            :severity="userFollowButtonInfo.severity"
+                            :label="userFollowButtonInfo.label"
                             :loading="followLoading"
                             @click="followClicked"/>
                     <Button class="!border-none" outlined rounded icon="pi pi-ellipsis-v" severity="secondary" size="small" />
@@ -60,6 +60,7 @@
                 <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2 border-b">
                     <PostCard v-model="posts[index]" :show-user="false" />
                 </div>
+                <ELoadMore :loading="postLoading" />
             </div>
             
             
@@ -90,6 +91,8 @@ import Button from "primevue/button";
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import {apiGetUserPostList} from "@/api/postV2.js";
 import PostCard from "@/components/natively/PostCard.vue";
+import ELoadMore from "@/components/etsuya/ELoadMore.vue";
+import {cloneDeep} from "lodash";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -121,39 +124,20 @@ let userInfo = ref({
 
 // follow
 const followLoading = ref(false);
-const userFollowButtonLabel = computed(() => {
-    switch (userInfo.value.relationship) {
-        case -2: return t('user.unblock');
-        case -1: return t('user.unblock');
-        case 0: return t('user.follow');
-        case 1: return t('user.following');
-        case 2: return t('user.followBack');
-        case 3: return t('user.mutualFollowing');
-        default: return t('user.follow');
-    }
-})
-const userFollowButtonIcon = computed(() => {
-    switch (userInfo.value.relationship) {
-        case -2: return 'pi pi-ban';
-        case -1: return 'pi pi-ban';
-        case 0: return 'pi pi-plus';
-        case 1: return 'pi pi-heart';
-        case 2: return 'pi pi-plus';
-        case 3: return 'pi pi-heart-fill';
-        default: return 'pi pi-plus';
-    }
-})
-const userFollowButtonSeverity = computed(() => {
-    switch (userInfo.value.relationship) {
-        case -2: return 'warn';
-        case -1: return 'warn';
-        case 0: return 'secondary';
-        case 1: return 'primary';
-        case 2: return 'info';
-        case 3: return 'primary'
-        default: return 'primary';
-    }
-})
+const userFollowButtonInfo = computed(() => {
+    const { relationship } = userInfo.value;
+    // 定义映射关系
+    const followButtonMap = {
+        0: { label: t('user.follow'), icon: 'pi pi-plus', severity: 'secondary' },
+        1: { label: t('user.following'), icon: 'pi pi-heart', severity: 'primary' },
+        2: { label: t('user.followBack'), icon: 'pi pi-plus', severity: 'info' },
+        3: { label: t('user.mutualFollowing'), icon: 'pi pi-heart-fill', severity: 'primary' },
+        // -2: { label: t('user.unblock'), icon: 'pi pi-ban', severity: 'warn' },
+        // -1: { label: t('user.unblock'), icon: 'pi pi-ban', severity: 'warn' },
+    };
+    // 返回默认值或对应关系
+    return followButtonMap[relationship] || { label: t('user.follow'), icon: 'pi pi-plus', severity: 'primary' };
+});
 const followClicked = () => {
     if(userInfo.value.relationship === -1){
         //unblock
@@ -167,17 +151,13 @@ const followClicked = () => {
         }).catch().finally(() => followLoading.value = false);
     }
 }
+
 //user post
 let posts = ref([]);
 const postClicked = (post) => {
     router.push({ name: 'Post', params: { id: post.id }});
 }
-const getButtonSeverity = (vote, value) => {
-    if(vote === value) return "primary";
-    else return "secondary";
-}
-
-//vote
+const postLoading = ref(false);
 
 //lifespans
 onBeforeMount(async () => {
@@ -189,9 +169,8 @@ onBeforeMount(async () => {
     }
     let res;
     if(id.value === userStore.userInfo.id){
-        res = await apiGetCurrent();
         isMe.value = true;
-        userStore.userInfo = res;
+        res = await userStore.update();
     } else {
         res = await apiGetUser(id.value);
     }

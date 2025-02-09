@@ -1,6 +1,6 @@
 <template>
     <div class="w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
-        <div class="flex w-full">
+        <div class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: comment.userId } })">
             <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">
                 <div class="h-11 w-11 rounded-full overflow-hidden mt-1">
                     <img class="w-full h-full object-cover" :src="comment.avatar" alt="avatar"/>
@@ -46,13 +46,15 @@
             <Button text icon="pi pi-ellipsis-v" class="ml-auto" severity="secondary" size="small"
                     pt:icon:class="pl-1" pt:label:class="pr-1" @click.stop="moreVisible = true" />
         </div>
-        
+        <div v-if="props.showFooterLite" class="text-sm text-slate-600">
+            {{ comment.upvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-up !text-sm"></span>&nbsp;·&nbsp;{{ comment.downvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-down !text-sm"></span>&nbsp;·&nbsp;{{ comment.commentCount.toString() }}&nbsp;<span class="pi pi-comment"></span>
+        </div>
         <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <EList>
                 <EListItem icon="pi-bookmark" :title="t('post.bookmark')" @click="bookmarkClicked" />
-                <EListItem icon="pi-sparkles" :title="t('post.navi')" />
-                <EListItem icon="pi-flag" :title="t('post.report')" />
+<!--                <EListItem icon="pi-sparkles" :title="t('post.navi')" />-->
+                <EListItem icon="pi-trash" :title="deleteButtonInfo.label" :danger="deleteButtonInfo.danger" :loading="deleteButtonInfo.loading" @click="deletePost" />
             </EList>
         </Drawer>
         <Drawer v-model:visible="bookmarkVisible" position="bottom" :header="t('post.bookmark')"
@@ -77,8 +79,8 @@
 <script setup>
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
-import {onMounted, ref} from "vue";
-import {apiCreateBookmark, apiVote} from "@/api/postV2.js";
+import {computed, onMounted, ref} from "vue";
+import {apiCreateBookmark, apiDeleteComment, apiDeletePost, apiVote} from "@/api/postV2.js";
 import Drawer from "primevue/drawer";
 import EList from "@/components/etsuya/EList.vue";
 import EListItem from "@/components/etsuya/EListItem.vue";
@@ -96,6 +98,10 @@ const props = defineProps({
     },
     showMore: {
         default: true,
+    },
+    showFooterLite: {
+        default: false,
+        type: Boolean
     }
 })
 
@@ -120,6 +126,38 @@ const doBookmark = () => {
     }).catch((err) => {}).finally(() => {
         bookmarkLoading.value = false;
     })
+}
+const deleteClickedCount = ref(0);
+const deleteButtonInfo = computed(() => {
+    if(deleteClickedCount.value === 0){
+        return {
+            label: t('post.delete'),
+            danger: false,
+            loading: false
+        }
+    } else if(deleteClickedCount.value === 1) {
+        return {
+            label: t('post.deleteConfirm'),
+            danger: true,
+            loading: false,
+        }
+    } else {
+        return {
+            label: t('post.deleting'),
+            danger: true,
+            loading: true,
+        }
+    }
+})
+const deletePost = () => {
+    if(deleteClickedCount.value === 0){
+        deleteClickedCount.value++;
+    } else {
+        deleteClickedCount.value++;
+        apiDeleteComment(comment.value.id).then(res => {
+            router.go(-1);
+        });
+    }
 }
 
 // vote

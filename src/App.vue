@@ -50,4 +50,10 @@ onBeforeMount(() => {
     --toastify-color-info: theme('colors.primary');
     --toastify-color-success: theme('colors.primary');
 }
+.Toastify__toast-body>div:first-child {
+    width: 100%;
+}
+.Toastify__toast-body {
+    width: 100%;
+}
 </style>

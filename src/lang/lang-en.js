@@ -164,7 +164,7 @@ let enConfig = {
         follow: 'Follow',
         followBack: 'Follow Back',
         unfollow: 'Unfollow',
-        mutualFollowing: 'Mutual Following',
+        mutualFollowing: 'Friend',
         oops: 'Oops',
         bannedPrompt: 'It seems you are blocked by {\'@\'}{username}.',
         unblock: 'Unblock',

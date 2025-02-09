@@ -8,6 +8,10 @@ const routes = [
         component: () => import('@/views/BaseView.vue'),
         children: [
             {
+                path: '',
+                redirect: '/home'
+            },
+            {
                 path: '/home',
                 name: 'Home',
                 component: () => import('@/views/tab/home/HomeView.vue'),
@@ -68,7 +72,8 @@ const routes = [
                     nav: false,
                     navTransparent: true,
                     keepAlive: false,
-                    tab: 'Home'
+                    tab: 'Home',
+                    keepAliveParent: true
                 }
             },
             {
@@ -81,19 +86,6 @@ const routes = [
                     navTransparent: false,
                     tab: 'Search',
                     keepAlive: false,
-                }
-            },
-            {
-                path: 'search/:content',
-                name: 'SearchResult',
-                component: () => import('@/views/tab/search/SearchResultView.vue'),
-                meta: {
-                    component: 'SearchResultView',
-                    nav: true,
-                    navTransparent: false,
-                    tab: 'Search',
-                    keepAlive: false,
-                    keepAliveParent: true
                 }
             },
             {
@@ -129,7 +121,6 @@ const routes = [
                     nav: false,
                     navTransparent: false,
                     keepAliveParent: 'ChatList',
-                    keepAlive: true,
                     tab: 'Chat'
                 }
             },

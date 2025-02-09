@@ -15,8 +15,8 @@ import 'vue3-toastify/dist/index.css';
 const app = createApp(App)
 
 app.use(i18n);
-app.use(router);
 app.use(pinia);
+app.use(router);
 app.use(PrimeVue, {
     theme: {
         preset: nativelyTheme,
@@ -29,6 +29,7 @@ app.use(ToastService);
 app.use(
     Vue3Toastify,
     {
+        limit: 3,
         autoClose: 3000,
         position: toast.POSITION.TOP_CENTER,
         transition: toast.TRANSITIONS.SLIDE,
