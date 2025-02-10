@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
+    <div class="w-full rounded-lg flex flex-col gap-2 cursor-pointer">
         <div class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: comment.userId } })">
             <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">
                 <div class="h-11 w-11 rounded-full overflow-hidden mt-1">
@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="cursor-text text-slate-800 whitespace-pre-line">
+        <div class="cursor-text text-slate-800 whitespace-pre-line break-words">
             {{ comment.content }}
         </div>
         <div class="w-full" v-if="comment.compare">
@@ -41,13 +41,28 @@
                     size="small" @click.stop="vote(1)" :loading="comment.voteLoading" pt:icon:class="pl-1" pt:label:class="pr-1" />
             <Button rounded icon="pi pi-thumbs-down" :label="comment.downvote.toString()" :severity="getButtonSeverity(comment.vote, -1)"
                     size="small" @click.stop="vote(-1)" :loading="comment.voteLoading" pt:icon:class="pl-1" pt:label:class="pr-1" />
-            <Button rounded icon="pi pi-comment" :label="comment.commentCount" severity="secondary" size="small"
+            <Button rounded icon="pi pi-comment" :label="comment.commentCount.toString()" severity="secondary" size="small"
                     @click.stop="doComposeComment" pt:icon:class="pl-1" pt:label:class="pr-1" />
             <Button text icon="pi pi-ellipsis-v" class="ml-auto" severity="secondary" size="small"
                     pt:icon:class="pl-1" pt:label:class="pr-1" @click.stop="moreVisible = true" />
         </div>
         <div v-if="props.showFooterLite" class="text-sm text-slate-600">
-            {{ comment.upvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-up !text-sm"></span>&nbsp;·&nbsp;{{ comment.downvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-down !text-sm"></span>&nbsp;·&nbsp;{{ comment.commentCount.toString() }}&nbsp;<span class="pi pi-comment"></span>
+            <div class="flex items-center space-x-2">
+                <div class="flex items-center">
+                    <span class="pi pi-thumbs-up !text-sm"></span>&nbsp;
+                    <span>{{ comment.upvote.toString() }}</span>
+                </div>
+                <span>·</span>
+                <div class="flex items-center">
+                    <span class="pi pi-thumbs-down !text-sm"></span>&nbsp;
+                    <span>{{ comment.downvote.toString() }}</span>
+                </div>
+                <span>·</span>
+                <div class="flex items-center">
+                    <span class="pi pi-comment"></span>&nbsp;
+                    <span>{{ comment.commentCount.toString() }}</span>
+                </div>
+            </div>
         </div>
         <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
@@ -73,13 +88,17 @@
                 </div>
             </div>
         </Drawer>
+        <Drawer v-model:visible="commentVisible" position="bottom" :header="t('post.comment')"
+                class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
+            <ComposeComment :post-id="comment.postId" :is-post="false" :id="comment.id" @commented="commented" />
+        </Drawer>
     </div>
 </template>
 
 <script setup>
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
-import {computed, onMounted, ref} from "vue";
+import {computed, onBeforeMount, onMounted, ref} from "vue";
 import {apiCreateBookmark, apiDeleteComment, apiDeletePost, apiVote} from "@/api/postV2.js";
 import Drawer from "primevue/drawer";
 import EList from "@/components/etsuya/EList.vue";
@@ -87,9 +106,13 @@ import EListItem from "@/components/etsuya/EListItem.vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
+import ComposeComment from "@/views/tab/home/ComposeComment.vue";
+import Diff from "diff/dist/diff.js";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
+
+const emits = defineEmits(['commented']);
 
 const comment = defineModel();
 const props = defineProps({
@@ -176,16 +199,30 @@ const vote = (type) => {
 }
 
 // comment
+const commentVisible = ref(false);
 const doComposeComment = () => {
-    router.push({
-        name: 'ComposeComment',
-        query: {
-            post: false,
-            postId: comment.value.postId,
-            id: comment.value.id,
-        }
-    });
+    commentVisible.value = true;
+    // router.push({
+    //     name: 'ComposeComment',
+    //     query: {
+    //         post: false,
+    //         postId: comment.value.postId,
+    //         id: comment.value.id,
+    //     }
+    // });
 }
+const commented = (res) => {
+    commentVisible.value = false;
+    comment.value.commentCount ++;
+    emits('commented', res);
+}
+
+onBeforeMount(() => {
+    if(comment.value.compare != null){
+        const compareObj = JSON.parse(comment.value.compare);
+        comment.value.change = Diff.diffChars(compareObj.oldValue, compareObj.newValue);
+    }
+})
 
 </script>
 

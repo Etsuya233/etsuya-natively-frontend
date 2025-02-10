@@ -1,12 +1,7 @@
 <template>
     <div class="w-full">
-        <EHeader class="sticky top-0 z-10" :enable-slot="true">
-            <div class="flex items-center">
-                <div>{{t('composeComment.title')}}</div>
-            </div>
-        </EHeader>
         <div class="w-full">
-            <div class="w-full px-4 pt-4 pb-2">
+            <div class="w-full">
                 <ETextarea v-model="content" :placeholder="t('composeComment.placeholder')" />
                 <div class="w-full mt-2" v-if="compareChange.length > 0">
                     <span v-for="d in compareChange"
@@ -22,7 +17,7 @@
                     <audio :src="voicePreview" controls />
                 </div>
             </div>
-            <div class="sticky w-full bottom-0 py-2 px-4">
+            <div class="sticky w-full bottom-0 mt-4">
                 <div class="flex px-2 gap-2 py-1 border rounded-xl bg-white/80 backdrop-blur-xl
                 *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100">
                     <div class="pi pi-image" @click="imageMenuVisible = true"></div>
@@ -48,7 +43,6 @@
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <ProgressBar :show-value="false" mode="indeterminate" />
         </Drawer>
-        
         <Drawer v-model:visible="imageMenuVisible"
                 position="bottom"
                 class="rounded-t-2xl !h-auto"
@@ -73,7 +67,6 @@
                 <EListItem icon="pi-trash" :title="t('composeComment.delete')" @click="deleteCompare" />
             </EList>
         </Drawer>
-        
         <Drawer v-model:visible="compareDetailVisible" position="bottom" class="rounded-t-2xl !h-auto" :header="t('composeComment.compare')">
             <EList class="mb-4">
                 <EListItem :enable-slot="true">
@@ -130,21 +123,32 @@ const router = useRouter();
 const { t, locale, availableLocales } = useI18n()
 const userStore = useUserStore();
 
-const content = ref('');
+const props = defineProps({
+    postId: {
+        type: String,
+        default: ''
+    },
+    isPost: {
+        type: Boolean,
+        default: true
+    },
+    id: {
+        type: String,
+        default: ''
+    }
+})
+const emits = defineEmits(['commented'])
 
-const postId = ref('');
-const isPost = ref(true);
-const id = ref('');
+const content = ref('');
 
 // send
 const sending = ref(false);
-const stepCount = ref(0);
-const currentStep = ref(0);
 const send = async () => {
+    sending.value = true;
     // todo validation
     const formData = new FormData();
-    formData.append('postId', postId.value);
-    formData.append('parentId', id.value);
+    formData.append('postId', props.postId);
+    formData.append('parentId', props.id);
     formData.append('content', content.value);
     if(imageValue.value){
         formData.append('image', imageValue.value);
@@ -160,8 +164,10 @@ const send = async () => {
     }
     // send request
     apiCreateComment(formData).then((res) => {
-        console.log(res);
-    }).catch((err) => {})
+        emits('commented', res);
+    }).catch((err) => {}).finally(() => {
+        sending.value = false;
+    })
 }
 
 // image
@@ -268,11 +274,6 @@ const deleteCompare = () => {
 }
 
 // lifespan
-onBeforeMount(() => {
-    postId.value = route.query.postId;
-    isPost.value = route.query.post;
-    id.value = route.query.id;
-})
 
 </script>
 

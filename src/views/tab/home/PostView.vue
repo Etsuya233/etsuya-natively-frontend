@@ -36,7 +36,7 @@
             <div class="w-full px-4 py-2 bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer"
                  id="history-0"
                  @click="postClicked">
-                <PostCard v-model="postInfo" :full-mode="true" :show-footer="history.length === 1" :show-footer-lite="history.length !== 1" :show-more="true" />
+                <PostCard v-model="postInfo" :full-mode="true" :show-footer="history.length === 1" :show-footer-lite="history.length !== 1" :show-more="true" @commented="addOneCommentAtFirst" />
             </div>
         </div>
         
@@ -49,7 +49,7 @@
                 <div v-if="index !== 0" class="border-slate-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
                 <div class="absolute -top-14" :id="`history-${index}`"></div>
                 <div v-if="index > 0" class="px-4 py-2 w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
-                    <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" :show-footer-lite="index !== history.length - 1" />
+                    <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" :show-footer-lite="index !== history.length - 1" @commented="addOneCommentAtFirst" />
                 </div>
             </div>
         </div>
@@ -64,6 +64,7 @@
             <div v-for="(item, index) in comment[comment.length - 1]"
                  :key="item.id"
                  class="relative border-b"
+                 :class="{ 'bg-primary-50': item.commented }"
                  @click="commentClicked(index)">
                 <div class="absolute -top-14" :id="`comment-${item.id}`"></div>
                 <CommentCard class="px-4 py-2" v-model="comment[comment.length - 1][index]" />
@@ -97,6 +98,7 @@ import PostCard from "@/components/natively/PostCard.vue";
 import CommentCard from "@/components/natively/CommentCard.vue";
 import {useSelect} from "@/utils/selection.js";
 import ELoadMore from "@/components/etsuya/ELoadMore.vue";
+import {useUserStore} from "@/stores/userStore.js";
 
 const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
 const { t, locale, availableLocales } = useI18n();
@@ -104,6 +106,7 @@ const route = useRoute();
 const router = useRouter();
 const naviStore = useNaviStore();
 const { selected } = useSelect();
+const userStore = useUserStore();
 
 //loading
 let postLoading = ref(true);
@@ -186,18 +189,6 @@ const lastId = computed(() => {
             null:
             comment.value[comment.value.length - 1][comment.value[comment.value.length - 1].length - 1].id;
 });
-/**
- * Process the comment got from backend.
- * @param res The response array.
- */
-const commentInit = (res) => {
-    res.forEach(item => {
-        if(item.compare != null){
-            const compareObj = JSON.parse(item.compare);
-            item.change = Diff.diffChars(compareObj.oldValue, compareObj.newValue);
-        }
-    })
-}
 const loadMoreComment = async () => {
     if(isLoadingMore.value){
         return;
@@ -207,12 +198,12 @@ const loadMoreComment = async () => {
         if(history.value.length === 1){
             // post
             const res = await apiGetCommentList(true, postInfo.value.id, lastId.value);
-            commentInit(res);
+            // commentInit(res);
             comment.value[0].push(... res);
         } else {
             // comment
             const res = apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
-            commentInit(res);
+            // commentInit(res);
             comment.value[comment.value.length - 1].push(... res);
         }
     } catch (e){
@@ -238,10 +229,26 @@ const commentClicked = (index) => {
     // init load comments
     comment.value.push([]);
     apiGetCommentList(false, commentWhichClicked.id, null).then((res) => {
-        commentInit(res);
+        // commentInit(res);
         comment.value[history.value.length - 1].push(... res);
     })
     commentLoading.value = false;
+}
+const addOneCommentAtFirst = (res) => {
+    res.nickname = userStore.userInfo.nickname;
+    res.userId = userStore.userInfo.id;
+    res.avatar = userStore.userInfo.avatar;
+    res.userLanguages = userStore.userInfo.languages;
+    res.commented = true; // flag whether this is not query from scroll request
+    
+    // add to top
+    comment.value[comment.value.length - 1].unshift(res);
+    nextTick(() => {
+        window.scroll({
+            behavior: "smooth",
+            top: 0
+        })
+    })
 }
 
 //lifespans
@@ -263,7 +270,7 @@ onMounted(async () => {
     comment.value.push([]);
     try {
         let res = await apiGetCommentList(true, id.value, null);
-        commentInit(res);
+        // commentInit(res);
         comment.value[0].push(... res);
     } catch (e){}
     commentLoading.value = false;

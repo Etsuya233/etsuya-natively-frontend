@@ -11,7 +11,7 @@
                           :allow-empty="false"
                           :pt="{ root: '*:w-full'}"/>
             <div class="hidden md:block">
-                <Button icon="pi pi-pencil" rounded as="router-link" :to="{ name: 'PostType'}" />
+                <Button icon="pi pi-pencil" rounded as="router-link" :to="{ name: 'Compose'}" />
             </div>
         </div>
         
@@ -43,7 +43,7 @@
         
         <!--        Post-->
         <div class="fixed right-4 bottom-[4.5rem] md:hidden transition z-10" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
-            <Button icon="pi pi-pencil !text-xl" class="!p-7 shadow-lg" rounded as="router-link" :to="{ name: 'PostType'}" />
+            <Button icon="pi pi-pencil !text-xl" class="!p-7 shadow-lg" rounded as="router-link" :to="{ name: 'Compose'}" />
         </div>
     </div>
 </template>

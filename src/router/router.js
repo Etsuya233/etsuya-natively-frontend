@@ -9,6 +9,7 @@ const routes = [
         children: [
             {
                 path: '',
+                name: 'HomeRedirect',
                 redirect: '/home'
             },
             {
@@ -25,37 +26,11 @@ const routes = [
                 }
             },
             {
-                path: 'type',
-                name: 'PostType',
-                component: () => import('@/views/tab/home/PostTypeView.vue'),
-                meta: {
-                    component: 'PostTypeView',
-                    nav: true,
-                    navTransparent: false,
-                    keepAlive: false,
-                    tab: 'Home',
-                    keepAliveParent: true
-                }
-            },
-            {
-                path: 'composeNormal',
-                name: 'ComposeNormal',
+                path: 'compose',
+                name: 'Compose',
                 component: () => import('@/views/tab/home/ComposeView.vue'),
                 meta: {
                     component: 'ComposeView',
-                    nav: true,
-                    navTransparent: false,
-                    keepAlive: false,
-                    tab: 'Home',
-                    keepAliveParent: true
-                }
-            },
-            {
-                path: 'composeComment',
-                name: 'ComposeComment',
-                component: () => import('@/views/tab/home/ComposeComment.vue'),
-                meta: {
-                    component: 'ComposeComment',
                     nav: true,
                     navTransparent: false,
                     keepAlive: false,

@@ -1,7 +1,7 @@
 <template>
     <div class="w-full flex border-b border-surface items-center gap-4 h-14 px-2 bg-blur dark:bg-surface-900/70">
         <div class="hover:bg-surface-100/50 hover:dark:bg-surface-800 rounded-full h-12 w-12 transition-colors flex-shrink-0"
-             @click="back" v-if="props.showBack" >
+             @click="clickedBack" v-if="props.showBack" >
             <Button icon="pi pi-arrow-left !text-xl" rounded unstyled
                     pt:root:class="w-full h-full !flex !justify-center !items-center"
                     pt:label:class="hidden"
@@ -34,11 +34,18 @@ let props = defineProps({
     },
     enableSlot: {
         default: false
+    },
+    backAction: {
+        default: null
     }
 });
 
-const back = () => {
-    router.back();
+const clickedBack = () => {
+    if (props.backAction) {
+        props.backAction();
+    } else {
+        router.back();
+    }
 }
 
 </script>

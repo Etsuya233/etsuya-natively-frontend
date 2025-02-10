@@ -54,12 +54,27 @@
                     size="small" :loading="post.voteLoading" pt:icon:class="pl-1" pt:label:class="pr-1" @click.stop="vote(1)" />
             <Button rounded icon="pi pi-thumbs-down" :label="post.downvote.toString()" :severity="getButtonSeverity(post.vote, -1)"
                     size="small" :loading="post.voteLoading" pt:icon:class="pl-1" pt:label:class="pr-1" @click.stop="vote(-1)" />
-            <Button rounded icon="pi pi-comment" :label="post.commentCount" severity="secondary" size="small" @click="doComposeComment"
+            <Button rounded icon="pi pi-comment" :label="post.commentCount.toString()" severity="secondary" size="small" @click="doComposeComment"
                     @click.stop="" pt:icon:class="pl-1" pt:label:class="pr-1" />
             <Button v-if="props.showMore" class="ml-auto" text severity="secondary" size="small" icon="pi pi-ellipsis-v" @click.stop="openMenu" />
         </div>
         <div v-if="props.showFooterLite" class="text-sm text-slate-600">
-            {{ post.upvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-up !text-sm"></span>&nbsp;·&nbsp;{{ post.downvote.toString() }}&nbsp;&nbsp;<span class="pi pi-thumbs-down !text-sm"></span>&nbsp;·&nbsp;{{ post.commentCount.toString() }}&nbsp;<span class="pi pi-comment"></span>
+            <div class="flex items-center space-x-2">
+                <div class="flex items-center">
+                    <span class="pi pi-thumbs-up !text-sm"></span>&nbsp;
+                    <span>{{ post.upvote.toString() }}</span>
+                </div>
+                <span>·</span>
+                <div class="flex items-center">
+                    <span class="pi pi-thumbs-down !text-sm"></span>&nbsp;
+                    <span>{{ post.downvote.toString() }}</span>
+                </div>
+                <span>·</span>
+                <div class="flex items-center">
+                    <span class="pi pi-comment"></span>&nbsp;
+                    <span>{{ post.commentCount.toString() }}</span>
+                </div>
+            </div>
         </div>
         <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
@@ -84,6 +99,10 @@
                 </div>
             </div>
         </Drawer>
+        <Drawer v-model:visible="commentVisible" position="bottom" :header="t('post.comment')"
+                class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
+            <ComposeComment :post-id="post.id" :is-post="true" :id="post.id" @commented="commented" />
+        </Drawer>
     </div>
 </template>
 
@@ -101,6 +120,7 @@ import {apiCreateBookmark, apiDeletePost, apiVote} from "@/api/postV2.js";
 import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 import {useNaviStore} from "@/stores/naviStore.js";
+import ComposeComment from "@/views/tab/home/ComposeComment.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
@@ -133,13 +153,32 @@ const props = defineProps({
     showFooterLite: {
         default: false,
         type: Boolean
+    },
+    blue: {
+        default: false,
+        type: Boolean
     }
 })
+const emits = defineEmits(['commented']);
 
 // ui
 const getButtonSeverity = (vote, value) => {
     if(vote === value) return "primary";
     else return "secondary";
+}
+
+// comment
+const commentVisible = ref(false);
+const doComposeComment = () => {
+    commentVisible.value = true;
+    // router.push({
+    //     name: 'ComposeComment',
+    //     query: {
+    //         post: true,
+    //         postId: post.value.id,
+    //         id: post.value.id,
+    //     }
+    // });
 }
 
 // more
@@ -210,17 +249,10 @@ const vote = (type) => {
         post.value.voteLoading = false;
     })
 }
-
-// comment
-const doComposeComment = () => {
-    router.push({
-        name: 'ComposeComment',
-        query: {
-            post: true,
-            postId: post.value.id,
-            id: post.value.id,
-        }
-    });
+const commented = (res) => {
+    commentVisible.value = false;
+    post.value.commentCount++;
+    emits('commented', res);
 }
 
 </script>
