@@ -10,7 +10,7 @@
                 <div class="pl-3 overflow-hidden min-w-0">
                     <div class="w-full flex items-center cursor-text">
                         <div class="text-ellipsis overflow-hidden break-words whitespace-nowrap">{{comment.nickname}}</div>
-                        <div class="text-sm text-slate-600 flex-shrink-0">&nbsp;·&nbsp;{{comment.createTime}}</div>
+                        <div class="text-sm text-surface-600 dark:text-surface-400 flex-shrink-0">&nbsp;·&nbsp;{{comment.createTime}}</div>
                     </div>
                 </div>
                 <div class="min-h-5 flex flex-wrap gap-2 pl-[0.675rem] w-full mt-[0.25rem]">
@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="cursor-text text-slate-800 whitespace-pre-line break-words">
+        <div class="cursor-text text-surface-800 dark:text-surface-100 whitespace-pre-line break-words">
             {{ comment.content }}
         </div>
         <div class="w-full" v-if="comment.compare">
@@ -64,12 +64,11 @@
                 </div>
             </div>
         </div>
-        <Drawer v-model:visible="moreVisible" position="bottom" :header="t('post.more')"
+        <Drawer v-model:visible="moreVisible" position="bottom" :header="t('common.more')"
                 class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
             <EList>
                 <EListItem icon="pi-bookmark" :title="t('post.bookmark')" @click="bookmarkClicked" />
-<!--                <EListItem icon="pi-sparkles" :title="t('post.navi')" />-->
-                <EListItem icon="pi-trash" :title="deleteButtonInfo.label" :danger="deleteButtonInfo.danger" :loading="deleteButtonInfo.loading" @click="deletePost" />
+                <EListItem icon="pi-trash" v-if="userStore.userInfo.id === comment.userId" :title="deleteButtonInfo.label" :danger="deleteButtonInfo.danger" :loading="deleteButtonInfo.loading" @click="deletePost" />
             </EList>
         </Drawer>
         <Drawer v-model:visible="bookmarkVisible" position="bottom" :header="t('post.bookmark')"
@@ -108,9 +107,11 @@ import {useRouter} from "vue-router";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 import ComposeComment from "@/views/tab/home/ComposeComment.vue";
 import Diff from "diff/dist/diff.js";
+import {useUserStore} from "@/stores/userStore.js";
 
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
+const userStore = useUserStore();
 
 const emits = defineEmits(['commented']);
 

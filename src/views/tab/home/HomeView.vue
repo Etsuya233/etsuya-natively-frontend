@@ -10,29 +10,25 @@
             <SelectButton class="flex-1" :options="options" v-model="optionSelectionProxy" option-label="name" option-value="value"
                           :allow-empty="false"
                           :pt="{ root: '*:w-full'}"/>
-            <div class="hidden md:block">
-                <Button icon="pi pi-pencil" rounded as="router-link" :to="{ name: 'Compose'}" />
-            </div>
         </div>
-        
         <!--        Recommendation-->
-        <div class="flex flex-col w-full">
+        <div class="flex flex-col w-full min-h-[calc(100dvh-10rem)]">
             <div v-if="selected === 0">
                 <div v-for="(item, index) in followingPosts" :key="item.id" @click="postClicked(item)"
-                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
-                    <PostCard v-model="followingPosts[index]" />
+                     class="w-full flex flex-col gap-1 px-4 py-4 border-b border-surface"   >
+                    <PostCard :lite-mode="true" :show-footer="false" v-model="followingPosts[index]" />
                 </div>
             </div>
             <div v-else-if="selected === 1">
                 <div v-for="(item, index) in recommendationPosts" :key="item.id" @click="postClicked(item)"
-                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
-                    <PostCard v-model="recommendationPosts[index]" />
+                     class="w-full flex flex-col gap-1 px-4 py-4 border-b border-surface">
+                    <PostCard :lite-mode="true" :show-footer="false" v-model="recommendationPosts[index]" />
                 </div>
             </div>
             <div v-else-if="selected === 2">
                 <div v-for="(item, index) in trendingPost" :key="item.id" @click="postClicked(item)"
-                     class="w-full flex flex-col gap-1 px-4 py-2 border-b">
-                    <PostCard v-model="trendingPost[index]" :rank="index + 1" />
+                     class="w-full flex flex-col gap-1 px-4 py-4 border-b border-surface">
+                    <PostCard :lite-mode="true" :show-footer="false" v-model="trendingPost[index]" :rank="index + 1" />
                 </div>
             </div>
             <div class="w-full select-none">
@@ -40,9 +36,8 @@
             </div>
         </div>
         
-        
         <!--        Post-->
-        <div class="fixed right-4 bottom-[4.5rem] md:hidden transition z-10" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
+        <div class="sticky float-right pr-4 bottom-[4.5rem] md:bottom-6 transition z-10" :class="{ 'opacity-0': isScrollDown, 'pointer-events-none': isScrollDown }">
             <Button icon="pi pi-pencil !text-xl" class="!p-7 shadow-lg" rounded as="router-link" :to="{ name: 'Compose'}" />
         </div>
     </div>
@@ -70,9 +65,9 @@ const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
 
 //options
 let options = ref([
-    { name: 'Following', value: 0, top: 0},
-    { name: 'Flow', value: 1, top: 0},
-    { name: 'Trending', value: 2, top: 0},
+    { name: t('common.following'), value: 0, top: 0},
+    { name: t('common.timeline'), value: 1, top: 0},
+    { name: t('common.trending'), value: 2, top: 0},
 ])
 let optionSelectionProxy = ref(1);
 let selected = ref(1);

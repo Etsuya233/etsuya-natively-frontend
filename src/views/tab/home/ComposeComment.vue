@@ -18,8 +18,8 @@
                 </div>
             </div>
             <div class="sticky w-full bottom-0 mt-4">
-                <div class="flex px-2 gap-2 py-1 border rounded-xl bg-white/80 backdrop-blur-xl
-                *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100">
+                <div class="flex px-2 gap-2 py-1 border rounded-xl bg-blur border-surface
+                *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100 hover:dark:*:bg-surface-600">
                     <div class="pi pi-image" @click="imageMenuVisible = true"></div>
                     <div class="pi pi-microphone" @click="voiceMenuVisible = true"></div>
                     <div class="pi pi-arrow-right-arrow-left" @click="compareMenuVisible = true"></div>
@@ -117,7 +117,9 @@ import EListItem from "@/components/etsuya/EListItem.vue";
 import EList from "@/components/etsuya/EList.vue";
 import Diff from "diff/dist/diff.js";
 import {apiCreateComment} from "@/api/postV2.js";
+import {useToast} from "@/utils/toast.js";
 
+const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const { t, locale, availableLocales } = useI18n()
@@ -181,7 +183,16 @@ const addImage = () => {
 const uploadImage = (e) => {
     const file = e.target.files[0]; // 获取文件
     if (!file || !file.type.startsWith("image/")) {
-        console.warn("请选择有效的图片文件！");
+        toast.add({
+            title: t('file.pleaseSelectImage'),
+        })
+        return;
+    }
+    //检查文件大小不超过5M
+    if (file.size > 4 * 1024 * 1024) {
+        toast.add({
+            title: t('post.imageSizeLimit'),
+        })
         return;
     }
     // 生成预览 URL
@@ -217,7 +228,16 @@ const uploadVoiceClick = (e) => {
 const uploadVoice = (e) => {
     const file = e.target.files[0]; // 获取文件
     if (!file || !file.type.startsWith("audio/")) {
-        console.warn("请选择有效的Audio文件！");
+        toast.add({
+            title: t('file.pleaseSelectVoice'),
+        })
+        return;
+    }
+    //检查文件大小不超过5M
+    if (file.size > 2 * 1024 * 1024) {
+        toast.add({
+            title: t('post.voiceSizeLimit'),
+        })
         return;
     }
     // 生成预览 URL

@@ -1,16 +1,26 @@
 <template>
-    <div class="w-full`">
+    <div class="w-full">
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :show-back="false" :title="t('bookmark.bookmark')"
                  :class="{'opacity-30': isScrollDown}" />
-        <div class="w-full flex flex-col divide-y">
-            <div v-for="(item, index) in bookmarks" class="px-4 py-2">
+        <div class="w-full flex flex-col divide-y *:border-surface min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-8rem)]">
+            <div v-for="(item, index) in bookmarks" class="px-4 py-3 relative">
+                
+                <div class="absolute right-4 top-2 -z-10">
+                    <div class="text-surface-200/70 dark:text-surface-700/70  font-bold">
+                        <span v-if="item.type === 1" class="pi pi-align-right !text-6xl"></span>
+                        <span v-else-if="item.type === 2" class="pi pi-comment !text-6xl"></span>
+                        <span v-else class="pi pi-pencil !text-6xl"></span>
+                    </div>
+                </div>
+                
 <!--                Post-->
                 <div v-if="item.type === 1" class="w-full" @click="router.push({ name: 'Post', params: { id: item.referenceId } })">
                     <PostCard v-model="bookmarks[index]" :show-footer="false" />
                 </div>
                 
 <!--                Comment -->
-                <div v-else-if="item.type === 2" class="w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
+                <div v-else-if="item.type === 2" class="w-full rounded-lg flex flex-col gap-2 cursor-pointer"
+                     @click="router.push({ name: 'Post', params: { id: item.referenceId }, query: { 'comment': 1 }})">
                     <CommentCard v-model="bookmarks[index]" :show-footer="false" />
                 </div>
                 
@@ -21,25 +31,29 @@
                 
                 <div class="mt-2" v-if="item.note">
                     <EListItem enable-slot rounded>
-                        <div class="!text-slate-600">
+                        <div class="!text-slate-600 dark:!text-surface-400 leading-4">
                             <span class="pi pi-pencil !text-xs"></span><span class="ml-2 text-sm">{{t('bookmark.note')}}</span>
                         </div>
                         <div class="w-full overflow-hidden">
                             {{ item.note }}
-                            <div class="inline-block float-right translate-y-1/4 text-slate-600 text-sm">{{ item.createTime }}</div>
+                            <div class="inline-block float-right translate-y-1/4 text-slate-600 dark:text-surface-400 text-sm">{{ item.createTime }}</div>
                         </div>
                     </EListItem>
                 </div>
                 
                 <div class="mt-2 flex gap-2">
-                    <Tag class="!rounded-2xl ml-auto" @click.stop severity="secondary"
-                            :value="item.type === 1? t('bookmark.post'): item.type === 2? t('bookmark.comment'): t('bookmark.note')" />
-                    <Button rounded severity="secondary" size="small" icon="pi pi-pencil" :label="t('bookmark.editNote')" @click.stop="noteEdit(item)" />
+<!--                    <Tag class="!rounded-2xl ml-auto" @click.stop severity="secondary"-->
+<!--                            :value="item.type === 1? t('bookmark.post'): item.type === 2? t('bookmark.comment'): t('bookmark.note')" />-->
+                    <Button rounded severity="secondary" size="small" icon="pi pi-pencil" :label="t('bookmark.edit')" @click.stop="noteEdit(item)" />
                     <Button rounded severity="secondary" size="small" icon="pi pi-trash" :label="t('bookmark.remove')" :loading="item.removeLoading" @click.stop="deleteBookmark(item)" />
                 </div>
             </div>
-            
-            <div></div>
+            <ELoadMore :loading="loadingMore" @click="loadMore" />
+        </div>
+        
+        <!--        Add-->
+        <div class="sticky float-right pr-4 w-fit bottom-[4.5rem] md:bottom-6 transition z-10">
+            <Button icon="pi pi-pencil !text-xl" class="!p-7 shadow-lg" rounded @click="addBookmark"/>
         </div>
         
         <Drawer v-model:visible="noteEditorVisible" position="bottom" :header="t('bookmark.edit')"
@@ -79,10 +93,15 @@ import Drawer from "primevue/drawer";
 import EList from "@/components/etsuya/EList.vue";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 import {useRouter} from "vue-router";
+import ELoadMore from "@/components/etsuya/ELoadMore.vue";
+import {useNaviStore} from "@/stores/naviStore.js";
 
 const {isScrollDown} = useScroll();
 const { t, locale, availableLocales } = useI18n();
 const router = useRouter();
+const naviStore = useNaviStore();
+
+const loadingMore = ref(false);
 
 const bookmarks = ref([]);
 
@@ -101,6 +120,10 @@ const noteEdit = (item) => {
     } else {
         textEditorVisible.value = false;
     }
+}
+
+const addBookmark = () => {
+    naviStore.awakeBookmark();
 }
 
 const updateBookmark = () => {
@@ -123,14 +146,25 @@ const deleteBookmark = (item) => {
     })
 }
 
-onBeforeMount(() => {
-    apiGetBookmarkList(null).then((res) => {
+const loadMore = () => {
+    if(loadingMore.value){
+        return;
+    }
+    loadingMore.value = true;
+    const lastId = bookmarks.value.length > 0 ? bookmarks.value[bookmarks.value.length - 1].id : null;
+    apiGetBookmarkList(lastId).then((res) => {
         res.forEach(item => {
             item.removeLoading = false;
             item.updateLoading = false;
         })
-        bookmarks.value = res;
-    });
+        bookmarks.value.push(... res);
+    }).catch(e => {}).finally(() => {
+        loadingMore.value = false;
+    })
+}
+
+onBeforeMount(() => {
+    loadMore();
 })
 
 </script>

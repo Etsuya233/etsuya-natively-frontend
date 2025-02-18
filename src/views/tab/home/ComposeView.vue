@@ -2,15 +2,12 @@
     <div class="w-full">
         <EHeader class="sticky top-0 z-10" :enable-slot="true" :back-action="backActions">
             <div v-if="page === 1" class="flex items-center">
-                <div>{{t('post.type')}}</div>
-            </div>
-            <div v-else-if="page === 2" class="flex items-center">
                 <div>{{t('post.language')}}</div>
             </div>
-            <div v-else class="flex items-center">
-                <div>{{ type === '1'? t('post.normal'): t('post.question') }}</div>
-                <div class="text-base ml-auto mr-2">{{t('editor.preview')}}</div>
-                <ToggleSwitch v-model="preview" class="mr-2" />
+            <div v-else class="flex items-center w-full">
+                <div class="whitespace-nowrap flex-1 min-w-0 overflow-hidden text-ellipsis">{{ t('post.compose') }}</div>
+                <div class="text-base ml-auto mr-2 flex-shrink-0">{{t('editor.preview')}}</div>
+                <ToggleSwitch v-model="preview" class="mr-2 flex-shrink-0" />
             </div>
         </EHeader>
         <div class="w-full">
@@ -25,31 +22,6 @@
                     </EList>
                     <Button class="!rounded-xl" :disabled="selectedLanguageCode.length === 0" :label="t('post.next')" icon="pi pi-arrow-right" @click="goNext" />
                 </div>
-                <div v-else-if="page === 2" class="w-full flex flex-col gap-4 p-4">
-                    <div class="text-3xl font-bold">{{t('post.selectType')}}</div>
-                    <EList>
-                        <EListItem :enable-slot="true" v-for="item in postType" @click="item.command">
-                            <div class="flex">
-                                <div class="pi pi-comment !text-3xl my-auto"></div>
-                                <div class="pl-4">
-                                    <div class="font-bold text-lg">{{ item.name }}</div>
-                                    <div class="text-slate-700">{{ item.desc }}</div>
-                                </div>
-                            </div>
-                        </EListItem>
-                    </EList>
-                    <Button class="!rounded-xl" :label="t('post.back')" icon="pi pi-arrow-left" @click="page = 1" />
-                    <EList>
-                        <EListItem :enable-slot="true">
-                            <div>
-                                <div class="font-bold">{{ t('post.selectedLanguage') }}</div>
-                                <div class="mt-1">
-                                    <Tag v-for="item in selectedLanguageText" :value="item" class="ml-2 first:ml-0" />
-                                </div>
-                            </div>
-                        </EListItem>
-                    </EList>
-                </div>
                 <div v-else>
                     <div class="w-full p-4">
                         <div class="w-full">
@@ -62,8 +34,8 @@
                                     @click="currentIndex = index"
                                     :key="item.id"
                                     class="transform-gpu transition-colors"
-                                    :class="{ '!bg-slate-100': !preview && index === currentIndex, 'hover:bg-slate-50': !preview }">
-                                    <td v-show="!preview" class="border-r pl-2 pr-2 text-right pt-[0.31rem] align-text-top rounded-l-lg">
+                                    :class="{ '!bg-slate-100 dark:!bg-surface-800': !preview && index === currentIndex, 'hover:bg-slate-50 hover:dark:bg-surface-900': !preview }">
+                                    <td v-show="!preview" class="border-r border-surface pl-2 pr-2 text-right pt-[0.31rem] align-text-top rounded-l-lg">
                                         <div v-if="item.type === 'markdown'">M</div>
                                         <div v-else class="pi" :class="{
                                 'pi-align-left': item.type === 'text',
@@ -80,30 +52,30 @@
                                         </div>
                                         <div class="w-full" v-else-if="item.type === 'image'">
                                             <div v-show="!preview && index === currentIndex"
-                                                 class="text-sm text-slate-600">{{ t('editor.image') }}</div>
-                                            <div class="w-full rounded-lg border mt-1 overflow-hidden" @click="uploadImageClicked(index)">
+                                                 class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.image') }}</div>
+                                            <div class="w-full rounded-lg border border-surface mt-1 overflow-hidden" @click="uploadImageClicked(index)">
                                                 <img v-if="item.preview"
                                                      :src="item.preview"
                                                      class="h-full w-full max-h-[20rem] object-contain cursor-pointer"
                                                      alt="image"/>
                                                 <div v-else class="w-full h-[8rem] flex justify-center items-center">
-                                                    <div class="pi pi-plus text-slate-600 !text-2xl"></div>
+                                                    <div class="pi pi-plus text-slate-600 dark:text-surface-400 !text-2xl"></div>
                                                 </div>
                                             </div>
-                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600 mt-1">{{ t('editor.caption') }}</div>
+                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600 dark:text-surface-400 mt-1">{{ t('editor.caption') }}</div>
                                             <div>
                                                 <ETextarea v-show="!preview && index === currentIndex"
                                                            :readonly="preview || index !== currentIndex"
                                                            :placeholder="t('editor.caption')"
                                                            v-model="item.caption" />
-                                                <div v-show="preview || index !== currentIndex" class="text-sm text-center text-slate-600 mt-1">
+                                                <div v-show="preview || index !== currentIndex" class="text-sm text-center text-slate-600 dark:text-surface-400 mt-1">
                                                     {{ item.caption }}
                                                 </div>
                                             </div>
                                         </div>
                                         <div v-else-if="item.type === 'compare'" class="flex flex-col gap-1">
                                             <div v-show="!preview && index === currentIndex">
-                                                <div class="text-sm text-slate-600">{{ t('editor.originalText') }}</div>
+                                                <div class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.originalText') }}</div>
                                                 <div>
                                                     <ETextarea @input="compareUpdate(index)"
                                                                :readonly="preview || index !== currentIndex"
@@ -112,7 +84,7 @@
                                                 </div>
                                             </div>
                                             <div v-show="!preview && index === currentIndex">
-                                                <div class="text-sm text-slate-600">{{ t('editor.revisedText') }}</div>
+                                                <div class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.revisedText') }}</div>
                                                 <div>
                                                     <ETextarea @input="compareUpdate(index)"
                                                                :readonly="preview || index !== currentIndex"
@@ -121,7 +93,7 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <div class="text-sm text-slate-600" v-show="!preview && index === currentIndex">{{ t('editor.output') }}</div>
+                                                <div class="text-sm text-slate-600 dark:text-surface-400" v-show="!preview && index === currentIndex">{{ t('editor.output') }}</div>
                                                 <div>
                                             <span v-for="d in item.change"
                                                   class="font-bold rounded select-text"
@@ -133,33 +105,33 @@
                                         </div>
                                         <div v-else-if="item.type === 'markdown'">
                                             <div v-show="!preview && index === currentIndex">
-                                                <div class="text-sm text-slate-600">{{ t('editor.raw') }}</div>
+                                                <div class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.raw') }}</div>
                                                 <ETextarea v-model="item.value"
                                                            :readonly="preview || index !== currentIndex"
                                                            :placeholder="t('editor.raw')" />
                                             </div>
                                             <div class="w-full">
-                                                <div class="text-sm text-slate-600" v-show="!preview && index === currentIndex">{{ t('editor.rendered') }}</div>
+                                                <div class="text-sm text-slate-600 dark:text-surface-400" v-show="!preview && index === currentIndex">{{ t('editor.rendered') }}</div>
                                                 <MdRender :dynamic="true" :markdown="item.value" />
                                             </div>
                                         </div>
                                         <div v-else>
-                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600">{{ t('editor.voice') }}</div>
+                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.voice') }}</div>
                                             <div class="flex justify-center">
                                                 <audio v-if="item.preview" :src="item.preview" controls />
-                                                <div v-else class="text-sm text-slate-600">{{ t('editor.noRecordingFound') }}</div>
+                                                <div v-else class="text-sm text-slate-600 dark:text-surface-400">{{ t('editor.noRecordingFound') }}</div>
                                             </div>
                                             <div v-show="!preview && index === currentIndex" class="mt-1 flex justify-evenly *:flex-1 gap-2">
                                                 <Button size="small" @click="recordVoice" :label="t('editor.record')" />
                                                 <Button size="small" @click="uploadVoiceClicked" :label="t('editor.upload')" />
                                             </div>
-                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600 mt-1">{{ t('editor.caption') }}</div>
+                                            <div v-show="!preview && index === currentIndex" class="text-sm text-slate-600 dark:text-surface-400 mt-1">{{ t('editor.caption') }}</div>
                                             <div>
                                                 <ETextarea v-show="!preview && index === currentIndex"
                                                            :readonly="preview || index !== currentIndex"
                                                            :placeholder="t('editor.caption')"
                                                            v-model="item.caption" />
-                                                <div v-show="preview || index !== currentIndex" class="text-sm text-center text-slate-600 mt-1">
+                                                <div v-show="preview || index !== currentIndex" class="text-sm text-center text-slate-600 dark:text-surface-400 mt-1">
                                                     {{ item.caption }}
                                                 </div>
                                             </div>
@@ -170,8 +142,8 @@
                         </div>
                     </div>
                     <div v-show="!preview" class="sticky w-full bottom-16 pt-0 pb-2 px-4">
-                        <div class="flex px-2 gap-2 py-1 border rounded-xl bg-blur
-                        *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100">
+                        <div class="flex px-2 gap-2 py-1 border border-surface rounded-xl bg-blur
+                        *:px-2 *:py-1 *:!text-lg *:rounded-lg *:transition-colors hover:*:bg-slate-100 hover:dark:*:bg-surface-600">
                             <div class="pi pi-align-left" @click="addText(currentIndex)"></div>
                             <div class="pi pi-image" @click="addImage(currentIndex)"></div>
                             <div class="pi pi-microphone" @click="addVoice(currentIndex)"></div>
@@ -184,10 +156,7 @@
                     <div v-show="!preview" class="px-4 pt-2">
                         <EListItem enable-slot rounded>
                             <div class="font-bold pb-1">{{ t('post.stat') }}</div>
-                            <div>{{ t('post.characterCount') }}: {{charCount}}</div>
-                            <div>{{ t('post.blockCount') }}: {{blockCount}}</div>
-                            <div>{{ t('post.imageBlockCount') }}: {{imageBlockCount}}</div>
-                            <div>{{ t('post.voiceBlockCount') }}: {{voiceBlockCount}}</div>
+                            <div v-for="item in countData">{{ item.label }}: {{ item.value }} <span v-if="item.value > item.max" class="text-red-700" >({{ t('post.overflow')}})</span></div>
                         </EListItem>
                     </div>
                     <div class="px-4 pt-4" v-show="!preview && languages">
@@ -215,11 +184,10 @@
                             v-model:value="voiceTemp"
                             :enable-send="true"
                             @send="voiceRecorded" />
-                    <input class="hidden" ref="imageUploader" type="file" @input="uploadImage($event)" />
-                    <input class="hidden" ref="voiceUploader" type="file" @input="uploadVoice($event)" />
+                    <input class="hidden" ref="imageUploader" type="file" @input="uploadImage($event)" accept="image/*" />
+                    <input class="hidden" ref="voiceUploader" type="file" @input="uploadVoice($event)" accept="audio/*"/>
                 </div>
             </ETransition>
-            
         </div>
         <Drawer v-model:visible="sending"
                 :header="t('editor.posting')"
@@ -236,8 +204,9 @@
 import EHeader from "@/components/etsuya/EHeader.vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
+import Dialog from 'primevue/dialog';
 import {useUserStore} from "@/stores/userStore.js";
-import {computed, onBeforeMount, ref} from "vue";
+import {computed, onActivated, onBeforeMount, ref} from "vue";
 import Button from "primevue/button";
 import ETextarea from "@/components/etsuya/ETextarea.vue";
 import Diff from "diff/dist/diff.js";
@@ -255,9 +224,11 @@ import {useLanguageStore} from "@/stores/languageStore.js";
 import { v4 as uuidv4 } from 'uuid';
 import ETransition from "@/components/etsuya/ETransition.vue";
 import EList from "@/components/etsuya/EList.vue";
+import {useToast} from "@/utils/toast.js";
 
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
 const { t, locale, availableLocales } = useI18n()
 const userStore = useUserStore();
 const languageStore = useLanguageStore();
@@ -265,13 +236,14 @@ const languageStore = useLanguageStore();
 // page
 const page = ref(1);
 const goNext = () => {
-    page.value++;
+    page.value ++;
 }
+const exitDialogVisible = ref(false);
 const backActions = computed(() => {
     if(page.value === 1){
         return () => router.back();
     } else {
-        return () => page.value--;
+        return () => page.value = 1;
     }
 })
 
@@ -298,10 +270,6 @@ const selectedLanguageText = computed(() => {
     })
     return ret;
 })
-const postType = ref([
-    { name: 'post.normal', desc: 'post.normalDesc', command: () => { type.value = '1'; page.value = 3; } },
-    { name: 'post.question', desc: 'post.questionDesc', command: () => { type.value = '2'; page.value = 3; } }
-])
 
 // type
 const type = ref('1');
@@ -316,6 +284,17 @@ const content = ref([{
 const currentIndex = ref(-1);
 const preview = ref(false);
 let verificationCode = '';
+const resetContent = () => {
+    content.value = [{
+        id: '123123',
+        type: "text",
+        value: ""
+    }];
+    title.value = '';
+    currentIndex.value = -1;
+    preview.value = false;
+    verificationCode = '';
+}
 
 // send
 const sending = ref(false);
@@ -375,17 +354,18 @@ const send = async () => {
             title: title.value,
             content: body,
             verificationCode,
-            languages: languages.value
+            languages: selectedLanguageCode.value
         });
         currentStep.value ++;
         setTimeout(() => {
             sending.value = false;
         }, 1500);
-        router.push({ name: 'Post', params: { id: postId }});
+        await router.replace({ name: 'Post', params: { id: postId }});
+        resetContent();
     } catch (e) {
-
-    } finally {
     
+    } finally {
+        sending.value = false;
     }
 }
 
@@ -448,7 +428,16 @@ const uploadImageClicked = (index) => {
 const uploadImage = (e) => {
     const file = e.target.files[0]; // 获取文件
     if (!file || !file.type.startsWith("image/")) {
-        console.warn("请选择有效的图片文件！");
+        toast.add({
+            title: t('file.pleaseSelectImage'),
+        })
+        return;
+    }
+    //检查文件大小不超过5M
+    if (file.size > 4 * 1024 * 1024) {
+        toast.add({
+            title: t('post.imageSizeLimit'),
+        })
         return;
     }
     // 生成预览 URL
@@ -487,7 +476,16 @@ const voiceRecorded = () => {
 const uploadVoice = (e) => {
     const file = e.target.files[0]; // 获取文件
     if (!file || !file.type.startsWith("audio/")) {
-        console.warn("请选择有效的音频文件！");
+        toast.add({
+            title: t('file.pleaseSelectVoice'),
+        })
+        return;
+    }
+    //检查文件大小不超过2M
+    if (file.size > 2 * 1024 * 1024) {
+        toast.add({
+            title: t('post.voiceSizeLimit'),
+        })
         return;
     }
     // 生成预览 URL
@@ -536,11 +534,22 @@ const voiceBlockCount = computed(() => {
     })
     return count;
 })
+const countData = ref([
+    { label: t('post.characterCount'), max: 30000, value: charCount },
+    { label: t('post.blockCount'), max: 30, value: blockCount },
+    { label: t('post.imageBlockCount'), max: 10, value: imageBlockCount },
+    { label: t('post.voiceBlockCount'), max: 10, value: voiceBlockCount },
+])
 
 // delete
 const deleteBlock = () => {
     content.value.splice(currentIndex.value, 1);
 }
+
+// lifespan
+onActivated(() => {
+    page.value = 1;
+})
 
 </script>
 

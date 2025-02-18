@@ -2,17 +2,8 @@
     <div class="w-full">
         <EHeader class="sticky top-0 z-10" :title="t('user.followers')" />
         <div class="w-full">
-            <div class="flex flex-col divide-y">
-                <div class="p-4 flex cursor-pointer hover:bg-slate-100 transition-colors transform-gpu"
-                     v-for="(item, index) in followings" :key="index" @click="router.push({ name: 'User', params: { id: item.id } })">
-                    <div class="w-12 h-12 flex-shrink-0">
-                        <Avatar class="!w-full !h-full" shape="circle" :image="item.avatar" />
-                    </div>
-                    <div class="pl-5 flex-1 min-w-0 overflow-hidden">
-                        <div class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{{item.nickname}}</div>
-                        <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">@{{item.username}}</div>
-                    </div>
-                </div>
+            <div class="flex flex-col divide-y *:border-surface">
+                <UserEntry v-for="item in followings" @click="router.push({ name: 'User', params: { id: item.id }})" class="px-4 py-2" :value="item" />
                 <div></div>
             </div>
             <div class="w-full select-none">
@@ -31,6 +22,7 @@ import {useRoute, useRouter} from "vue-router";
 import Avatar from "primevue/avatar";
 import {useScroll} from "@/utils/scroll.js";
 import ELoadMore from "@/components/etsuya/ELoadMore.vue";
+import UserEntry from "@/components/natively/UserEntry.vue";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();

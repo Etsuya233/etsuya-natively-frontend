@@ -1,6 +1,6 @@
 <template>
-    <div class="w-full flex border-b border-surface items-center gap-4 h-14 px-2 bg-blur dark:bg-surface-900/70">
-        <div class="hover:bg-surface-100/50 hover:dark:bg-surface-800 rounded-full h-12 w-12 transition-colors flex-shrink-0"
+    <div class="w-full flex border-b border-surface items-center gap-4 h-14 px-2 bg-blur">
+        <div class="hover:bg-surface-100/50 hover:dark:bg-surface-800/80 rounded-full h-12 w-12 transition-colors flex-shrink-0"
              @click="clickedBack" v-if="props.showBack" >
             <Button icon="pi pi-arrow-left !text-xl" rounded unstyled
                     pt:root:class="w-full h-full !flex !justify-center !items-center"

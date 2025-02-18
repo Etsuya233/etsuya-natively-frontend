@@ -33,7 +33,7 @@
             </div>
         </div>
         <div v-else>
-            <div class="w-full px-4 py-2 bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer"
+            <div class="w-full px-4 py-3 rounded-lg flex flex-col gap-2 cursor-pointer"
                  id="history-0"
                  @click="postClicked">
                 <PostCard v-model="postInfo" :full-mode="true" :show-footer="history.length === 1" :show-footer-lite="history.length !== 1" :show-more="true" @commented="addOneCommentAtFirst" />
@@ -46,28 +46,34 @@
                  :key="item.id"
                  class="relative"
                  @click="historyClicked(index)">
-                <div v-if="index !== 0" class="border-slate-200 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
+                <div v-if="index !== 0" class="border-surface-200 dark:border-surface-700 border-[0.25rem] ml-[2.125rem] !h-8 w-0 rounded-full"></div>
                 <div class="absolute -top-14" :id="`history-${index}`"></div>
-                <div v-if="index > 0" class="px-4 py-2 w-full bg-white dark:bg-surface-900 rounded-lg flex flex-col gap-2 cursor-pointer">
+                <div v-if="index > 0" class="px-4 py-2 w-full rounded-lg flex flex-col gap-2 cursor-pointer">
                     <CommentCard v-model="history[index]" :show-footer="index === history.length - 1" :show-footer-lite="index !== history.length - 1" @commented="addOneCommentAtFirst" />
                 </div>
             </div>
         </div>
         
-        <div class="border-slate-100 border-4" />
+        <div class="border-surface-100 dark:border-surface-800 border-4" />
         
         <!--        Comments-->
-        <div class="p-4 text-xl font-bold">
-            {{ t('post.comments') }}
+        <div class="p-4 w-full flex items-center">
+            <span class="text-xl font-bold">
+                {{ t('post.comments') }}
+            </span>
+            <div class="ml-auto" v-show="history.length === 1" @click="postCommentMode = (postCommentMode + 1) % 3">
+                <span class="pi pi-sort-alt"></span>
+                <span class="pl-2">{{ postCommentModes[postCommentMode].label }}</span>
+            </div>
         </div>
         <div class="flex flex-col">
             <div v-for="(item, index) in comment[comment.length - 1]"
                  :key="item.id"
-                 class="relative border-b"
-                 :class="{ 'bg-primary-50': item.commented }"
+                 class="relative border-b border-surface"
+                 :class="{ 'bg-primary-50 dark:bg-primary-800': item.commented }"
                  @click="commentClicked(index)">
                 <div class="absolute -top-14" :id="`comment-${item.id}`"></div>
-                <CommentCard class="px-4 py-2" v-model="comment[comment.length - 1][index]" />
+                <CommentCard class="px-4 py-3" v-model="comment[comment.length - 1][index]" />
                 <div v-if="lastCommentId === item.id" class="border-t text-center text-slate-600 text-sm py-1">
                     {{ t('post.continueReading') }}
                 </div>
@@ -91,7 +97,7 @@ import Button from "primevue/button";
 import Skeleton from 'primevue/skeleton';
 import {useI18n} from "vue-i18n";
 import {useScroll} from "@/utils/scroll.js";
-import {apiGetCommentList, apiGetPostById} from "@/api/postV2.js";
+import {apiGetCommentList, apiGetCommentListHot, apiGetCommentParentChain, apiGetPostById} from "@/api/postV2.js";
 import Diff from "diff/dist/diff.js";
 import {useNaviStore} from "@/stores/naviStore.js";
 import PostCard from "@/components/natively/PostCard.vue";
@@ -99,6 +105,7 @@ import CommentCard from "@/components/natively/CommentCard.vue";
 import {useSelect} from "@/utils/selection.js";
 import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 import {useUserStore} from "@/stores/userStore.js";
+import ESelect from "@/components/etsuya/ESelect.vue";
 
 const { isScrollDown, isAtBottom, isAtBottomSoon } = useScroll();
 const { t, locale, availableLocales } = useI18n();
@@ -114,6 +121,7 @@ let commentLoading = ref(false);
 
 //post
 let id = ref(null);
+const commentMode = ref(false);
 let postInfo = ref({
     "id": 0, "title": '', "content": '', "type": 1,
     "userId": 0, "nickname": '', "avatar": '', "bookmarked": 0,
@@ -135,6 +143,9 @@ const postClicked = () => {
             top: 0
         });
     })
+    if(comment.value[0].length === 0){
+        loadMoreComment();
+    }
 }
 
 // history
@@ -178,10 +189,19 @@ const historyClicked = (index) => {
             });
         })
     }
+    if(comment.value[comment.value.length - 1].length === 0){
+        loadMoreComment();
+    }
 }
 
 // comment
 const isLoadingMore = ref(false);
+const postCommentMode = ref(0); // 0 time 1 hot
+const postCommentModes = ref([
+    { label: t('post.hotOrder'), value: 0 },
+    { label: t('post.oldest'), value: 1 },
+    { label: t('post.latest'), value: 2 }
+])
 // todo optimize the variable using compute
 const comment = ref([]); // 0:post 1:comment1 2:comment2
 const lastId = computed(() => {
@@ -197,13 +217,16 @@ const loadMoreComment = async () => {
     try{
         if(history.value.length === 1){
             // post
-            const res = await apiGetCommentList(true, postInfo.value.id, lastId.value);
-            // commentInit(res);
-            comment.value[0].push(... res);
+            if(postCommentMode.value !== 0){
+                const res = await apiGetCommentList(true, postInfo.value.id, lastId.value, postCommentMode.value);
+                comment.value[0].push(... res);
+            } else {
+                const res = await apiGetCommentListHot(postInfo.value.id, comment.value[0].length);
+                comment.value[0].push(... res);
+            }
         } else {
             // comment
-            const res = apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
-            // commentInit(res);
+            const res = await apiGetCommentList(false, history.value[history.value.length - 1].id, lastId.value);
             comment.value[comment.value.length - 1].push(... res);
         }
     } catch (e){
@@ -212,6 +235,12 @@ const loadMoreComment = async () => {
         isLoadingMore.value = false;
     }
 }
+watch(postCommentMode, (newVal, oldVal) => {
+    if(newVal !== oldVal){
+        comment.value[0].splice(0, comment.value[0].length);
+        loadMoreComment();
+    }
+})
 const commentClicked = (index) => {
     const commentWhichClicked = comment.value[comment.value.length - 1][index];
     history.value.push(commentWhichClicked);
@@ -252,28 +281,55 @@ const addOneCommentAtFirst = (res) => {
 }
 
 //lifespans
-onBeforeMount(() => {
+onBeforeMount(async () => {
     let postId = route.params.id;
     if(postId === null || postId === undefined) {
         router.push({ name: 'Home'});
     }
+    commentMode.value = !!route.query.comment;
     id.value = route.params.id;
+    
+    // data loading
+    postLoading.value = true;
+    if(commentMode.value){
+        try{
+            let res = await apiGetCommentParentChain(id.value);
+            postInfo.value = res.post;
+            id.value = postInfo.value;
+            const comments = res.comments;
+            comments.forEach((item) => {
+                history.value.push(item);
+                comment.value.push([]);
+            })
+            postLoading.value = false;
+        } catch (e){}
+        commentLoading.value = false;
+    } else {
+        try {
+            postInfo.value = await apiGetPostById(id.value);
+        } catch (e) {}
+        postLoading.value = false;
+        commentLoading.value = true;
+        comment.value.push([]);
+        nextTick(async () => {
+            // scroll to the bottom
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth' // 平滑滚动
+            });
+            // comment
+            try {
+                let res = await apiGetCommentListHot(id.value, 0);
+                comment.value[0].push(... res);
+            } catch (e){} finally {
+                commentLoading.value = false;
+            }
+        })
+    }
 })
 
 onMounted(async () => {
-    postLoading.value = true;
-    try {
-        postInfo.value = await apiGetPostById(id.value);
-    } catch (e) {}
-    postLoading.value = false;
-    commentLoading.value = true;
-    comment.value.push([]);
-    try {
-        let res = await apiGetCommentList(true, id.value, null);
-        // commentInit(res);
-        comment.value[0].push(... res);
-    } catch (e){}
-    commentLoading.value = false;
+
 })
 
 </script>

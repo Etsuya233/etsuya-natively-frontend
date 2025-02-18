@@ -1,5 +1,5 @@
 <template>
-    <Tag :value="`${t('lang.' + props.lang + 'Abbr')} · ${props.proficiency}`" :severity="severity" class="h-5 !rounded-full" pt:label:class="!text-xs"/>
+    <Tag :value="`${t('lang.' + props.lang + 'Abbr')}` + (props.proficiency? ` · ${props.proficiency}`: '')" :severity="severity" class="h-5 !rounded-full" pt:label:class="!text-xs"/>
 </template>
 
 <script setup>
@@ -14,15 +14,15 @@ const props = defineProps({
         default: 'en',
     },
     proficiency: {
-        default: 1
+        default: null
     }
 })
 
 const severity = computed(() => {
-    if(props.proficiency === 1 || props.proficiency === 2) return 'secondary';
-    else if(props.proficiency === 3) return 'warn';
+    if(props.proficiency === 3) return 'warn';
     else if(props.proficiency === 4) return 'info';
-    else return 'success';
+    else if(props.proficiency === 5) 'success';
+    else return 'secondary';
 })
 </script>
 

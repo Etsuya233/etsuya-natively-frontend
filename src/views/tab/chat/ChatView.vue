@@ -14,46 +14,46 @@
         <div class="flex flex-col gap-3 px-3 my-3 min-h-[calc(100vh-8.5rem)]">
             <ELoadMore :loading="loadingMore" @click="loadMoreOldMsg" />
             <div v-for="(item, index) in msgs" class="">
-                <div class="flex justify-center" v-if="index === 0 || msgs[index].date !== msgs[index - 1].date">
-                    <div class="text-sm w-fit bg-slate-100 text-slate-600 py-1 px-2 mb-3 rounded-full">
-                        {{item.date}}
+                <div class="flex justify-center" v-if="index === 0 || msgs[index].time.date !== msgs[index - 1].time.date">
+                    <div class="text-sm w-fit bg-slate-100 dark:bg-surface-800 text-slate-600 dark:text-surface-400 py-1 px-2 mb-3 rounded-full">
+                        {{ item.time.date }}
                     </div>
                 </div>
                 <div v-if="meId === item.senderId" class="w-full pl-8">
                     <div v-if="item.type === 1" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary whitespace-pre-line
-                    hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors" @click="openMsgMenu(item)">
+                    hover:bg-primary-emphasis text-white dark:text-surface-900 rounded-2xl float-right select-text transition-colors" @click="openMsgMenu(item)">
                         {{item.content}}
-                        <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{item.time.substring(0, 5)}}</div>
+                        <div class="text-xs inline-block translate-y-1/2 float-right text-white dark:text-surface-700">&nbsp;{{item.time.time}}</div>
                     </div>
                     <div v-else-if="item.type === 2" class="w-fit float-right max-w-[28rem] min-w-24 relative h-36 rounded-2xl overflow-hidden border" @click="openMsgMenu(item)" >
                         <img class="h-full w-full object-cover" :src="item.content" alt="image"/>
-                        <div class="absolute text-xs inline-block bottom-2 right-2 bg-slate-700/30 text-slate-100 px-1 rounded-full">
-                            {{item.time.substring(0, 5)}}
+                        <div class="absolute text-xs inline-block bottom-2 right-2 bg-slate-700/30 text-white  px-1 rounded-full">
+                            {{ item.time.time }}
                         </div>
                     </div>
                     <div v-else-if="item.type === 3" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 border border-primary bg-primary
                     hover:bg-primary-emphasis text-white rounded-2xl float-right select-text transition-colors" @click="openMsgMenu(item)">
                         <audio :src="item.content" controls />
-                        <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{item.time.substring(0, 5)}}</div>
+                        <div class="text-xs inline-block translate-y-1/2 float-right">&nbsp;{{ item.time.time }}</div>
                     </div>
                     <div v-else></div>
                 </div>
                 <div v-else class="w-full pr-8">
-                    <div v-if="item.type === 1" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
-                        hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900" @click="openMsgMenu(item, $event)">
+                    <div v-if="item.type === 1" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 dark:bg-surface-800 border-slate-100
+                        hover:bg-slate-200 hover:dark:bg-surface-700 transition-colors rounded-2xl select-text text-slate-900 dark:text-surface-100" @click="openMsgMenu(item, $event)">
                         {{item.content}}
-                        <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.substring(0, 5)}}</div>
+                        <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600 dark:text-surface-300">&nbsp;&nbsp;{{item.time.time}}</div>
                     </div>
                     <div v-else-if="item.type === 2" class="w-fit max-w-[28rem] min-w-24 relative h-36 rounded-2xl overflow-hidden border" @click="openImageMenu($event)">
                         <img class="h-full w-full object-cover" :src="item.content" alt="image"/>
                         <div class="absolute text-xs inline-block bottom-2 right-2 bg-slate-700/30 text-slate-100 px-1 rounded-full">
-                            {{item.time.substring(0, 5)}}
+                            {{item.time.time}}
                         </div>
                     </div>
                     <div v-else-if="item.type === 3" class="w-fit max-w-[28rem] overflow-hidden text-ellipsis p-3 bg-slate-100 border-slate-100
                         hover:bg-slate-200 transition-colors rounded-2xl select-text text-slate-900">
                         <audio :src="item.content" controls />
-                        <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.substring(0, 5)}}</div>
+                        <div class="text-xs inline-block translate-y-1/2 float-right text-slate-600">&nbsp;&nbsp;{{item.time.time}}</div>
                     </div>
                     <div v-else></div>
                 </div>
@@ -64,7 +64,7 @@
         </div>
         
 <!--        Input -->
-        <div class="sticky bottom-14 md:bottom-0 flex flex-col bg-blur p-2 border-t transition-all transform-gpu"
+        <div class="sticky bottom-14 md:bottom-0 flex flex-col bg-blur p-2 border-t border-surface transition-all transform-gpu"
             :class="{ '!animate-pulse': chatStore.sending }">
             <ETransition name="scale">
                 <div class="absolute bottom-[4.5rem] right-4" v-if="!isAtBottom" @click="goBottom" :class="{ 'bottom-40': tools }">
@@ -84,7 +84,7 @@
                 <textarea :disabled="chatStore.sending" @keydown.shift.enter="sendTextMsg"
                           @input="changeTextareaHeight" v-model="msgContent" ref="textArea"
                           class="h-10 outline-none text-base py-2 px-4 rounded-[1.25rem] ring-1 resize-none w-0
-                          ring-slate-300 bg-slate-100/60 flex-1 caret-primary-emphasis"
+                          ring-slate-300 dark:ring-surface-700 bg-slate-100/60 dark:bg-surface-800/60 flex-1 caret-primary-emphasis"
                           :placeholder="chatStore.sending? t('chat.sending'): t('chat.message')"></textarea>
                 <Button :disabled="!msgContent || chatStore.sending" icon="pi pi-send" rounded
                         pt:root:class="!h-10 !w-10 !py-0 !flex-shrink-0" @click="sendTextMsg"/>
@@ -118,7 +118,7 @@
                     <EListItem v-for="item in msgMenuItem[selectedMsg.type]" :icon="item.icon" :title="item.label" @click="item.command" />
                 </EList>
                 <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
-                    <Button :label="t('chat.times')" severity="secondary" @click="msgMenuVisible = false" icon="pi pi-check" class="!rounded-xl" />
+                    <Button icon="pi pi-times" :label="t('chat.close')" severity="secondary" @click="msgMenuVisible = false" class="!rounded-xl" />
                 </div>
             </div>
         </Drawer>
@@ -150,6 +150,7 @@ import Drawer from "primevue/drawer";
 import {apiCreateBookmark} from "@/api/postV2.js";
 import ELoadMore from "@/components/etsuya/ELoadMore.vue";
 import {useSelect} from "@/utils/selection.js";
+import {formatDate} from "../../../utils/date.js";
 
 const userStore = useUserStore();
 const {isScrollDown, isAtBottom, isAtTop} = useScroll();
@@ -189,7 +190,6 @@ const loadMoreOldMsg = async () => {
         await doLoadMore();
         await nextTick(() => {
             let scrollYPos = document.documentElement.scrollHeight - heightToBottom;
-            console.log(heightToBottom, document.documentElement.scrollHeight, scrollYPos);
             window.scrollTo(0, scrollYPos);
         })
     }
@@ -361,7 +361,7 @@ onMounted(async () => {
         const latestMsg = msgs.value[msgs.value.length - 1];
         latestMsgId = latestMsg? latestMsg.id: 0;
     } catch (e){
-        console.log(e);
+    
     } finally {
         loadingMore.value = false;
     }

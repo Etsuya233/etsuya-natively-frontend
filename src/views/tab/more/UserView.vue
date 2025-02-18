@@ -16,8 +16,8 @@
             <div class="h-32 w-full overflow-hidden">
                 <img class="w-full h-full object-cover blur scale-125" :src="userInfo.avatar" alt="banner"/>
             </div>
-            <div class="absolute top-[4.5rem] left-4">
-                <img class="w-28 h-28 rounded-full ring-4 ring-white" :src="userInfo.avatar" alt="avatar"/>
+            <div class="absolute top-[4.5rem] left-4 w-28 h-28">
+                <img class="w-full h-full rounded-full ring-4 ring-white object-cover" :src="userInfo.avatar" alt="avatar"/>
             </div>
             <div class="w-full h-12 flex">
                 <div class="ml-auto mt-2 mr-3 *:ml-2">
@@ -27,7 +27,7 @@
                             :label="userFollowButtonInfo.label"
                             :loading="followLoading"
                             @click="followClicked"/>
-                    <Button class="!border-none" outlined rounded icon="pi pi-ellipsis-v" severity="secondary" size="small" />
+                    <Button v-if="!isMe" rounded icon="pi pi-envelope" :label="t('user.chat')" severity="secondary" @click="router.push({ name: 'Chat', params: { id: userInfo.id }})" />
                 </div>
             </div>
             <div class="px-4 flex flex-col pt-4 pb-3 w-full">
@@ -38,27 +38,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-slate-600">@{{userInfo.username}}</div>
+                <div class="text-slate-600 dark:text-surface-400">@{{userInfo.username}}</div>
                 <div class="pt-2 flex gap-2">
-                    <ELangProgress v-for="(lang, index) in userInfo.languages" :key="index" :lang="lang.lang" :proficiency="lang.proficiency" />
+                    <ELangProgress v-for="(lang, index) in userInfo.languages" :key="index" :lang="lang.language" :proficiency="lang.proficiency" />
+                </div>
+                <div class="pt-2 text-slate-800 dark:text-surface-100">
+                    {{ userInfo.bio }}
                 </div>
                 <div class="pt-2">
                     <span class="hover:underline" @click="router.push({ name: 'UserFollowing', params: { id: userInfo.id }})">
                         <span class="font-bold">{{userInfo.following}}</span>
-                        <span class="text-slate-600 pr-4">&nbsp{{t('user.following')}}</span>
+                        <span class="text-slate-600 dark:text-surface-400 pr-4">&nbsp{{t('user.following')}}</span>
                     </span>
                     <span class="hover:underline" @click="router.push({ name: 'UserFollower', params: { id: userInfo.id }})">
                         <span class="font-bold">{{userInfo.followers}}</span>
-                        <span class="text-slate-600">&nbsp{{t('user.followers')}}</span>
+                        <span class="text-slate-600 dark:text-surface-400">&nbsp{{t('user.followers')}}</span>
                     </span>
                 </div>
             </div>
             <Divider class="!my-0" />
             
             
-            <div class="flex flex-col divide-surface-200">
-                <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-2 border-b">
-                    <PostCard v-model="posts[index]" :show-user="false" />
+            <div class="flex flex-col">
+                <div v-for="(item, index) in posts" :key="item.id" @click="postClicked(item)" class="w-full px-4 py-3 border-b border-surface">
+                    <PostCard v-model="posts[index]" :show-user="false" :lite-mode="true" :show-footer="false" />
                 </div>
                 <ELoadMore :loading="postLoading" />
             </div>
@@ -119,7 +122,7 @@ let userInfo = ref({
     "createTime": "",
     "updateTime": "",
     languages: [],
-    relationship: 0
+    relationship: 0,
 });
 
 // follow

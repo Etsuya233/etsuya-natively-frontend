@@ -4,6 +4,7 @@ import SockJS from 'sockjs-client/dist/sockjs.min.js';
 import * as StompJs from '@stomp/stompjs';
 import {getCurrentLanguage} from "@/utils/language.js";
 import {useToast} from "@/utils/toast.js";
+import {stompConstant} from "@/constant/stompConstant.js";
 
 const toast = useToast();
 
@@ -17,53 +18,7 @@ export const useWsStore = defineStore('ws', () => {
     /**
      * StompClient
      */
-    let stompClient = ref(new StompJs.Client({
-        connectHeaders: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            Language: getCurrentLanguage()
-        },
-        reconnectDelay: 5000,
-        webSocketFactory: () => {
-            return new SockJS("/api/websocket/connect");
-        },
-        onConnect: (frame) => {
-            connected.value = true;
-            stompClient.value.subscribe("/user/queue/system", (res) => {
-                const body = JSON.parse(res.body);
-                if(body.code === 200){
-                    toast.add({
-                        title: `System: ${body.code}`,
-                        content: body.msg,
-                        type: 'info',
-                        timeout: 3000
-                    })
-                } else {
-                    toast.add({
-                        title: `Error: ${body.code}`,
-                        content: body.msg,
-                        type: 'error',
-                        timeout: 3000
-                    })
-                }
-            })
-        },
-        onDisconnect: () => {
-            console.log('Disconnected');
-            connected.value = false;
-        },
-        onStompError: (frame) => {
-            console.log('Stomp error:', frame);
-            connected.value = stompClient.value.connected;
-        },
-        onWebSocketError: (event) => {
-            console.log('WebSocket error:', event);
-            connected.value = stompClient.value.connected;
-        },
-        onWebSocketClose: () => {
-            console.log('WebSocket closed');
-            connected.value = stompClient.value.connected;
-        }
-    }));
+    let stompClient = ref();
 
     /**
      * 重置
@@ -85,6 +40,79 @@ export const useWsStore = defineStore('ws', () => {
      * 连接至 WebSocket
      */
     const connect = () => {
+        stompClient.value = new StompJs.Client({
+            connectHeaders: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                Language: getCurrentLanguage()
+            },
+            debug: (str) => {
+                console.log(str);
+            },
+            heartbeatIncoming: 15000,
+            heartbeatOutgoing: 15000,
+            reconnectDelay: 5000,
+            webSocketFactory: () => {
+                try {
+                    return new SockJS("/api/websocket/connect");
+                } catch (e){}
+            },
+            onConnect: (frame) => {
+                connected.value = true;
+                // system msg
+                stompClient.value.subscribe(stompConstant.system, (res) => {
+                    const body = JSON.parse(res.body);
+                    if(body.code === 200){
+                        toast.add({
+                            title: `System: ${body.code}`,
+                            content: body.msg,
+                            type: 'info',
+                            timeout: 3000
+                        })
+                    } else {
+                        toast.add({
+                            title: `Error: ${body.code}`,
+                            content: body.msg,
+                            type: 'error',
+                            timeout: 3000
+                        })
+                    }
+                });
+                stompClient.value.subscribe(stompConstant.userSystem, (res) => {
+                    const body = JSON.parse(res.body);
+                    if(body.code === 200){
+                        toast.add({
+                            title: `System: ${body.code}`,
+                            content: body.msg,
+                            type: 'info',
+                            timeout: 3000
+                        })
+                    } else {
+                        toast.add({
+                            title: `Error: ${body.code}`,
+                            content: body.msg,
+                            type: 'error',
+                            timeout: 3000
+                        })
+                    }
+                })
+            },
+            onDisconnect: () => {
+                console.log('Disconnected');
+                connected.value = false;
+            },
+            onStompError: (frame) => {
+                console.log('Stomp error:', frame);
+                connected.value = stompClient.value.connected;
+            },
+            onWebSocketError: (event) => {
+                console.log('WebSocket error:', event);
+                connected.value = stompClient.value.connected;
+            },
+            onWebSocketClose: () => {
+                console.log('WebSocket closed');
+                connected.value = stompClient.value.connected;
+            }
+        });
         stompClient.value.activate();
     }
 

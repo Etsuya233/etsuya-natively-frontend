@@ -79,12 +79,12 @@ export const apiCreateComment = (data) => {
     })
 }
 
-export const apiGetCommentList = (post, id, lastId) => {
+export const apiGetCommentList = (post, id, lastId, sort) => {
     return request({
         url: `${baseUrl}/comments`,
         method: 'GET',
         params: {
-            post, id, lastId
+            post, id, lastId, sort
         },
     })
 }
@@ -172,6 +172,26 @@ export const apiDeleteComment = (id) => {
         method: 'DELETE',
         data: {
             id
+        }
+    })
+}
+
+export const apiGetCommentParentChain = (id) => {
+    return request({
+        url: `${baseUrl}/comment/parent`,
+        method: 'GET',
+        params: {
+            id
+        }
+    })
+}
+
+export const apiGetCommentListHot = (id, count) => {
+    return request({
+        url: `${baseUrl}/comments/hot`,
+        method: 'GET',
+        params: {
+            id, count
         }
     })
 }

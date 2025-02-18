@@ -6,6 +6,7 @@
             <EList icon="pi pi-user" :title="t('user.basicInformation')">
                 <EListInput :title="t('user.username')" v-model="userInfo.username" />
                 <EListInput :title="t('user.nickname')" v-model="userInfo.nickname" />
+                <EListInput :title="t('user.bio')" v-model="userInfo.bio" />
                 <EListInput :title="t('user.email')" v-model="userInfo.email" />
                 <EListItem enable-slot @click="avatarClicked" :class="{ 'cursor-not-allowed': avatarLoading }" >
                     <div class="flex items-center">
@@ -28,14 +29,11 @@
                 </EListItem>
             </EList>
             <Button class="!rounded-2xl" severity="secondary" icon="pi pi-plus" :label="t('user.addLanguage')" @click="addLanguage" />
+            <div class="sticky bottom-[4.5rem] md:bottom-4">
+                <Button @click="updateUserInfo" :loading="userInfoUpdating" class="!rounded-2xl w-full shadow-2xl" severity="primary" :label="t('user.save')" icon="pi pi-save" />
+            </div>
+            <Divider />
             <EList icon="pi pi-link" :title="t('user.linkedAccount')">
-                <EListItem enable-slot>
-                    <div>
-                        {{ t('user.linkedAccountChangePrompt') }}
-                    </div>
-                </EListItem>
-            </EList>
-            <EList>
                 <EListItem enable-slot v-for="item in linkedServices">
                     <div class="flex items-center gap-4">
                         <div :class="item.icon" class="flex-shrink-0"></div>
@@ -45,9 +43,16 @@
                     </div>
                 </EListItem>
             </EList>
-            <div class="sticky bottom-[4.5rem] md:bottom-4">
-                <Button @click="updateUserInfo" :loading="userInfoUpdating" class="!rounded-2xl w-full shadow-2xl" severity="primary" :label="t('user.save')" icon="pi pi-save" />
-            </div>
+            <Divider />
+            <EList icon="pi pi-key" :title="t('user.password')">
+                <EListInput :title="t('user.oldPassword')" v-model="passwordData.oldPassword" :attr="{ autocomplete: 'current-password' }" />
+                <EListInput :title="t('user.newPassword')" v-model="passwordData.newPassword" :attr="{ autocomplete: 'new-password' }" />
+                <EListInput :title="t('user.confirmNewPassword')" v-model="passwordData.confirmNewPassword" :attr="{ autocomplete: 'new-password' }" />
+            </EList>
+            <EListItem v-if="passwordData.error" rounded enable-slot danger>
+                {{ passwordData.error }}
+            </EListItem>
+            <Button class="!rounded-2xl shadow-2xl" :loading="passwordData.loading" icon="pi pi-reload" :label="t('user.update')" @click="changePassword" />
         </div>
         <Dialog class="min-w-80 max-w-[95%]" v-model:visible="addLangDialog" modal :header="langEditing >= 0? t('common.edit'): t('login.addALanguage')">
             <div class="mb-4 flex flex-col gap-2">
@@ -89,13 +94,53 @@ import Message from "primevue/message";
 import Skeleton from "primevue/skeleton";
 import ProgressBar from "primevue/progressbar";
 import {giteeOauthLink, githubOauthLink, googleOauthLink} from "@/utils/oauth.js";
-import {apiGetUserLinkedAccounts, apiModifyUser, apiOauthUnlink, apiUserAvatarUpload} from "@/api/user.js";
+import {
+    apiChangePassword,
+    apiGetUserLinkedAccounts,
+    apiModifyUser,
+    apiOauthUnlink,
+    apiUserAvatarUpload
+} from "@/api/user.js";
 import {useToast} from "@/utils/toast.js";
+import Divider from "primevue/divider";
+import {passwordRegex} from "@/utils/regex.js";
+import {useRouter} from "vue-router";
 
 const { t, locale, availableLocales } = useI18n();
 const userStore = useUserStore();
 const languageStore = useLanguageStore();
 const toast = useToast();
+const router = useRouter();
+
+// password
+const passwordData = ref({
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
+    error: '',
+    loading: false,
+})
+const changePassword = async () => {
+    if(passwordData.value.newPassword !== passwordData.value.confirmNewPassword){
+        passwordData.value.error = t('user.newPasswordNotMatch');
+    } else if(!passwordRegex.test(passwordData.value.newPassword)){
+        passwordData.value.error = t('login.passwordContentLimit');
+    }
+    if(!passwordData.value.error){
+        passwordData.value.loading = true;
+        try{
+            await apiChangePassword(passwordData.value.oldPassword, passwordData.value.newPassword);
+            toast.add({
+                content: t('user.changePasswordSuccessPrompt'),
+            });
+            setTimeout(() => {
+                router.push({ name: 'Welcome'});
+            }, 500);
+        } catch (e) {} finally {
+            passwordData.value.loading = false;
+        }
+    }
+}
 
 // userInfo
 const firstLoading = ref(true);

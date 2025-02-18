@@ -33,6 +33,7 @@ app.use(
         autoClose: 3000,
         position: toast.POSITION.TOP_CENTER,
         transition: toast.TRANSITIONS.SLIDE,
+        clearOnUrlChange: false
     }
 );
 app.directive('tooltip', Tooltip);

@@ -7,6 +7,10 @@
         backdrop-filter: blur(60px) saturate(220%);
         background-color: hsla(0, 0%, 100%, 0.84);
     }
+    .dark .bg-blur {
+        background-color: inherit; /* 深灰底色 */
+        backdrop-filter: blur(60px) saturate(160%); /* 微调饱和度 */
+    }
 }
 
 @font-face {

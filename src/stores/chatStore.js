@@ -6,6 +6,8 @@ import {useToast} from "@/utils/toast.js";
 import {useWsStore} from "@/stores/wsStore.js";
 import {apiGetUser} from "@/api/user.js";
 import ChatNotification from "@/components/natively/ChatNotification.vue";
+import {formatDate} from "@/utils/date.js";
+import {stompConstant} from "@/constant/stompConstant.js";
 
 const toast = useToast();
 
@@ -18,13 +20,8 @@ export const useChatStore = defineStore('chat', () => {
                 const userStore = useUserStore();
                 const meId = userStore.userInfo.id;
 
-                // system msg
-                wsStore.stompClient.subscribe("/topic/system", (res) => {
-                    console.log(JSON.parse(res.body));
-                });
-
                 // chat message
-                wsStore.stompClient.subscribe("/user/queue/chat/message", async (res) => {
+                wsStore.stompClient.subscribe(stompConstant.userChat, async (res) => {
                     const response = JSON.parse(res.body);
                     if(response.code === 200){
 
@@ -33,10 +30,13 @@ export const useChatStore = defineStore('chat', () => {
                         const receiverId = body.senderId === meId? body.receiverId: body.senderId;
 
                         // make sure conversation exist
-                        const conversation = await getConversation(receiverId)
+                        const conversation = await getConversation(receiverId);
 
                         // make sure user msg list exists
                         const msgList = getMessageList(receiverId);
+
+                        // time
+                        body.time = formatDate(body.timestamp);
 
                         // save msg
                         msgList.push(body);
@@ -52,18 +52,19 @@ export const useChatStore = defineStore('chat', () => {
                                 contentProps: {
                                     nickname: userInfo.nickname,
                                     content: body.content,
-                                    avatar: userInfo.avatar
+                                    avatar: userInfo.avatar,
+                                    userId: receiverId
                                 },
                                 onClick: () => {
-                                    // const router = useRouter();
-                                    // router.push({ name: 'Chat', params: { id: receiverId }});
+
                                 }
                             })
                         }
 
                         // conversation
                         conversation.lastId = body.id;
-                        conversation.lastTimeDisplay = body.time; // todo its it okay?
+                        conversation.timestamp = body.timestamp;
+                        conversation.time = formatDate(body.timestamp);
                         conversation.content = body.content;
 
                         // unread
@@ -95,8 +96,6 @@ export const useChatStore = defineStore('chat', () => {
     let sending = ref(false); // TODO multi tab
 
     function $reset(){
-        const wsStore = useWsStore();
-        // wsStore.stompClient.unsubscribe("/user/queue/chat");
         // 清空会话映射表
         conversationMap.value.clear();
         // 清空消息映射表
@@ -117,34 +116,42 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     // Conversation
+    const loadingMoreConversation = ref(false);
     async function getConversation(receiverId){
         let user = await getUserInfo(receiverId);
         let conversation = conversationMap.value.get(receiverId);
         if(!conversation){
             conversation = {
-                receiverId, nickname: user.nickname, avatar: user.avatar, unread: 0
+                receiverId, nickname: user.nickname, avatar: user.avatar, unread: 0, timestamp: 0
             };
+            conversationMap.value.set(receiverId, conversation);
+            conversation = conversationMap.value.get(receiverId);
         }
-        conversationMap.value.set(receiverId, conversation);
         return conversation;
     }
     async function loadMoreConversation(){
-        // get the last id
-        let lastId = BigInt("9223372036854775807");
-        for(const conversation of conversationMap.value.values()){
-            if(conversation.lastId && BigInt(conversation.lastId) < lastId){
-                lastId = BigInt(conversation.lastId);
+        loadingMoreConversation.value = true;
+        try {
+            // get the last id
+            let lastId = BigInt("9223372036854775807");
+            for(const conversation of conversationMap.value.values()){
+                if(conversation.lastId && BigInt(conversation.lastId) < lastId){
+                    lastId = BigInt(conversation.lastId);
+                }
             }
+            if(lastId === BigInt("9223372036854775807")){
+                lastId = null;
+            }
+            let lastIdStr = lastId === null? null : lastId.toString();
+            // query
+            let res = await apiGetConversations(lastIdStr);
+            res.forEach((conversation) => {
+                conversation.time = formatDate(conversation.timestamp);
+                conversationMap.value.set(conversation.receiverId, conversation);
+            })
+        } catch (e){} finally {
+            loadingMoreConversation.value = false;
         }
-        if(lastId === BigInt("9223372036854775807")){
-            lastId = null;
-        }
-        let lastIdStr = lastId === null? null : lastId.toString();
-        // query
-        let res = await apiGetConversations(lastIdStr);
-        res.forEach((conversation) => {
-            conversationMap.value.set(conversation.receiverId, conversation);
-        })
     }
     function isConversationEmpty(){
         return conversationMap.value.size === 0;
@@ -180,6 +187,9 @@ export const useChatStore = defineStore('chat', () => {
         let lastIdStr = lastId === null? null : lastId.toString();
         // query
         let res = await apiGetMoreOldMessage(userId, lastIdStr);
+        res.forEach((msg) => {
+            msg.time = formatDate(msg.timestamp);
+        });
         msgs.unshift(... res);
     }
 
@@ -197,6 +207,12 @@ export const useChatStore = defineStore('chat', () => {
         return msgs;
     }
 
+    const orderedConversation = computed(() => {
+        return Array.from(conversationMap.value.values()).sort((a, b) => {
+            return parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10);
+        })
+    })
+
     /**
      * 清除未读消息
      * @param userId
@@ -213,6 +229,6 @@ export const useChatStore = defineStore('chat', () => {
         });
     }
 
-    return { init, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, getMessageList,
-        isConversationEmpty, sendTextMsg, sending, clearUnread, $reset, getUserInfo};
+    return { init, loadMoreConversation, loadMoreOldMessage, conversationMap, msgMap, getMessageList, loadingMoreConversation,
+        orderedConversation, isConversationEmpty, sendTextMsg, sending, clearUnread, $reset, getUserInfo};
 });

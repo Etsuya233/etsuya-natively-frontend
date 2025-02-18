@@ -1,5 +1,7 @@
 import { createWebHashHistory, createRouter, createWebHistory } from 'vue-router';
 import {usePageStore} from "@/stores/pageStore.js";
+import {pageTransition} from "@/utils/transitionHelper.js";
+import {useI18n} from "vue-i18n";
 
 const routes = [
     {
@@ -33,7 +35,7 @@ const routes = [
                     component: 'ComposeView',
                     nav: true,
                     navTransparent: false,
-                    keepAlive: false,
+                    keepAlive: true,
                     tab: 'Home',
                     keepAliveParent: true
                 }
@@ -257,16 +259,18 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
-    scrollBehavior(to, from, savedPosition) {
+    async scrollBehavior(to, from, savedPosition) {
         // 如果通过浏览器前进/后退触发，且存在保存的滚动位置
         const pageStore = usePageStore();
         const y = pageStore.getScrollY(to?.meta.component);
 
+        // await pageTransition();
         if(y){
             return { top: y }
         } else if (savedPosition) {
             return savedPosition;
         }
+
         return { top: 0 };
     },
 });
@@ -277,9 +281,11 @@ router.beforeEach((to, from, next) => {
     const toComponentName = to?.meta.component;
     const fromComponentName = from?.meta.component;
 
+
+
     if(!to?.meta.keepAliveParent && from && !from?.meta.keepAlive){
         if(fromComponentName){
-            console.log('Remove keep alive: ', fromComponentName);
+            // console.log('Remove keep alive: ', fromComponentName);
             pageStore.removeComponent(fromComponentName);
         }
     }
@@ -292,7 +298,7 @@ router.beforeEach((to, from, next) => {
 
     if(to?.meta.keepAliveParent){
         if(fromComponentName){
-            console.log('Keep alive parent and save y position: ', fromComponentName);
+            // console.log('Keep alive parent and save y position: ', fromComponentName);
             pageStore.addComponent(fromComponentName);
             pageStore.setScrollY(fromComponentName, window.scrollY)
         }
@@ -300,12 +306,16 @@ router.beforeEach((to, from, next) => {
 
     if(to?.meta.keepAlive){
         if(toComponentName){
-            console.log('Keep alive: ', toComponentName);
+            // console.log('Keep alive: ', toComponentName);
             pageStore.addComponent(toComponentName);
         }
     }
 
     next();
 });
+
+router.afterEach((to, from) => {
+
+})
 
 export default router;

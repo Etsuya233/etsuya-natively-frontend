@@ -141,3 +141,13 @@ export const apiModifyUser = (data) => {
         data: data
     })
 }
+
+export const apiChangePassword = (oldPassword, newPassword) => {
+    return request({
+        url: `${baseUrl}/password`,
+        method: 'PUT',
+        data: {
+            oldPassword, newPassword
+        }
+    })
+}

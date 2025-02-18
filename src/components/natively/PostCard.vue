@@ -1,11 +1,15 @@
 <template>
-    <div class="w-full relative dark:bg-inherit rounded-lg flex flex-col gap-2 cursor-pointer">
+    <div class="w-full relative dark:bg-inherit flex flex-col gap-2 cursor-pointer">
         <div v-if="props.rank" class="absolute right-0 top-0">
-            <div class="text-surface-200/70 text-6xl font-bold">
+            <div class="text-surface-300/70 dark:text-surface-700/70 text-6xl -z-10 font-bold">
                 {{props.rank}}
             </div>
         </div>
-        <div v-if="props.showUser" class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: post.userId }})">
+        <div class="w-full flex text-surface-600 dark:text-surface-400">
+            <ELangProgress v-for="item in post.languages" :lang="item" class="mr-2" />
+            <div v-if="post.createTime" class="text-sm flex-shrink-0">·&nbsp;{{post.createTime}}</div>
+        </div>
+        <div v-if="props.showUser && !props.liteMode" class="flex w-full" @click.stop="router.push({ name: 'User', params: { id: post.userId }})">
             <div class="h-13 w-11 flex-shrink-0 overflow-hidden flex justify-center items-start">
                 <div class="h-11 w-11 rounded-full overflow-hidden mt-1">
                     <img class="w-full h-full object-cover" :src="post.avatar" alt="avatar"/>
@@ -15,7 +19,6 @@
                 <div class="pl-3 overflow-hidden min-w-0">
                     <div class="w-full flex items-center cursor-text">
                         <div class="text-ellipsis overflow-hidden break-words whitespace-nowrap">{{post.nickname}}</div>
-                        <div v-if="post.createTime" class="text-sm text-slate-600 dark:text-slate-100 flex-shrink-0">&nbsp;·&nbsp;{{post.createTime}}</div>
                     </div>
                 </div>
                 <div class="min-h-5 flex flex-wrap gap-2 pl-[0.675rem] w-full mt-[0.25rem]">
@@ -23,23 +26,20 @@
                 </div>
             </div>
         </div>
-        <div v-if="post.title" class="">
-            <div class="inline-block mr-2 align-top" v-if="post.type === 2">
-                <Tag value="Question" class="h-6"/>
-            </div>
-            <div class="inline font-bold text-lg text-slate-900 dark:text-inherit md:select-text cursor-text">
+        <div class="w-full flex flex-col text-surface-800 dark:text-surface-100">
+            <div v-if="post.title" class="inline font-bold text-lg md:select-text cursor-text">
                 {{post.title}}
             </div>
-        </div>
-        <div v-if="props.fullMode" class="cursor-text text-slate-800">
-            <PostRenderer :content="post.content" />
-        </div>
-        <div v-if="props.searchMode" class="line-clamp-3">
-            <div class="searchContent" v-html="post.highlightedContent"></div>
-        </div>
-        <div v-if="!props.fullMode && !props.searchMode" class="line-clamp-5 cursor-text text-slate-800 dark:text-inherit">
-            <span class="md:select-text whitespace-pre-line">{{post.content}}</span>
-            <span class="inline mr-2 align-top" v-if="post.hasMore">…</span>
+            <div v-if="props.fullMode" class="cursor-text">
+                <PostRenderer :content="post.content" />
+            </div>
+            <div v-if="props.searchMode" class="line-clamp-3">
+                <div class="searchContent" v-html="post.highlightedContent"></div>
+            </div>
+            <div v-if="!props.fullMode && !props.searchMode" class="line-clamp-5 cursor-text">
+                <span class="md:select-text whitespace-pre-line">{{post.content.trim()}}</span>
+                <span class="inline mr-2 align-top" v-if="post.hasMore">…</span>
+            </div>
         </div>
         <div class="w-full" v-if="!props.fullMode && props.showAttachment && post.image">
             <img :src="post.image" class="w-full max-h-[20rem] rounded-xl border object-cover" alt="image"/>
@@ -58,7 +58,7 @@
                     @click.stop="" pt:icon:class="pl-1" pt:label:class="pr-1" />
             <Button v-if="props.showMore" class="ml-auto" text severity="secondary" size="small" icon="pi pi-ellipsis-v" @click.stop="openMenu" />
         </div>
-        <div v-if="props.showFooterLite" class="text-sm text-slate-600">
+        <div v-if="props.liteMode" class="text-sm text-surface-600 dark:text-surface-400">
             <div class="flex items-center space-x-2">
                 <div class="flex items-center">
                     <span class="pi pi-thumbs-up !text-sm"></span>&nbsp;
@@ -107,7 +107,6 @@
 </template>
 
 <script setup>
-import Tag from "primevue/tag";
 import ELangProgress from "@/components/etsuya/ELangProgress.vue";
 import Button from "primevue/button";
 import Drawer from "primevue/drawer";
@@ -150,7 +149,7 @@ const props = defineProps({
     rank: {
         default: null
     },
-    showFooterLite: {
+    liteMode: {
         default: false,
         type: Boolean
     },
@@ -265,5 +264,9 @@ const commented = (res) => {
     font-weight: bold;
     color: theme('colors.primary-700');
     overflow: hidden;
+}
+.dark .searchContent > em {
+    background-color: theme('colors.primary-900');
+    color: theme('colors.primary-300');
 }
 </style>

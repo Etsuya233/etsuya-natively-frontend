@@ -7,7 +7,7 @@
         </div>
         <div class="pl-5 flex-1 min-w-0 overflow-hidden">
             <div class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{{props.value.nickname}}</div>
-            <div class="text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis">@{{props.value.username}}</div>
+            <div class="text-slate-600 dark:text-surface-400 whitespace-nowrap overflow-hidden text-ellipsis">@{{props.value.username}}</div>
             <div>
                 <ELangProgress class="mr-2" v-for="(lang, index) in props.value.languages" :lang="lang.language" :proficiency="lang.proficiency" />
             </div>

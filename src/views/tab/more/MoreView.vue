@@ -3,7 +3,7 @@
         <EHeader :title="t('common.me')" :show-back="false" />
         <div class="w-full">
             <div class="w-full flex flex-col gap-4 p-4">
-                <div class="bg-slate-100 rounded-2xl flex px-4 py-3 cursor-pointer" @click="router.push({ name: 'User', params: { id: userStore.userInfo.id }})">
+                <div class="bg-slate-100 dark:bg-surface-800 rounded-2xl flex px-4 py-3 cursor-pointer" @click="router.push({ name: 'User', params: { id: userStore.userInfo.id }})">
                     <div class="h-12 w-12 flex-shrink-0">
                         <img class="rounded-full" :src="userStore.userInfo.avatar" alt="avatar"/>
                     </div>

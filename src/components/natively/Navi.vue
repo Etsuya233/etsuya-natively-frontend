@@ -23,8 +23,9 @@
                     <EListItem icon="pi pi-lightbulb" :title="t('navi.explain')" @click="explain"/>
                     <EListItem icon="pi pi-volume-up" :title="t('navi.pronounce')" @click="pronounce" />
                     <EListItem icon="pi pi-book" :title="t('navi.dictionary')" @click="dictionary" />
+                    <EListItem icon="pi pi-bookmark" :title="t('navi.bookmark')" @click="bookmark" />
                 </EList>
-                <Button :label="t('navi.close')" severity="secondary" class="!rounded-xl drop-shadow-2xl" @click="naviStore.visible = false" />
+                <Button :label="t('navi.close')" severity="secondary" class="!rounded-xl !sticky bottom-0 drop-shadow-2xl" @click="naviStore.visible = false" />
             </div>
             
             <!--                Ask -->
@@ -125,7 +126,7 @@
                 <div v-if="naviStore.page === 2" class="flex flex-col gap-4">
                     <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
                         <Button :label="t('navi.back')" icon="pi pi-arrow-left" severity="secondary" class="!rounded-xl" @click="pronounceBack" />
-                        <Button :label="t('navi.explain')" icon="pi pi-sparkles" class="!rounded-xl" @click="pronounce" />
+                        <Button :label="t('navi.pronounce')" icon="pi pi-volume-up" class="!rounded-xl" @click="pronounce" />
                     </div>
                 </div>
                 <div v-if="naviStore.page === 3" class="flex flex-col gap-4">
@@ -267,6 +268,26 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Bookmark -->
+            <div v-if="mode === 'bookmark'" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-4" v-if="naviStore.page !== 1">
+                    <EList icon="pi pi-align-left" :title="t('navi.content')">
+                        <EListItem enable-slot>
+                            <ETextarea v-model="bookmarkData.quote" :placeholder="t('navi.content')" />
+                        </EListItem>
+                    </EList>
+                    <EList icon="pi pi-comment" :title="t('navi.note')">
+                        <EListItem enable-slot>
+                            <ETextarea v-model="bookmarkData.note" :placeholder="t('navi.note')" />
+                        </EListItem>
+                    </EList>
+                    <div class="flex *:flex-1 gap-4 sticky bottom-0 drop-shadow-2xl">
+                        <Button :label="t('navi.back')" icon="pi pi-arrow-left" severity="secondary" class="!rounded-xl" @click="naviStore.page = 1" />
+                        <Button :label="t('navi.save')" :loading="bookmarkData.loading" icon="pi pi-save" class="!rounded-xl" @click="bookmark" />
+                    </div>
+                </div>
+            </div>
         </div>
     </Drawer>
 </template>
@@ -289,6 +310,8 @@ import Skeleton from "primevue/skeleton";
 import {apiNaviAsk, apiNaviExplain, apiNaviPronounce, apiNaviTranslate} from "@/api/naviV2.js";
 import MdRender from "@/components/natively/MdRender.vue";
 import PostCard from "@/components/natively/PostCard.vue";
+import {apiCreateBookmark} from "@/api/postV2.js";
+import LoadingNotification from "@/components/natively/LoadingNotification.vue";
 
 const { t, locale, availableLocales } = useI18n();
 
@@ -303,6 +326,36 @@ const counter = ref(1);
 // language
 const languageStore = useLanguageStore();
 
+// bookmark data
+const bookmarkData = ref({
+    quote: '',
+    note: '',
+    loading: false
+})
+const bookmark = () => {
+    if(naviStore.page === 1){
+        mode.value = 'bookmark';
+        bookmarkData.value.quote = '';
+        if(naviStore.quoteMode) {
+            bookmarkData.value.quote = naviStore.quote;
+        }
+        naviStore.page = 2;
+    } else {
+        bookmarkData.value.loading = true;
+        apiCreateBookmark(0, null, bookmarkData.value.quote, bookmarkData.value.note).then(() => {
+            naviStore.close();
+        }).catch(e => {}).finally(() => {
+            bookmarkData.value.loading = false;
+        })
+    }
+}
+watch(() => naviStore.bookmarkMode, (newVal, oldVal) => {
+    if(newVal){
+        naviStore.launch();
+        bookmark();
+    }
+})
+
 // dictionary
 const dictionaryLangSelector = ref(null);
 const dictionaryDicSelector = ref(null);
@@ -316,7 +369,7 @@ const dictionaryData = ref({
             { "name": "Oxford Learner's Dictionaries", "value": "ENO", "target": "en", "url": "https://www.oxfordlearnersdictionaries.com/definition/english/" },
             { "name": "Cambridge Learner's Dictionary", "value": "ENC", "target": "en", "url": "https://dictionary.cambridge.org/dictionary/learner-english/" },
             { "name": "Longman Dictionary of Contemporary English", "value": "ENL", "target": "en", "url": "https://www.ldoceonline.com/dictionary/" },
-            { "name": "柯林斯英语-汉语词典", "value": "ENCCE", "target": "zh", "url": "https://www.collinsdictionary.com/zh/dictionary/english-chinese" },
+            { "name": "柯林斯英语-汉语词典", "value": "ENCCE", "target": "zh", "url": "https://www.collinsdictionary.com/zh/dictionary/english-chinese/" },
             { "name": "Weblio英和和英辞典", "value": "ENW", "target": "ja", "url": "https://ejje.weblio.jp/content/" },
             { "name": "Collins English-French Dictionary", "value": "ENCEF", "target": "fr", "url": "https://www.collinsdictionary.com/us/dictionary/english-french/" },
             { "name": "Dictionnaire anglais-français | Cambridge Dictionary", "value": "ENCBEF", "target": "fr", "url": "https://dictionary.cambridge.org/fr/dictionnaire/anglais-francais/" },

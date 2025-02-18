@@ -1,7 +1,8 @@
 import {defineStore} from 'pinia';
-import {ref} from "vue";
+import {nextTick, ref} from "vue";
 import {useWsStore} from "@/stores/wsStore.js";
 import {getCurrentLanguage} from "@/utils/language.js";
+import {stompConstant} from "@/constant/stompConstant.js";
 
 export const useNaviStore = defineStore('naviStore', () => {
 
@@ -20,6 +21,9 @@ export const useNaviStore = defineStore('naviStore', () => {
     // quote
     const quoteMode = ref(false);
     const quote = ref('');
+
+    // specific
+    const bookmarkMode = ref(false);
 
     // todo stream identifier should not repeat easily.
     /**
@@ -48,12 +52,23 @@ export const useNaviStore = defineStore('naviStore', () => {
         visible.value = true;
     }
 
+    function awakeBookmark(){
+        bookmarkMode.value = false;
+        nextTick(() => {
+            bookmarkMode.value = true;
+        })
+    }
+
+    function close(){
+        visible.value = false;
+    }
+
     // init todo error handling
     const init = () => {
         const wsStore = useWsStore();
         wsStore.register({
             onConnect: () => {
-                wsStore.stompClient.subscribe("/user/queue/navi", (res) => {
+                wsStore.stompClient.subscribe(stompConstant.userNavi, (res) => {
                     const response = JSON.parse(res.body);
                     const body = response.data;
                     if(response.code === 200){
@@ -116,7 +131,7 @@ export const useNaviStore = defineStore('naviStore', () => {
         return streamStatus.value.get(id.toString());
     }
 
-    return { visible, menu, quoteMode, quote, page, launch, counter, streamOutput, streamStatus, init,
+    return { visible, menu, quoteMode, quote, page, launch, counter, streamOutput, streamStatus, init, close, bookmarkMode, awakeBookmark,
     sendAskStreamRequest, getStreamOutput, getStreamStatus, sendExplainStreamRequest, sendTranslateFastStreamRequest};
 
 });

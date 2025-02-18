@@ -1,10 +1,9 @@
 <template>
     <Drawer v-model:visible="visible" :header="t('voiceRecorder.title')" position="bottom" class="!rounded-t-2xl !z-20 !h-auto !max-h-[90dvh] !max-w-[35rem]">
         <div class="w-full flex flex-col pt-1">
-            
-            <Message severity="secondary" pt:text:class="!text-sm">
-                {{t('voiceRecorder.limit')}}
-            </Message>
+            <EListItem enable-slot rounded>
+                <div class="text-sm whitespace-pre-line">{{t('voiceRecorder.limit')}}</div>
+            </EListItem>
             <Divider/>
             <audio v-if="url" :src="url" controls></audio>
             <Divider v-if="url" />
@@ -23,7 +22,9 @@
                         :label="t('voiceRecorder.send')" />
             </div>
             <Divider v-if="error" />
-            <Message v-if="error" severity="error">{{ error }}</Message>
+            <EListItem v-if="error" enable-slot rounded danger>
+                {{ error }}
+            </EListItem>
         </div>
     </Drawer>
 </template>
@@ -35,6 +36,7 @@ import { useI18n } from "vue-i18n";
 import Divider from "primevue/divider";
 import Message from "primevue/message";
 import Drawer from "primevue/drawer";
+import EListItem from "@/components/etsuya/EListItem.vue";
 
 const emits = defineEmits(['send']);
 const props = defineProps({

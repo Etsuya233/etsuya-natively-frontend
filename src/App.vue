@@ -49,8 +49,10 @@ onBeforeMount(() => {
 :root {
     --toastify-color-info: theme('colors.primary');
     --toastify-color-success: theme('colors.primary');
+    --toastify-icon-color-info: theme('colors.primary');
+    --toastify-icon-color-success: theme('colors.primary');
 }
-.Toastify__toast-body>div:first-child {
+.Toastify__toast-body>div:last-child {
     width: 100%;
 }
 .Toastify__toast-body {

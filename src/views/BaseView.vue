@@ -1,13 +1,13 @@
 <template>
     <div class="flex justify-center">
-        <div class="flex w-full max-w-screen-xl">
+        <div class="flex w-full max-w-screen-xl justify-center">
         
 <!--            Navigation-->
-            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface z-50 bg-blur h-14 transition-opacity transform-gpu
+            <div class="fixed left-0 right-0 bottom-0 flex justify-evenly p-1 border-t border-surface z-50 bg-blur h-14
+            transition-opacity transform-gpu
             md:sticky md:top-0 md:right-auto md:flex-col md:justify-normal md:border-t-0 md:border-r md:p-4 md:gap-2
-            md:h-dvh md:w-fit
-            max-md:dark:bg-surface-900/70 max-md:dark:opacity-80" :class="{ 'max-sm:opacity-30': isScrollDown && route.meta.navTransparent }" >
-<!--                , 'max-md:!hidden': !route.meta.nav }-->
+            md:h-dvh md:w-fit"
+                 :class="{ 'max-sm:opacity-30': isScrollDown && route.meta.navTransparent }" >
                 <div class="px-4 py-2 hidden md:block" >
                     <Logo position="center" />
                 </div>
@@ -40,7 +40,7 @@
             </div>
             
 <!--            Router-->
-            <div class="w-full">
+            <div class="w-full lg:max-w-[40rem]" v-if="loggedIn">
                 <div class="w-full">
                     <router-view v-slot="{ Component, route }">
                         <keep-alive :include="pageStore.cachedComponentArray">
@@ -55,17 +55,22 @@
             </div>
             
 <!--            Sidebar-->
-            <div class="hidden p-4 border-surface
-                        lg:block md:sticky md:h-dvh md:top-0 md:border-l md:max-w-sm">
-                <Card class="w-full">
-                    <template #title>Simple Card</template>
-                    <template #content>
-                        <p class="m-0" id="aside">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-                            quas!
-                        </p>
-                    </template>
-                </Card>
+            <div class="hidden p-4 border-surface w-[20rem] flex-shrink-0
+                        lg:block md:sticky md:h-dvh md:top-0 md:border-l">
+                <EListItem enable-slot rounded class="!p-0 overflow-hidden" :interactive="false">
+                    <div class="w-72 h-72 relative">
+                        <img :src="userStore.userInfo.avatar" class="h-full w-full object-cover" alt="avatar"/>
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-surface-100 dark:to-surface-800"></div>
+                        <div class="absolute bottom-0 p-4 font-bold">
+                            {{ t('base.welcome', { nickname: userStore.userInfo.nickname }) }}
+                        </div>
+                    </div>
+                </EListItem>
+                <EListItem enable-slot rounded :interactive="false" class="mt-2">
+                    <div class="text-xl font-bold">
+                        {{ formattedTime }}
+                    </div>
+                </EListItem>
             </div>
             
 <!--            Navi-->
@@ -91,9 +96,11 @@ import {useChatStore} from "@/stores/chatStore.js";
 import {usePageStore} from "@/stores/pageStore.js";
 import ProgressBar from "primevue/progressbar";
 import LoadingNotification from "@/components/natively/LoadingNotification.vue";
-import { toast } from 'vue3-toastify';
 import {useWsStore} from "@/stores/wsStore.js";
 import {apiGetCurrent} from "@/api/user.js";
+import {toast} from "vue3-toastify";
+import EListItem from "@/components/etsuya/EListItem.vue";
+import { useRealtimeTime } from "@/utils/reatimeTime.js";
 
 const { t, locale, availableLocales } = useI18n();
 const route = useRoute();
@@ -104,6 +111,12 @@ const wsStore = useWsStore();
 const {isScrollDown} = useScroll();
 const pageStore = usePageStore();
 const router = useRouter();
+
+// login
+const loggedIn = ref(false);
+
+// time
+const { localizedDate, formattedTime } = useRealtimeTime();
 
 // connect
 const reconnectToastId = 'reconnect';
@@ -141,7 +154,7 @@ const connectionNotificationWatch = (newVal, oldValue) => {
         })
     }
 }
-watch(() => chatStore.connected, connectionNotificationWatch);
+watch(() => wsStore.connected, connectionNotificationWatch);
 
 // navi
 const naviStore = useNaviStore();
@@ -156,19 +169,32 @@ let menuItem = ref([
     { name: t('common.me'), icon: 'pi pi-user', to: { name: 'More' }, value: 'More' }
 ]);
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    if(!accessToken){
+        await router.push({ name: 'Welcome' });
+        return;
+    }
+    try {
+        await userStore.update();
+    } catch (e){
+        const title = t('user.loginSessionExpired');
+        toast.warn(title);
+        await router.push({ name: 'Welcome' });
+        return;
+    }
+    loggedIn.value = true;
     wsStore.connect();
     chatStore.init();
     naviStore.init();
 })
 
 onMounted(() => {
-    apiGetCurrent().then(res => {
-        userStore.userInfo = res;
-    })
     setTimeout(() => {
-        if(chatStore.connected === false){
-            connectionNotificationWatch(false, true);
+        if(wsStore.connected === false){
+            if(route.matched && route.matched[0].name === 'Base'){
+                connectionNotificationWatch(false, true);
+            }
         }
     }, 5000);
 });

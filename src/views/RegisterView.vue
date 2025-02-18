@@ -1,161 +1,199 @@
 <template>
     <div class="flex justify-center">
         <div class="flex w-full flex-col p-4 gap-4 max-w-screen-md items-center">
-            <ProgressBar class="!h-2 !w-full" :value="(progress - 1) * 12.5" :show-value="false" />
+            <ProgressBar class="!h-2 !w-full" :value="(progress - 2) * 20" :show-value="false" />
             <div class="flex flex-col gap-4 mt-12 md:items-center w-full">
                 <Logo size="lg" />
                 <div class="font-bold text-5xl flex items-center md:mt-4">
                     {{t('login.register')}}
                 </div>
             </div>
-            <Transition name="fade" mode="out-in" class="flex flex-col mt-4 gap-4 w-full md:mt-8 md:max-w-[28rem]">
-                <div v-if="progress === 1" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-envelope"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <InputText id="email" v-model="userInfo.email" />
-                            <label for="email">{{t('login.email')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Divider />
-                    <ThirdPartyLogin />
-                </div>
-                <div v-else-if="progress === 2" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-user"></i>
-                        </InputGroupAddon>
-                        <InputGroupAddon>
-                            @
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <InputText id="username" v-model="userInfo.username" />
-                            <label for="username">{{t('login.username')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <div class="text-center">
-                        <RouterLink class="text-surface-500" :to="{ name: 'Register'}">{{t('login.alreadyHaveAccount')}}</RouterLink>
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.usernameRule')}}
-                        </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 3" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-user"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <InputText id="nickname" v-model="userInfo.nickname" />
-                            <label for="nickname">{{t('login.nickname')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.nicknameRule')}}
-                        </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 4" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-lock"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <Password id="password" v-model="userInfo.password" />
-                            <label for="password">{{t('login.password')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.passwordRule')}}
-                        </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 5" class="flex flex-col gap-4">
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-lock"></i>
-                        </InputGroupAddon>
-                        <FloatLabel variant="in">
-                            <Password id="rePassword" v-model="userInfo.rePassword" :feedback="false" />
-                            <label for="rePassword">{{t('login.reenterYourPassword')}}</label>
-                        </FloatLabel>
-                    </InputGroup>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.rePasswordRule')}}
-                        </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 6" class="flex flex-col gap-4">
-                    <div class="">{{t('login.chooseLanguage')}}</div>
-                    <Button :label="t('login.addALanguage')" icon="pi pi-plus" @click="addLanguage" />
-                    <div v-if="userInfo.language.length > 0" class="flex flex-col gap-2">
-                        <div v-for="(item, index) in userInfo.language" :key="item.code">
-                            <div class="relative overflow-hidden border rounded-lg border-surface" :class="item.native? {'bg-primary-50': true, 'dark:bg-primary-900': true}: {}" >
-                                <div class="px-4 py-2 border-surface-200 mb-1 flex gap-4 items-center">
-<!--                                    <div class="text-3xl">🇫🇷</div>-->
-                                    <div class="font-bold text-xl">{{lang.find((ele) => ele.code === item.language).name}}</div>
-                                    <Button @click="editLanguage(index)" class="ml-auto" icon="pi pi-pencil" severity="secondary" />
-                                    <Button @click="deleteLanguage(index)" icon="pi pi-trash" severity="secondary" />
+            <div class="flex flex-col mt-4 gap-4 w-full md:mt-8 md:max-w-[28rem]">
+                <form>
+                    <div v-show="progress === 2" class="flex flex-col gap-4">
+                        <InputGroup>
+                            <InputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </InputGroupAddon>
+                            <InputGroupAddon>
+                                @
+                            </InputGroupAddon>
+                            <FloatLabel variant="in">
+                                <InputText 
+                                    id="username" 
+                                    name="username"
+                                    autocomplete="username"
+                                    v-model="userInfo.username" 
+                                    @keyup.enter="goNext" 
+                                />
+                                <label for="username">{{t('login.username')}}</label>
+                            </FloatLabel>
+                        </InputGroup>
+                        <Transition name="fade" mode="out-in">
+                            <EListItem rounded enable-slot danger v-if="errMsg">
+                                <div class="mb-2 font-bold">{{ t('login.error') }}</div>
+                                <div class="whitespace-pre-line">
+                                    {{ errMsg }}
                                 </div>
-                                <div class="absolute left-0 bottom-0 border-primary-500 border-2 w-full" :style="languageProficiencyStyle(item.proficiency)"></div>
+                            </EListItem>
+                        </Transition>
+                        <div class="flex gap-2">
+                            <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
+                        </div>
+                        <div class="text-center">
+                            <RouterLink class="text-surface-500" :to="{ name: 'Login'}">{{t('login.alreadyHaveAccount')}}</RouterLink>
+                        </div>
+                        <ThirdPartyLogin />
+                        <EListItem rounded enable-slot>
+                            <div class="mb-2 font-bold">{{ t('login.rule') }}</div>
+                            <div class="whitespace-pre-line">
+                                {{t('login.usernameRule')}}
+                            </div>
+                        </EListItem>
+                    </div>
+                    <div v-show="progress === 3" class="flex flex-col gap-4">
+                        <InputGroup>
+                            <InputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </InputGroupAddon>
+                            <FloatLabel variant="in">
+                                <InputText 
+                                    id="nickname" 
+                                    name="nickname"
+                                    autocomplete="nickname"
+                                    v-model="userInfo.nickname" 
+                                    @keyup.enter="goNext" 
+                                />
+                                <label for="nickname">{{t('login.nickname')}}</label>
+                            </FloatLabel>
+                        </InputGroup>
+                        <Transition name="fade" mode="out-in">
+                            <EListItem rounded enable-slot danger v-if="errMsg">
+                                <div class="mb-2 font-bold">{{ t('login.error') }}</div>
+                                <div class="whitespace-pre-line">
+                                    {{ errMsg }}
+                                </div>
+                            </EListItem>
+                        </Transition>
+                        <div class="flex gap-2">
+                            <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                            <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
+                        </div>
+                        <EListItem rounded enable-slot>
+                            <div class="mb-2 font-bold">{{ t('login.rule') }}</div>
+                            <div class="whitespace-pre-line">
+                                {{t('login.nicknameRule')}}
+                            </div>
+                        </EListItem>
+                    </div>
+                    <div v-show="progress === 4" class="flex flex-col gap-4">
+                        <InputGroup>
+                            <InputGroupAddon>
+                                <i class="pi pi-lock"></i>
+                            </InputGroupAddon>
+                            <FloatLabel variant="in">
+                                <Password 
+                                    id="password" 
+                                    name="password"
+                                    v-model="userInfo.password" 
+                                    prompt-label="😕"
+                                    weak-label="😕"
+                                    medium-label="😊"
+                                    strong-label="😄"
+                                    @keyup.enter="goNext"
+                                    :medium-regex="passwordRegexStr"
+                                    :strong-regex="strongPasswordRegexStr"
+                                    :input-props="{ autocomplete: 'current-password' }"
+                                />
+                                <label for="password">{{t('login.password')}}</label>
+                            </FloatLabel>
+                        </InputGroup>
+                        <Transition name="fade" mode="out-in">
+                            <EListItem rounded enable-slot danger v-if="errMsg">
+                                <div class="mb-2 font-bold">{{ t('login.error') }}</div>
+                                <div class="whitespace-pre-line">
+                                    {{ errMsg }}
+                                </div>
+                            </EListItem>
+                        </Transition>
+                        <div class="flex gap-2">
+                            <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                            <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
+                        </div>
+                        <EListItem rounded enable-slot>
+                            <div class="mb-2 font-bold">{{ t('login.rule') }}</div>
+                            <div class="whitespace-pre-line">
+                                {{t('login.passwordRule')}}
+                            </div>
+                        </EListItem>
+                    </div>
+                    <div v-show="progress === 5" class="flex flex-col gap-4">
+                            <InputGroup>
+                                <InputGroupAddon>
+                                    <i class="pi pi-lock"></i>
+                                </InputGroupAddon>
+                                <FloatLabel variant="in">
+                                    <Password 
+                                        id="rePassword" 
+                                        name="rePassword"
+                                        v-model="userInfo.rePassword" 
+                                        :feedback="false" 
+                                        @keyup.enter="goNext" 
+                                        :input-props="{ autocomplete: 'current-password' }"
+                                    />
+                                    <label for="rePassword">{{t('login.reenterYourPassword')}}</label>
+                                </FloatLabel>
+                            </InputGroup>
+                        <Transition name="fade" mode="out-in">
+                            <EListItem rounded enable-slot danger v-if="errMsg">
+                                <div class="mb-2 font-bold">{{ t('login.error') }}</div>
+                                <div class="whitespace-pre-line">
+                                    {{ errMsg }}
+                                </div>
+                            </EListItem>
+                        </Transition>
+                        <div class="flex gap-2">
+                            <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                            <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
+                        </div>
+                        <EListItem rounded enable-slot>
+                            <div class="mb-2 font-bold">{{ t('login.rule') }}</div>
+                            <div class="whitespace-pre-line">
+                                {{t('login.rePasswordRule')}}
+                            </div>
+                        </EListItem>
+                    </div>
+                    <div v-show="progress === 6" class="flex flex-col gap-4">
+                        <div class="">{{t('login.chooseLanguage')}}</div>
+                        <Button :label="t('login.addALanguage')" icon="pi pi-plus" @click="addLanguage" />
+                        <div v-if="userInfo.language.length > 0" class="flex flex-col gap-2">
+                            <div v-for="(item, index) in userInfo.language" :key="item.code">
+                                <div class="relative overflow-hidden border rounded-lg border-surface" :class="item.native? {'bg-primary-50': true, 'dark:bg-primary-900': true}: {}" >
+                                    <div class="px-4 py-2 border-surface-200 mb-1 flex gap-4 items-center">
+                                        <div class="font-bold text-xl">{{lang.find((ele) => ele.code === item.language).name}}</div>
+                                        <Button @click="editLanguage(index)" class="ml-auto" icon="pi pi-pencil" severity="secondary" />
+                                        <Button @click="deleteLanguage(index)" icon="pi pi-trash" severity="secondary" />
+                                    </div>
+                                    <div class="absolute left-0 bottom-0 border-primary-500 border-2 w-full" :style="languageProficiencyStyle(item.proficiency)"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <Transition name="fade" mode="out-in">
-                        <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
-                    </Transition>
-                    <div class="flex gap-2">
-                        <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
-                        <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
-                    </div>
-                    <Message severity="info">
-                        <div class="whitespace-pre-line">
-                            {{t('login.languageRule')}}
+                        <Transition name="fade" mode="out-in">
+                            <Message severity="error" v-if="errMsg">{{errMsg}}</Message>
+                        </Transition>
+                        <div class="flex gap-2">
+                            <Button class="w-full" :label="t('common.back')" severity="secondary" @click="goBack" />
+                            <Button class="w-full" :loading="nextLoading" :label="t('common.next')" @click="goNext" />
                         </div>
-                    </Message>
-                </div>
-                <div v-else-if="progress === 7" class="flex flex-col gap-4">
+                        <EListItem rounded enable-slot>
+                            <div class="mb-2 font-bold">{{ t('login.rule') }}</div>
+                            <div class="whitespace-pre-line">
+                                {{t('login.languageRule')}}
+                            </div>
+                        </EListItem>
+                    </div>
+                </form>
+                <div v-show="progress === 7" class="flex flex-col gap-4">
                     <div class="font-bold text-2xl">{{t('login.registerSuccess')}}</div>
                     <div class="text-surface-600">{{t('login.redirect')}}</div>
                     <div class="flex">
@@ -164,7 +202,7 @@
                         </RouterLink>
                     </div>
                 </div>
-            </Transition>
+            </div>
         </div>
         <Dialog class="min-w-80 max-w-[95%]" v-model:visible="addLangDialog" modal :header="langEditing >= 0? t('common.edit'): t('login.addALanguage')">
             <div class="mb-4 flex flex-col gap-2">
@@ -200,7 +238,7 @@ import Password from 'primevue/password';
 import {computed, onBeforeMount, onMounted, ref, toRaw} from "vue";
 import {apiEmailUnique, apiRegister, apiUsernameUnique} from "@/api/user.js";
 import Divider from 'primevue/divider';
-import {emailRegex, nicknameRegex, passwordRegex, usernameRegex} from "@/utils/regex.js";
+import {emailRegex, nicknameRegex, passwordRegex, passwordRegexStr, strongPasswordRegexStr, usernameRegex} from "@/utils/regex.js";
 import Message from 'primevue/message';
 import Select from 'primevue/select';
 import Dialog from "primevue/dialog";
@@ -210,6 +248,9 @@ import ThirdPartyLogin from "@/components/natively/ThirdPartyLogin.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useLanguageStore} from "@/stores/languageStore.js";
 import {useToast} from "@/utils/toast.js";
+import EListInput from "@/components/etsuya/EListInput.vue";
+import EListItem from "@/components/etsuya/EListItem.vue";
+import EList from "@/components/etsuya/EList.vue";
 
 const toast = useToast();
 const languageStore = useLanguageStore();
@@ -275,7 +316,7 @@ const editLanguage = (index) => {
 }
 
 //progress and validation
-let progress = ref(1);
+let progress = ref(2);
 let errMsg = ref('');
 let nextLoading = ref(false);
 const goBack = () => {
@@ -333,6 +374,11 @@ const goNext = async () => {
             try {
                 progress.value = Math.min(8, progress.value + 1)
                 let res = await apiRegister(toRaw(userInfo.value));
+                localStorage.setItem('accessToken', res.accessToken);
+                localStorage.setItem('refreshToken', res.refreshToken);
+                setTimeout(() => {
+                    router.push({ name: 'Home'})
+                }, 3500);
             } catch (err){
                 progress.value = Math.max(1, progress.value - 1);
                 errMsg.value = t('common.error');

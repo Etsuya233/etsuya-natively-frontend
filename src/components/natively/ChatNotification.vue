@@ -16,6 +16,8 @@
 </template>
 
 <script setup>
+import {useRouter} from "vue-router";
+
 const props = defineProps({
     nickname: {
         type: String,
@@ -26,6 +28,10 @@ const props = defineProps({
         default: ''
     },
     avatar: {
+        type: String,
+        default: ''
+    },
+    userId: {
         type: String,
         default: ''
     }

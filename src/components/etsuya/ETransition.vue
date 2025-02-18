@@ -5,6 +5,9 @@
 </template>
 
 <script setup>
+
+import {transitionIn, transitionOut} from "@/utils/transitionHelper.js";
+
 const props = defineProps({
     name: {
         default: 'fade'

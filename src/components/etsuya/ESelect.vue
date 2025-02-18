@@ -1,6 +1,7 @@
 <template>
     <div class="w-full">
-        <div class="py-3 px-4  bg-slate-100 transition-colors transform-gpu text-slate-800 hover:bg-slate-200 active:bg-slate-300"
+        <div class="py-3 px-4  bg-slate-100 dark:bg-surface-800 transition-colors transform-gpu
+        text-slate-800 dark:text-surface-100 hover:bg-slate-200 hover:dark:bg-surface-700 active:bg-slate-300 active:dark:bg-surface-600"
              :class="{ 'rounded-2xl': props.rounded }"
              @click="listVisible = true">
             {{ selected[props.displayField] }}

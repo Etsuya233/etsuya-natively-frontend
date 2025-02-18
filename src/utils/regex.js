@@ -21,3 +21,5 @@ export const emailRegex = new RegExp(emailRegexStr);
 // 性别正则表达式
 export const genderRegexStr = "^[0-2]$";
 export const genderRegex = new RegExp(genderRegexStr);
+
+export const strongPasswordRegexStr = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{};:,<.>])[A-Za-z\\d!@#$%^&*()\\-_=+{};:,<.>]{8,}$";

@@ -2,7 +2,7 @@
     <div class="w-full">
         <EHeader class='sticky top-0 z-10 transition-opacity transform-gpu hover:!opacity-100' :title="t('chat.contact')" />
         <div class="w-full">
-            <div class="flex flex-col divide-y">
+            <div class="flex flex-col divide-y *:border-surface">
                 <UserEntry class="px-4 py-2" v-for="item in contacts" :value="item" @click="router.push({ name: 'Chat', params: { id: item.id }})" />
                 <div></div>
             </div>

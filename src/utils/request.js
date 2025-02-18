@@ -45,7 +45,7 @@ const request = (options) => {
                             .catch((err) => reject(err));
                         return res.data;
                     }).catch((err) => {
-                        router.push({name: 'Welcome'});
+                        router.replace({name: 'Welcome'});
                         toast.add({
                             title: `Error: ${data.code}`,
                             content: `${data.msg}`,
